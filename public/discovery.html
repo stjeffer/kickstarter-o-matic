@@ -1216,6 +1216,9 @@ document.addEventListener('keydown', e=>{
       state.selection.connId=null; renderConnections(); save();
     }
   }
+  if((e.key==='Tab') && !isEditing() && state.canvasType==='mindmap' && state.selection.cardId){
+    e.preventDefault(); addMindmapChild(state.selection.cardId);
+  }
   if(e.key==='Escape'){ clearSelection(); }
 });
 document.addEventListener('keyup', e=>{ if(e.code==='Space'){spaceDown=false; viewport.style.cursor=''} });
