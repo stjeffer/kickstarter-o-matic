@@ -848,7 +848,7 @@ $("fileInput").onchange = (e) => {
   r.readAsText(f);
 };
 $("btnExport").onclick = exportJson;
-$("btnLoadSample").onclick = () => { applyImport(structuredClone(SAMPLE)); };
+$("btnLoadSample").onclick = () => { applyImport(structuredClone(SAMPLE)); fitToView(); };
 $("btnClear").onclick = () => {
   if (!confirm("Clear the entire canvas?")) return;
   state.title = "Untitled Discovery"; state.type = "whiteboard";
@@ -858,7 +858,7 @@ $("btnClear").onclick = () => {
 };
 
 $("canvasTitle").oninput = e => { state.title = e.target.value; save(); };
-$("canvasType").onchange = e => { state.type = e.target.value; render(); };
+$("canvasType").onchange = e => { state.type = e.target.value; render(); fitToView(); };
 
 $("btnAddLane").onclick = () => {
   const name = $("newLaneName").value.trim();
