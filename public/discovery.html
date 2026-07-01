@@ -501,6 +501,37 @@
     font-size:9px;font-weight:700;letter-spacing:.1em;background:var(--ink);color:#fff;padding:2px 6px;border-radius:4px;
   }
 
+  /* Prompt / discussion card — large, readable, premium */
+  .card.prompt .card-body{
+    width:320px;min-height:160px;padding:20px 22px 24px;
+    background:linear-gradient(180deg,#ffffff,#f8fbff);
+    border:1px solid #d6e3f8;border-radius:18px;
+    box-shadow:0 10px 28px -12px rgba(10,132,255,.25), var(--shadow-2);
+    font-size:15px;line-height:1.55;color:var(--ink);
+    position:relative;
+  }
+  .card.prompt .card-body::before{
+    content:'PROMPT';position:absolute;top:-9px;left:18px;
+    font-size:9px;font-weight:700;letter-spacing:.12em;background:var(--accent);color:#fff;padding:2px 8px;border-radius:4px;
+  }
+  .card.prompt .prompt-tag{
+    font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--accent);margin:2px 0 10px;
+  }
+  .card.prompt .prompt-text{font-family:'Space Grotesk','Inter',sans-serif;font-size:18px;line-height:1.45;letter-spacing:-.015em;color:var(--ink);font-weight:500}
+  .card.prompt .prompt-text[contenteditable="true"]{font-family:'Inter',sans-serif;font-size:16px;font-weight:400;outline:none}
+
+  /* Resize handle */
+  .resize-handle{
+    position:absolute;right:4px;bottom:4px;width:14px;height:14px;cursor:nwse-resize;z-index:10;
+    opacity:0;transition:opacity .15s;
+  }
+  .resize-handle::after{
+    content:'';position:absolute;right:0;bottom:0;width:10px;height:10px;
+    background:linear-gradient(135deg, transparent 45%, var(--accent) 45%, var(--accent) 55%, transparent 55%),
+                linear-gradient(135deg, transparent 75%, var(--accent) 75%, var(--accent) 85%, transparent 85%);
+  }
+  .card:hover .resize-handle, .card.selected .resize-handle{opacity:1}
+
 
   .card-body{cursor:grab;position:relative;outline-offset:2px}
   .card.dragging .card-body{cursor:grabbing}
@@ -779,6 +810,8 @@ const CARD_TYPES = {
   gain:       { group:'Experience',   label:'Gain',      icon:gainIcon,      defaults:{ text:'Gain / opportunity', w:190, h:64 } },
   moment:     { group:'Experience',   label:'Moment',    icon:momentIcon,    defaults:{ text:'Journey moment', w:170, h:76 } },
   persona:    { group:'Experience',   label:'Persona',   icon:personaIcon,   defaults:{ text:'Name — role\nGoals · needs', w:200, h:110 } },
+  // Prompt / discussion cards
+  prompt:     { group:'Prompt',       label:'Prompt',    icon:promptIcon,     defaults:{ text:'Discussion prompt', w:320, h:180 } },
 };
 
 function stickyIcon(){return svgTag('<rect x="6" y="4" width="24" height="22" fill="#fff9b1" stroke="#e5c400" transform="rotate(-2 18 15)"/>')}
@@ -794,6 +827,7 @@ function painIcon(){return svgTag('<rect x="3" y="8" width="30" height="14" rx="
 function gainIcon(){return svgTag('<rect x="3" y="8" width="30" height="14" rx="7" fill="#f0fbf4" stroke="#34c759" stroke-width="1.3"/><polygon points="9,11 10.2,14 13.4,14 10.8,16 11.8,19 9,17.2 6.2,19 7.2,16 4.6,14 7.8,14" fill="#34c759"/><line x1="15" y1="14" x2="28" y2="14" stroke="#a4e0b8" stroke-width="1.3"/><line x1="15" y1="17" x2="25" y2="17" stroke="#a4e0b8" stroke-width="1.3"/>')}
 function momentIcon(){return svgTag('<rect x="4" y="7" width="28" height="16" rx="3" fill="#fff" stroke="#c7c7cc" stroke-width="1.2"/><rect x="4" y="7" width="28" height="3" fill="#0a84ff"/>')}
 function personaIcon(){return svgTag('<rect x="3" y="5" width="30" height="20" rx="4" fill="#fff" stroke="#1d1d1f" stroke-width="1.2"/><circle cx="10" cy="14" r="4" fill="url(#pg)" /><defs><linearGradient id="pg" x1="0" x2="1" y1="0" y2="1"><stop stop-color="#0a84ff"/><stop offset="1" stop-color="#5ac8fa"/></linearGradient></defs><line x1="17" y1="12" x2="29" y2="12" stroke="#c7c7cc" stroke-width="1.3"/><line x1="17" y1="16" x2="27" y2="16" stroke="#c7c7cc" stroke-width="1.3"/><line x1="17" y1="20" x2="25" y2="20" stroke="#c7c7cc" stroke-width="1.3"/>')}
+function promptIcon(){return svgTag('<rect x="4" y="5" width="28" height="20" rx="5" fill="#fff" stroke="#0a84ff" stroke-width="1.3"/><line x1="9" y1="12" x2="27" y2="12" stroke="#0a84ff" stroke-width="1.5" stroke-linecap="round"/><line x1="9" y1="17" x2="21" y2="17" stroke="#a4b8d4" stroke-width="1.5" stroke-linecap="round"/>')}
 function svgTag(inner){return `<svg width="36" height="30" viewBox="0 0 36 30">${inner}</svg>`}
 
 
@@ -882,6 +916,7 @@ function renderPalette(){
     {name:'Sticky Notes', short:'Stickies'},
     {name:'Flow Shapes',  short:'Shapes'},
     {name:'Experience',   short:'Experience'},
+    {name:'Prompt',       short:'Prompt'},
   ].filter(t=>groups[t.name]);
 
   if(!tabsMeta.find(t=>t.name===_activePaletteTab)) _activePaletteTab = tabsMeta[0]?.name;
@@ -1060,8 +1095,10 @@ function renderPrompts(){
     `;
     c.addEventListener('dragstart', e=>{
       const dragText = (p.activity && p.activity.prompt) ? p.activity.prompt : p.text;
+      const cat = p.category || (p.activity && p.activity.activityType) || '';
       e.dataTransfer.setData('application/x-prompt', dragText);
-      e.dataTransfer.setData('application/x-card-type', 'sticky');
+      e.dataTransfer.setData('application/x-card-type', 'prompt');
+      if(cat) e.dataTransfer.setData('application/x-prompt-category', cat);
       e.dataTransfer.effectAllowed='copy';
     });
     // Single click → open spotlight for discussion
@@ -1089,7 +1126,7 @@ function renderCards(){
 
 function buildCardEl(c){
   const def = CARD_TYPES[c.type] || CARD_TYPES.sticky;
-  const isText = ['sticky','note','quote','pain','gain','moment','persona'].includes(c.type);
+  const isText = ['sticky','note','quote','pain','gain','moment','persona','prompt'].includes(c.type);
   const isShape = ['process','decision','terminator','data','circle'].includes(c.type);
   const el = document.createElement('div');
   el.className = `card ${c.type} ${isShape?'shape':''}`;
@@ -1109,6 +1146,10 @@ function buildCardEl(c){
     body.innerHTML = `<div class="emoji">${escapeHtml(c.emoji||'😊')}</div><div class="txt">${escapeHtml(c.text||'')}</div>`;
   }else if(c.type==='decision'){
     body.innerHTML = `<div class="txt">${escapeHtml(c.text)}</div>`;
+  }else if(c.type==='prompt'){
+    body.innerHTML = `${c.category?`<div class="prompt-tag">${escapeHtml(c.category)}</div>`:''}<div class="prompt-text">${escapeHtml(c.text)}</div>`;
+    if(c.w) body.style.width = c.w+'px';
+    if(c.h) body.style.minHeight = c.h+'px';
   }else if(isText){
     body.textContent = c.text;
     body.style.whiteSpace = 'pre-wrap';
@@ -1117,6 +1158,13 @@ function buildCardEl(c){
   }
   if(c.color && (c.type==='sticky')) body.style.background = c.color;
   el.appendChild(body);
+
+  if(c.type==='prompt'){
+    const handle = document.createElement('div');
+    handle.className = 'resize-handle';
+    handle.addEventListener('mousedown', e=>{ e.stopPropagation(); startResize(c.id, e); });
+    el.appendChild(handle);
+  }
 
 
   ['top','right','bottom','left'].forEach(pos=>{
@@ -1193,6 +1241,41 @@ function curvePath(p1,p2,a1,a2){
   return `M ${p1.x} ${p1.y} C ${p1.x+c1.x} ${p1.y+c1.y}, ${p2.x+c2.x} ${p2.y+c2.y}, ${p2.x} ${p2.y}`;
 }
 
+// ============ Resize ============
+let resizeState=null;
+function startResize(id, e){
+  const c = state.cards.find(x=>x.id===id);
+  if(!c) return;
+  const el = getCardEl(id);
+  const body = el && el.querySelector('.card-body');
+  if(!body) return;
+  const start = clientToWorld(e.clientX, e.clientY);
+  const startW = body.offsetWidth;
+  const startH = body.offsetHeight;
+  resizeState = {id, startX:start.x, startY:start.y, startW, startH};
+  window.addEventListener('mousemove', onResizeMove);
+  window.addEventListener('mouseup', endResize);
+}
+function onResizeMove(e){
+  if(!resizeState) return;
+  const p = clientToWorld(e.clientX, e.clientY);
+  const c = state.cards.find(x=>x.id===resizeState.id);
+  if(!c) return;
+  const newW = Math.max(180, Math.round(resizeState.startW + (p.x - resizeState.startX)));
+  const newH = Math.max(80, Math.round(resizeState.startH + (p.y - resizeState.startY)));
+  c.w = newW; c.h = newH;
+  const el = getCardEl(c.id);
+  const body = el && el.querySelector('.card-body');
+  if(body){ body.style.width = newW+'px'; body.style.minHeight = newH+'px'; }
+  renderConnections();
+}
+function endResize(){
+  resizeState=null;
+  window.removeEventListener('mousemove', onResizeMove);
+  window.removeEventListener('mouseup', endResize);
+  save();
+}
+
 // ============ Interaction ============
 let dragState=null, panState=null, connectState=null, toolMode='select';
 
@@ -1205,6 +1288,7 @@ viewport.addEventListener('drop', e=>{
   e.preventDefault();
   const pt = clientToWorld(e.clientX, e.clientY);
   const promptText = e.dataTransfer.getData('application/x-prompt');
+  const promptCategory = e.dataTransfer.getData('application/x-prompt-category');
   const color = e.dataTransfer.getData('application/x-card-color');
   const emoji = e.dataTransfer.getData('application/x-card-emoji');
   const presetText = e.dataTransfer.getData('application/x-card-text');
@@ -1215,6 +1299,7 @@ viewport.addEventListener('drop', e=>{
     y: pt.y - def.h/2,
     text: promptText || presetText || def.text,
   };
+  if(promptCategory) card.category = promptCategory;
   if(color) card.color = color;
   if(emoji) card.emoji = emoji;
   else if(type==='emotion' && def.emoji) card.emoji = def.emoji;
@@ -1244,13 +1329,27 @@ cardsLayer.addEventListener('dblclick', e=>{
   const cardEl = e.target.closest('.card');
   if(!cardEl) return;
   const body = cardEl.querySelector('.card-body');
+  const c = state.cards.find(c=>c.id===cardEl.dataset.id);
+  if(c && c.type==='prompt'){
+    const ptext = body.querySelector('.prompt-text');
+    if(ptext){
+      ptext.setAttribute('contenteditable','true');
+      ptext.focus();
+      document.getSelection().selectAllChildren(ptext);
+      ptext.addEventListener('blur', ()=>{
+        ptext.removeAttribute('contenteditable');
+        c.text = ptext.textContent;
+        save(); renderConnections();
+      }, {once:true});
+      return;
+    }
+  }
   const txtEl = body.querySelector('.txt') || body;
   txtEl.setAttribute('contenteditable','true');
   txtEl.focus();
   document.getSelection().selectAllChildren(txtEl);
   txtEl.addEventListener('blur', ()=>{
     txtEl.removeAttribute('contenteditable');
-    const c = state.cards.find(c=>c.id===cardEl.dataset.id);
     if(c){ c.text = txtEl.textContent; save(); renderConnections(); }
   }, {once:true});
 });
@@ -1408,6 +1507,9 @@ function addCard(partial){
     y: partial.y ?? 200,
     text: partial.text ?? 'New idea',
     color: partial.color,
+    category: partial.category,
+    w: partial.w,
+    h: partial.h,
   };
   state.cards.push(c);
   renderCards();
@@ -1733,7 +1835,8 @@ function openBrief(prompt){
   }
   $('#briefBody').innerHTML = parts.join('') || '<p style="color:var(--muted)">No additional detail.</p>';
   $('#briefDrop').onclick = ()=>{
-    addCard({ type:'sticky', text: a.prompt || prompt.text, x:260, y:200 });
+    const cat = prompt.category || a.activityType || '';
+    addCard({ type:'prompt', text: a.prompt || prompt.text, category: cat, x:260, y:200 });
     $('#briefModal').classList.remove('open');
   };
 
@@ -1779,7 +1882,8 @@ $('#spotDrop').addEventListener('click', ()=>{
   const r = viewport.getBoundingClientRect();
   const cx = (r.width/2 - state.view.x)/state.view.scale;
   const cy = (r.height/2 - state.view.y)/state.view.scale;
-  addCard({ type:'sticky', text, x: cx-110, y: cy-70 });
+  const cat = currentSpotPrompt.category || (a.activityType) || '';
+  addCard({ type:'prompt', text, category: cat, x: cx-160, y: cy-90 });
 });
 
 // Drag spotlight by header
