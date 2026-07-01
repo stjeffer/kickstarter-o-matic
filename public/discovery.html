@@ -1354,11 +1354,35 @@ function escapeHtml(s){return String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;',
 function hexA(hex,a){const h=hex.replace('#','');const n=parseInt(h,16);const r=(n>>16)&255,g=(n>>8)&255,b=n&255;return `rgba(${r},${g},${b},${a})`}
 
 // ============ Top toolbar wiring ============
+const CANVAS_META = {
+  whiteboard:  { label:'Whiteboard',           addLabel:'+ Sticky Note' },
+  hswimlanes:  { label:'Horizontal Swimlanes', addLabel:'+ Add Card'    },
+  vswimlanes:  { label:'Vertical Swimlanes',   addLabel:'+ Add Card'    },
+  matrix2x2:   { label:'2×2 Matrix',           addLabel:'+ Add Item'    },
+  journey:     { label:'Journey Map',          addLabel:'+ Add Step'    },
+  empathy:     { label:'Empathy Map',          addLabel:'+ Observation' },
+  mindmap:     { label:'Mind Map',             addLabel:'+ Add Branch'  },
+};
+function applyCanvasTheme(){
+  const ct = state.canvasType || 'whiteboard';
+  const meta = CANVAS_META[ct] || CANVAS_META.whiteboard;
+  const stage = $('#stage'); if(stage) stage.setAttribute('data-canvas', ct);
+  world.className = 'world ' + ct;
+  const badge = $('#canvasBadgeText'); if(badge) badge.textContent = meta.label;
+  const addBtn = $('#btnAddIdea'); if(addBtn){
+    addBtn.textContent = (ct==='mindmap' && state.selection && state.selection.cardId) ? '+ Add Child' : meta.addLabel;
+  }
+}
+function viewportCenterWorld(){
+  const rect = viewport.getBoundingClientRect();
+  return clientToWorld(rect.left + rect.width/2, rect.top + rect.height/2);
+}
 $('#canvasType').addEventListener('change', e=>{
   state.canvasType=e.target.value;
   if(state.canvasType==='mindmap' && !state.cards.length){
     addCard({ type:'process', text:'Central Idea', x:WORLD_W/2 - 90, y:WORLD_H/2 - 30, color:'#e6f0ff' });
   }
+  applyCanvasTheme();
   renderLanesLayer(); save();
 });
 $('#btnAddLane').addEventListener('click', ()=>{
@@ -1370,7 +1394,11 @@ $('#btnAddIdea').addEventListener('click', ()=>{
   if(state.canvasType==='mindmap' && state.selection.cardId){
     addMindmapChild(state.selection.cardId); return;
   }
-  addCard({type:'sticky', x:400 + Math.random()*200, y:300 + Math.random()*200, text:'New idea'});
+  const c = viewportCenterWorld();
+  const type = state.canvasType==='journey' ? 'process'
+             : state.canvasType==='empathy' ? 'note'
+             : 'sticky';
+  addCard({type, x:c.x - 90 + (Math.random()*40-20), y:c.y - 65 + (Math.random()*40-20), text:'New idea'});
 });
 $('#btnClear').addEventListener('click', ()=>{
   if(!confirm('Clear all swimlanes, prompts, questions, cards and connections?')) return;
