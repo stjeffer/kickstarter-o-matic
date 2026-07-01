@@ -458,13 +458,22 @@ const state = {
 };
 
 const CARD_TYPES = {
-  sticky:     { label:'Sticky',    icon:stickyIcon,    defaults:{ text:'New idea', w:180, h:130 } },
-  note:       { label:'Note',      icon:noteIcon,      defaults:{ text:'Note',     w:220, h:100 } },
-  process:    { label:'Process',   icon:rectIcon,      defaults:{ text:'Process',  w:160, h:80  } },
-  decision:   { label:'Decision',  icon:diamondIcon,   defaults:{ text:'Decision', w:140, h:140 } },
-  terminator: { label:'Start/End', icon:pillIcon,      defaults:{ text:'Start',    w:160, h:64  } },
-  data:       { label:'Data',      icon:paraIcon,      defaults:{ text:'Data',     w:170, h:76  } },
-  circle:     { label:'Circle',    icon:circleIcon,    defaults:{ text:'Node',     w:100, h:100 } },
+  // Sticky notes
+  sticky:     { group:'Sticky Notes', label:'Sticky',    icon:stickyIcon,    defaults:{ text:'New idea', w:180, h:130 } },
+  note:       { group:'Sticky Notes', label:'Note',      icon:noteIcon,      defaults:{ text:'Note',     w:220, h:100 } },
+  // Flow shapes
+  process:    { group:'Flow Shapes',  label:'Process',   icon:rectIcon,      defaults:{ text:'Process',  w:160, h:80  } },
+  decision:   { group:'Flow Shapes',  label:'Decision',  icon:diamondIcon,   defaults:{ text:'Decision', w:140, h:140 } },
+  terminator: { group:'Flow Shapes',  label:'Start/End', icon:pillIcon,      defaults:{ text:'Start',    w:160, h:64  } },
+  data:       { group:'Flow Shapes',  label:'Data',      icon:paraIcon,      defaults:{ text:'Data',     w:170, h:76  } },
+  circle:     { group:'Flow Shapes',  label:'Node',      icon:circleIcon,    defaults:{ text:'Node',     w:100, h:100 } },
+  // Experience cards
+  emotion:    { group:'Experience',   label:'Emotion',   icon:emotionIcon,   defaults:{ text:'Happy', emoji:'😊', w:120, h:120 } },
+  quote:      { group:'Experience',   label:'Quote',     icon:quoteIcon,     defaults:{ text:'Type a customer quote…', w:220, h:96 } },
+  pain:       { group:'Experience',   label:'Pain',      icon:painIcon,      defaults:{ text:'Pain point', w:190, h:64 } },
+  gain:       { group:'Experience',   label:'Gain',      icon:gainIcon,      defaults:{ text:'Gain / opportunity', w:190, h:64 } },
+  moment:     { group:'Experience',   label:'Moment',    icon:momentIcon,    defaults:{ text:'Journey moment', w:170, h:76 } },
+  persona:    { group:'Experience',   label:'Persona',   icon:personaIcon,   defaults:{ text:'Name — role\nGoals · needs', w:200, h:110 } },
 };
 
 function stickyIcon(){return svgTag('<rect x="6" y="4" width="24" height="22" fill="#fff9b1" stroke="#e5c400" transform="rotate(-2 18 15)"/>')}
@@ -474,7 +483,14 @@ function diamondIcon(){return svgTag('<polygon points="18,3 33,15 18,27 3,15" fi
 function pillIcon(){return svgTag('<rect x="4" y="8" width="28" height="14" rx="7" fill="#eaf4ff" stroke="#0a84ff" stroke-width="1.5"/>')}
 function paraIcon(){return svgTag('<polygon points="8,7 33,7 28,23 3,23" fill="#f0fff4" stroke="#34c759" stroke-width="1.5"/>')}
 function circleIcon(){return svgTag('<circle cx="18" cy="15" r="11" fill="#fff5e6" stroke="#ff9500" stroke-width="1.5"/>')}
+function emotionIcon(){return svgTag('<circle cx="18" cy="15" r="11" fill="#fff" stroke="#1d1d1f" stroke-width="1.2"/><circle cx="14" cy="13" r="1.3" fill="#1d1d1f"/><circle cx="22" cy="13" r="1.3" fill="#1d1d1f"/><path d="M13 18 Q18 22 23 18" stroke="#1d1d1f" stroke-width="1.3" fill="none" stroke-linecap="round"/>')}
+function quoteIcon(){return svgTag('<rect x="3" y="5" width="30" height="20" rx="4" fill="#fff" stroke="#0a84ff" stroke-width="1.3"/><text x="8" y="21" font-family="Georgia,serif" font-size="18" font-style="italic" fill="#0a84ff">"</text><line x1="16" y1="13" x2="28" y2="13" stroke="#c9dcf2" stroke-width="1.3"/><line x1="16" y1="17" x2="26" y2="17" stroke="#c9dcf2" stroke-width="1.3"/>')}
+function painIcon(){return svgTag('<rect x="3" y="8" width="30" height="14" rx="7" fill="#fff5f4" stroke="#ff3b30" stroke-width="1.3"/><circle cx="9" cy="15" r="2" fill="#ff3b30"/><line x1="14" y1="14" x2="28" y2="14" stroke="#ffb4ac" stroke-width="1.3"/><line x1="14" y1="17" x2="24" y2="17" stroke="#ffb4ac" stroke-width="1.3"/>')}
+function gainIcon(){return svgTag('<rect x="3" y="8" width="30" height="14" rx="7" fill="#f0fbf4" stroke="#34c759" stroke-width="1.3"/><polygon points="9,11 10.2,14 13.4,14 10.8,16 11.8,19 9,17.2 6.2,19 7.2,16 4.6,14 7.8,14" fill="#34c759"/><line x1="15" y1="14" x2="28" y2="14" stroke="#a4e0b8" stroke-width="1.3"/><line x1="15" y1="17" x2="25" y2="17" stroke="#a4e0b8" stroke-width="1.3"/>')}
+function momentIcon(){return svgTag('<rect x="4" y="7" width="28" height="16" rx="3" fill="#fff" stroke="#c7c7cc" stroke-width="1.2"/><rect x="4" y="7" width="28" height="3" fill="#0a84ff"/>')}
+function personaIcon(){return svgTag('<rect x="3" y="5" width="30" height="20" rx="4" fill="#fff" stroke="#1d1d1f" stroke-width="1.2"/><circle cx="10" cy="14" r="4" fill="url(#pg)" /><defs><linearGradient id="pg" x1="0" x2="1" y1="0" y2="1"><stop stop-color="#0a84ff"/><stop offset="1" stop-color="#5ac8fa"/></linearGradient></defs><line x1="17" y1="12" x2="29" y2="12" stroke="#c7c7cc" stroke-width="1.3"/><line x1="17" y1="16" x2="27" y2="16" stroke="#c7c7cc" stroke-width="1.3"/><line x1="17" y1="20" x2="25" y2="20" stroke="#c7c7cc" stroke-width="1.3"/>')}
 function svgTag(inner){return `<svg width="36" height="30" viewBox="0 0 36 30">${inner}</svg>`}
+
 
 const LANE_COLORS = ['#0a84ff','#34c759','#ff9500','#af52de','#ff2d55','#5ac8fa','#ffcc00'];
 
