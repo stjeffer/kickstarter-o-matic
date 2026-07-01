@@ -676,6 +676,36 @@
   </div>
 </div>
 
+<!-- Prompt Spotlight: large, resizable, draggable discussion panel -->
+<div class="spotlight" id="spotlight" role="dialog" aria-labelledby="spotTitle">
+  <div class="spotlight-header" id="spotHeader">
+    <span class="spotlight-dot"></span>
+    <span class="spotlight-cat" id="spotCat"></span>
+    <span class="spotlight-meta" id="spotMeta"></span>
+    <button class="spotlight-close" id="spotClose" title="Close">×</button>
+  </div>
+  <div class="spotlight-body">
+    <h2 class="spotlight-title" id="spotTitle"></h2>
+    <div class="spotlight-prompt" id="spotPrompt"></div>
+    <p class="spotlight-context" id="spotContext" style="display:none"></p>
+    <div id="spotNotesWrap" style="display:none">
+      <p class="spotlight-section-label">Facilitator notes</p>
+      <p class="spotlight-notes" id="spotNotes"></p>
+    </div>
+    <div id="spotCaptureWrap" style="display:none">
+      <p class="spotlight-section-label">Capture</p>
+      <div class="spotlight-chips" id="spotChips"></div>
+    </div>
+  </div>
+  <div class="spotlight-footer">
+    <span class="hint">Drag header to move · Drag corner to resize</span>
+    <button class="btn" id="spotDrop">Drop on canvas</button>
+    <button class="btn primary" id="spotDone">Done</button>
+  </div>
+</div>
+
+
+
 <div class="modal-backdrop" id="sessionModal">
   <div class="modal" style="width:560px">
     <h2>Session details</h2>
