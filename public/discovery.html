@@ -1056,7 +1056,7 @@ function renderPrompts(){
     c.innerHTML = `
       ${p.category?`<div class="prompt-cat">${escapeHtml(p.category)}</div>`:''}
       <div class="prompt-text">${escapeHtml(p.text)}</div>
-      ${hasBrief?`<button class="prompt-info" title="Open facilitator brief" aria-label="Open facilitator brief">i</button>`:''}
+      <button class="prompt-info" title="Open in spotlight" aria-label="Open in spotlight">↗</button>
     `;
     c.addEventListener('dragstart', e=>{
       const dragText = (p.activity && p.activity.prompt) ? p.activity.prompt : p.text;
@@ -1064,14 +1064,18 @@ function renderPrompts(){
       e.dataTransfer.setData('application/x-card-type', 'sticky');
       e.dataTransfer.effectAllowed='copy';
     });
+    // Single click → open spotlight for discussion
+    c.addEventListener('click', ev=>{
+      if(ev.target.closest('.prompt-info')) return;
+      openSpotlight(p);
+    });
     const info = c.querySelector('.prompt-info');
     if(info){
-      info.addEventListener('click', ev=>{ ev.stopPropagation(); openBrief(p); });
+      info.addEventListener('click', ev=>{ ev.stopPropagation(); openSpotlight(p); });
       info.addEventListener('mousedown', ev=> ev.stopPropagation());
     }
-    if(hasBrief){
-      c.addEventListener('dblclick', ()=> openBrief(p));
-    }
+    c.addEventListener('dblclick', ()=> openSpotlight(p));
+
     el.appendChild(c);
   });
 
