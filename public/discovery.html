@@ -809,6 +809,14 @@ function renderLanes(){
 function renderLanesLayer(){
   lanesLayer.innerHTML='';
   const ct = state.canvasType;
+  world.classList.toggle('mindmap', ct==='mindmap');
+  if(ct==='mindmap'){
+    const hub = document.createElement('div');
+    hub.className='mindmap-hub';
+    hub.style.left=(WORLD_W/2)+'px'; hub.style.top=(WORLD_H/2)+'px';
+    lanesLayer.appendChild(hub);
+    return;
+  }
   if(ct==='whiteboard') return;
   const bands = computeLaneBands();
   bands.forEach(b=>{
