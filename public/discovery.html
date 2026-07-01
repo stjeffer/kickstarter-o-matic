@@ -1239,6 +1239,26 @@ function addCard(partial){
   selectCard(c.id);
   save();
 }
+function addMindmapChild(parentId){
+  const parent = state.cards.find(c=>c.id===parentId);
+  if(!parent) return;
+  const cx = WORLD_W/2, cy = WORLD_H/2;
+  // count existing children to fan them out
+  const kidCount = state.connections.filter(c=>c.from===parentId).length;
+  const baseAngle = Math.atan2((parent.y+70)-cy, (parent.x+100)-cx);
+  const spread = (kidCount%2===0 ? 1 : -1) * (Math.ceil(kidCount/2) * 0.55);
+  const angle = baseAngle + spread;
+  const dist = parent.id ? 220 : 160;
+  const nx = (parent.x+100) + Math.cos(angle)*dist - 100;
+  const ny = (parent.y+40)  + Math.sin(angle)*dist - 30;
+  const child = {
+    id:'k'+Date.now()+Math.random().toString(36).slice(2,6),
+    type:'sticky', text:'New branch', x:nx, y:ny,
+  };
+  state.cards.push(child);
+  state.connections.push({ id:'c'+Date.now()+Math.random().toString(36).slice(2,6), from:parentId, to:child.id, fromSide:'auto', toSide:'auto' });
+  renderCards(); renderConnections(); selectCard(child.id); save();
+}
 function deleteCard(id){
   state.cards = state.cards.filter(c=>c.id!==id);
   state.connections = state.connections.filter(c=>c.from!==id && c.to!==id);
