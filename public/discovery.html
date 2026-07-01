@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Discovery Canvas</title>
+<style>
+  :root {
+    --bg: #0f1115;
+    --panel: #171a21;
+    --panel-2: #1f232c;
+    --border: #2a2f3a;
+    --text: #e6e8ee;
+    --muted: #8a92a3;
+    --accent: #6ea8ff;
+    --accent-2: #b58bff;
+    --danger: #ff6b6b;
+    --lane-bg: rgba(255,255,255,0.02);
+    --grid: rgba(255,255,255,0.04);
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; }
+  body {
+    font: 14px/1.4 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg); color: var(--text);
+    display: grid; grid-template-columns: 280px 1fr 320px; grid-template-rows: 48px 1fr;
+    grid-template-areas: "topbar topbar topbar" "left canvas right";
+    height: 100vh; overflow: hidden;
+  }
+  header {
+    grid-area: topbar; display: flex; align-items: center; gap: 12px;
+    padding: 0 14px; background: var(--panel); border-bottom: 1px solid var(--border);
+  }
+  header h1 { font-size: 14px; margin: 0; font-weight: 600; letter-spacing: .2px; }
+  header .spacer { flex: 1; }
+  button, .btn, select, input, textarea {
+    background: var(--panel-2); color: var(--text); border: 1px solid var(--border);
+    border-radius: 6px; padding: 6px 10px; font: inherit; outline: none;
+  }
+  button { cursor: pointer; transition: background .15s, border-color .15s; }
+  button:hover { background: #262b36; border-color: #3a4050; }
+  button.primary { background: var(--accent); color: #0b1220; border-color: var(--accent); font-weight: 600; }
+  button.primary:hover { background: #8fbcff; }
+  button.ghost { background: transparent; }
+  button.danger { background: transparent; color: var(--danger); border-color: #4a2a2a; }
+  aside {
+    background: var(--panel); border-right: 1px solid var(--border);
+    overflow-y: auto; padding: 14px;
+  }
+  aside.right { grid-area: right; border-right: none; border-left: 1px solid var(--border); }
+  aside.left { grid-area: left; }
+  aside h2 { font-size: 11px; text-transform: uppercase; letter-spacing: 1.2px; color: var(--muted); margin: 14px 0 8px; }
+  aside h2:first-child { margin-top: 0; }
+  .field { display: flex; flex-direction: column; gap: 4px; margin-bottom: 8px; }
+  .field label { font-size: 11px; color: var(--muted); }
+  .row { display: flex; gap: 6px; }
+  .row > * { flex: 1; }
+
+  /* Canvas */
+  main {
+    grid-area: canvas; position: relative; overflow: hidden;
+    background:
+      linear-gradient(var(--grid) 1px, transparent 1px) 0 0 / 24px 24px,
+      linear-gradient(90deg, var(--grid) 1px, transparent 1px) 0 0 / 24px 24px,
+      #0b0d12;
+  }
+  #canvas {
+    position: absolute; inset: 0; transform-origin: 0 0;
+  }
+  #canvasInner { position: relative; width: 4000px; height: 3000px; }
+
+  .lane {
+    position: absolute; background: var(--lane-bg);
+    border: 1px dashed var(--border); border-radius: 12px;
+    padding: 32px 12px 12px 12px;
+  }
+  .lane .lane-title {
+    position: absolute; top: 8px; left: 12px; font-size: 12px;
+    color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 1px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .lane .lane-title .dot { width: 8px; height: 8px; border-radius: 50%; }
+  .lane .lane-actions { position: absolute; top: 6px; right: 6px; display: none; gap: 4px; }
+  .lane:hover .lane-actions { display: flex; }
+  .lane-actions button { padding: 2px 6px; font-size: 11px; }
+
+  .idea {
+    position: absolute; width: 180px; min-height: 90px;
+    background: #ffe58a; color: #1a1a1a; border-radius: 6px;
+    padding: 10px 10px 22px; box-shadow: 0 4px 14px rgba(0,0,0,.35);
+    cursor: grab; user-select: none;
+    font-size: 13px; line-height: 1.35;
+  }
+  .idea:active { cursor: grabbing; }
+  .idea .idea-text { outline: none; white-space: pre-wrap; word-wrap: break-word; }
+  .idea .idea-meta {
+    position: absolute; bottom: 4px; left: 8px; right: 8px;
+    display: flex; justify-content: space-between; font-size: 10px; color: rgba(0,0,0,.5);
+  }
+  .idea .idea-del {
+    position: absolute; top: 2px; right: 4px; background: transparent; border: none;
+    color: rgba(0,0,0,.4); cursor: pointer; font-size: 14px; padding: 0 4px;
+  }
+  .idea .idea-del:hover { color: var(--danger); }
+
+  /* Zoom controls */
+  .zoom-controls {
+    position: absolute; bottom: 16px; right: 16px; display: flex; gap: 6px;
+    background: var(--panel); border: 1px solid var(--border); border-radius: 8px; padding: 4px;
+  }
+  .zoom-controls button { padding: 4px 10px; }
+
+  /* Prompt list */
+  .prompt-item {
+    background: var(--panel-2); border: 1px solid var(--border); border-radius: 6px;
+    padding: 8px 10px; margin-bottom: 6px; cursor: grab;
+  }
+  .prompt-item:hover { border-color: var(--accent); }
+  .prompt-item .q { font-size: 13px; }
+  .prompt-item .cat { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; margin-top: 2px; }
+
+  .lane-item {
+    display: flex; align-items: center; gap: 8px; padding: 6px 8px;
+    background: var(--panel-2); border: 1px solid var(--border); border-radius: 6px; margin-bottom: 4px;
+  }
+  .lane-item .swatch { width: 14px; height: 14px; border-radius: 4px; border: 1px solid rgba(255,255,255,.15); }
+  .lane-item .name { flex: 1; font-size: 13px; }
+  .lane-item button { padding: 2px 6px; font-size: 11px; }
+
+  .empty { color: var(--muted); font-size: 12px; font-style: italic; }
+
+  /* Modal */
+  .modal-backdrop {
+    position: fixed; inset: 0; background: rgba(0,0,0,.6);
+    display: none; align-items: center; justify-content: center; z-index: 100;
+  }
+  .modal-backdrop.open { display: flex; }
+  .modal {
+    background: var(--panel); border: 1px solid var(--border); border-radius: 10px;
+    padding: 20px; width: 560px; max-width: 92vw; max-height: 82vh; overflow: auto;
+  }
+  .modal h3 { margin: 0 0 12px; }
+  .modal textarea { width: 100%; min-height: 260px; font-family: ui-monospace, Menlo, monospace; font-size: 12px; }
+  .modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 12px; }
+
+  .canvas-type-pill {
+    display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px;
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    color: #0b1220; border-radius: 999px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Discovery Canvas</h1>
+  <span class="canvas-type-pill" id="canvasTypePill">Whiteboard</span>
+  <span class="spacer"></span>
+  <button id="btnImport">Import JSON</button>
+  <button id="btnExport">Export</button>
+  <button id="btnLoadSample" class="ghost">Load Sample</button>
+  <button id="btnClear" class="danger">Clear</button>
+</header>
+
+<aside class="left">
+  <h2>Canvas</h2>
+  <div class="field">
+    <label>Title</label>
+    <input id="canvasTitle" value="Untitled Discovery" />
+  </div>
+  <div class="field">
+    <label>Type</label>
+    <select id="canvasType">
+      <option value="whiteboard">Whiteboard (free)</option>
+      <option value="swimlanes-h">Swimlanes (horizontal)</option>
+      <option value="swimlanes-v">Swimlanes (vertical)</option>
+      <option value="matrix-2x2">2×2 Matrix</option>
+      <option value="journey">Journey Map</option>
+      <option value="empathy">Empathy Map</option>
+    </select>
+  </div>
+
+  <h2>Groupings / Swimlanes</h2>
+  <div id="laneList"></div>
+  <div class="row" style="margin-top:6px;">
+    <input id="newLaneName" placeholder="New lane name" />
+    <button id="btnAddLane">+ Add</button>
+  </div>
+
+  <h2>Add Idea</h2>
+  <div class="field">
+    <textarea id="newIdeaText" placeholder="Type an idea and press Add…" rows="3"></textarea>
+  </div>
+  <div class="row">
+    <select id="newIdeaLane"></select>
+    <button class="primary" id="btnAddIdea">+ Add Idea</button>
+  </div>
+</aside>
+
+<main>
+  <div id="canvas">
+    <div id="canvasInner"></div>
+  </div>
+  <div class="zoom-controls">
+    <button id="btnZoomOut">−</button>
+    <button id="btnZoomReset"><span id="zoomLabel">100%</span></button>
+    <button id="btnZoomIn">+</button>
+  </div>
+</main>
+
+<aside class="right">
+  <h2>Preconfigured Prompts</h2>
+  <p class="empty" id="promptsEmpty">Import a JSON config or load the sample to see prompts here. Click a prompt to drop it on the canvas.</p>
+  <div id="promptList"></div>
+</aside>
+
+<!-- Import modal -->
+<div class="modal-backdrop" id="importModal">
+  <div class="modal">
+    <h3>Import Configuration (JSON)</h3>
+    <p style="color:var(--muted);font-size:12px;margin-top:0;">
+      Paste JSON or choose a file. Schema:
+      <code>{ title, type, lanes:[{id,name,color}], prompts:[{id,category,question}] }</code>
+    </p>
+    <input type="file" id="fileInput" accept="application/json,.json" style="margin-bottom:8px;" />
+    <textarea id="jsonInput" placeholder='{"title":"...","type":"swimlanes-h","lanes":[...],"prompts":[...]}'></textarea>
+    <div class="modal-actions">
+      <button id="btnImportCancel" class="ghost">Cancel</button>
+      <button id="btnImportApply" class="primary">Import</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* -----------------------------------------------------------
+   Discovery Canvas — state + rendering
+   ----------------------------------------------------------- */
+
+const STICKY_COLORS = ["#ffe58a","#ffb3ba","#bae1ff","#baffc9","#ffdfba","#e0baff","#d0f0c0"];
+const LANE_COLORS  = ["#6ea8ff","#b58bff","#5cd6b1","#ffb86b","#ff7b9c","#ffd76b","#7be0ff"];
+
+const state = {
+  title: "Untitled Discovery",
+  type: "whiteboard",
+  lanes: [],   // {id, name, color}
+  ideas: [],   // {id, text, laneId, x, y, color, promptId?}
+  prompts: [], // {id, category, question}
+  zoom: 1,
+};
+
+const $ = (id) => document.getElementById(id);
+const uid = () => Math.random().toString(36).slice(2, 9);
+
+/* ---------- LocalStorage persistence ---------- */
+function save() {
+  localStorage.setItem("discovery-canvas", JSON.stringify(state));
+}
+function load() {
+  try {
+    const raw = localStorage.getItem("discovery-canvas");
+    if (raw) Object.assign(state, JSON.parse(raw));
+  } catch(e){}
+}
+
+/* ---------- Rendering ---------- */
+function render() {
+  $("canvasTitle").value = state.title;
+  $("canvasType").value = state.type;
+  $("canvasTypePill").textContent = labelForType(state.type);
+  renderLanes();
+  renderLaneOptions();
+  renderIdeas();
+  renderPrompts();
+  applyZoom();
+  save();
+}
+
+function labelForType(t) {
+  return ({
+    "whiteboard":"Whiteboard",
+    "swimlanes-h":"Swimlanes",
+    "swimlanes-v":"Swimlanes V",
+    "matrix-2x2":"2×2 Matrix",
+    "journey":"Journey Map",
+    "empathy":"Empathy Map",
+  })[t] || t;
+}
+
+/* ---------- Lane layout by canvas type ---------- */
+function computeLaneRects() {
+  const W = 4000, H = 3000, pad = 24;
+  const n = state.lanes.length || 1;
+  const rects = {};
+  if (state.type === "whiteboard") {
+    // no visible lane rectangles — but we still return full bounds for containment
+    state.lanes.forEach(l => rects[l.id] = { x: pad, y: pad, w: W - pad*2, h: H - pad*2 });
+    return rects;
+  }
+  if (state.type === "swimlanes-h") {
+    const laneH = (H - pad*2) / n;
+    state.lanes.forEach((l, i) => rects[l.id] = { x: pad, y: pad + i*laneH, w: W - pad*2, h: laneH - 12 });
+    return rects;
+  }
+  if (state.type === "swimlanes-v") {
+    const laneW = (W - pad*2) / n;
+    state.lanes.forEach((l, i) => rects[l.id] = { x: pad + i*laneW, y: pad, w: laneW - 12, h: H - pad*2 });
+    return rects;
+  }
+  if (state.type === "matrix-2x2") {
+    // first 4 lanes → quadrants
+    const halfW = (W - pad*2) / 2, halfH = (H - pad*2) / 2;
+    const positions = [[0,0],[1,0],[0,1],[1,1]];
+    state.lanes.slice(0,4).forEach((l, i) => {
+      const [cx,cy] = positions[i];
+      rects[l.id] = { x: pad + cx*halfW, y: pad + cy*halfH, w: halfW - 12, h: halfH - 12 };
+    });
+    return rects;
+  }
+  if (state.type === "journey" || state.type === "empathy") {
+    // columns
+    const laneW = (W - pad*2) / n;
+    state.lanes.forEach((l, i) => rects[l.id] = { x: pad + i*laneW, y: pad, w: laneW - 12, h: H - pad*2 });
+    return rects;
+  }
+  return rects;
+}
+
+function renderLanes() {
+  const inner = $("canvasInner");
+  inner.querySelectorAll(".lane").forEach(el => el.remove());
+  if (state.type === "whiteboard") return; // hide lane boxes
+
+  const rects = computeLaneRects();
+  state.lanes.forEach(l => {
+    const r = rects[l.id]; if (!r) return;
+    const el = document.createElement("div");
+    el.className = "lane";
+    el.style.left = r.x + "px"; el.style.top = r.y + "px";
+    el.style.width = r.w + "px"; el.style.height = r.h + "px";
+    el.innerHTML = `
+      <div class="lane-title"><span class="dot" style="background:${l.color}"></span>${escapeHtml(l.name)}</div>
+      <div class="lane-actions">
+        <button data-act="add" data-id="${l.id}">+ Idea</button>
+      </div>`;
+    inner.appendChild(el);
+  });
+
+  inner.querySelectorAll('.lane-actions button[data-act="add"]').forEach(b => {
+    b.onclick = () => addIdea({ laneId: b.dataset.id, text: "New idea" });
+  });
+}
+
+function renderIdeas() {
+  const inner = $("canvasInner");
+  inner.querySelectorAll(".idea").forEach(el => el.remove());
+  state.ideas.forEach(idea => {
+    const el = document.createElement("div");
+    el.className = "idea";
+    el.style.left = idea.x + "px";
+    el.style.top = idea.y + "px";
+    el.style.background = idea.color || "#ffe58a";
+    const lane = state.lanes.find(l => l.id === idea.laneId);
+    el.innerHTML = `
+      <button class="idea-del" title="Delete">×</button>
+      <div class="idea-text" contenteditable="true">${escapeHtml(idea.text)}</div>
+      <div class="idea-meta"><span>${lane ? escapeHtml(lane.name) : "—"}</span><span>${idea.promptId ? "★" : ""}</span></div>
+    `;
+    inner.appendChild(el);
+
+    // Edit
+    el.querySelector(".idea-text").addEventListener("blur", (e) => {
+      idea.text = e.target.innerText;
+      save();
+    });
+    // Delete
+    el.querySelector(".idea-del").onclick = () => {
+      state.ideas = state.ideas.filter(i => i.id !== idea.id);
+      render();
+    };
+    // Drag
+    makeDraggable(el, idea);
+  });
+}
+
+function renderLaneOptions() {
+  const sel = $("newIdeaLane");
+  sel.innerHTML = "";
+  if (!state.lanes.length) {
+    const opt = document.createElement("option");
+    opt.value = ""; opt.textContent = "(no lanes)";
+    sel.appendChild(opt);
+  }
+  state.lanes.forEach(l => {
+    const opt = document.createElement("option");
+    opt.value = l.id; opt.textContent = l.name;
+    sel.appendChild(opt);
+  });
+
+  const list = $("laneList");
+  list.innerHTML = "";
+  if (!state.lanes.length) {
+    list.innerHTML = '<p class="empty">No lanes yet.</p>';
+    return;
+  }
+  state.lanes.forEach(l => {
+    const row = document.createElement("div");
+    row.className = "lane-item";
+    row.innerHTML = `
+      <span class="swatch" style="background:${l.color}"></span>
+      <span class="name" contenteditable="true">${escapeHtml(l.name)}</span>
+      <button data-act="del" data-id="${l.id}">×</button>
+    `;
+    row.querySelector(".name").addEventListener("blur", (e) => {
+      l.name = e.target.innerText.trim() || l.name;
+      render();
+    });
+    row.querySelector('button[data-act="del"]').onclick = () => {
+      state.lanes = state.lanes.filter(x => x.id !== l.id);
+      state.ideas = state.ideas.filter(i => i.laneId !== l.id);
+      render();
+    };
+    list.appendChild(row);
+  });
+}
+
+function renderPrompts() {
+  const list = $("promptList");
+  list.innerHTML = "";
+  $("promptsEmpty").style.display = state.prompts.length ? "none" : "block";
+  state.prompts.forEach(p => {
+    const el = document.createElement("div");
+    el.className = "prompt-item";
+    el.innerHTML = `<div class="q">${escapeHtml(p.question)}</div>
+                    <div class="cat">${escapeHtml(p.category || "prompt")}</div>`;
+    el.onclick = () => {
+      const laneId = state.lanes[0]?.id || "";
+      addIdea({ text: p.question, laneId, promptId: p.id });
+    };
+    list.appendChild(el);
+  });
+}
+
+/* ---------- Actions ---------- */
+function addLane(name, color) {
+  const lane = {
+    id: uid(),
+    name: name || `Lane ${state.lanes.length + 1}`,
+    color: color || LANE_COLORS[state.lanes.length % LANE_COLORS.length],
+  };
+  state.lanes.push(lane);
+  render();
+  return lane;
+}
+
+function addIdea({ text = "New idea", laneId = "", x, y, color, promptId } = {}) {
+  const rects = computeLaneRects();
+  const r = rects[laneId];
+  if (x == null || y == null) {
+    if (r) {
+      x = r.x + 20 + Math.random() * Math.max(20, r.w - 220);
+      y = r.y + 40 + Math.random() * Math.max(20, r.h - 140);
+    } else {
+      x = 100 + Math.random() * 400;
+      y = 100 + Math.random() * 300;
+    }
+  }
+  const idea = {
+    id: uid(), text, laneId, x, y,
+    color: color || STICKY_COLORS[state.ideas.length % STICKY_COLORS.length],
+    promptId,
+  };
+  state.ideas.push(idea);
+  render();
+  return idea;
+}
+
+/* ---------- Drag ---------- */
+function makeDraggable(el, idea) {
+  let sx, sy, ox, oy, dragging = false;
+  el.addEventListener("mousedown", (e) => {
+    if (e.target.closest(".idea-del") || e.target.classList.contains("idea-text")) return;
+    dragging = true;
+    sx = e.clientX; sy = e.clientY; ox = idea.x; oy = idea.y;
+    e.preventDefault();
+  });
+  window.addEventListener("mousemove", (e) => {
+    if (!dragging) return;
+    const dx = (e.clientX - sx) / state.zoom;
+    const dy = (e.clientY - sy) / state.zoom;
+    idea.x = ox + dx; idea.y = oy + dy;
+    el.style.left = idea.x + "px"; el.style.top = idea.y + "px";
+  });
+  window.addEventListener("mouseup", () => {
+    if (!dragging) return;
+    dragging = false;
+    // reassign lane based on center point
+    const rects = computeLaneRects();
+    const cx = idea.x + 90, cy = idea.y + 45;
+    let matched = idea.laneId;
+    for (const [id, r] of Object.entries(rects)) {
+      if (cx >= r.x && cx <= r.x + r.w && cy >= r.y && cy <= r.y + r.h) { matched = id; break; }
+    }
+    if (matched !== idea.laneId) { idea.laneId = matched; renderIdeas(); }
+    save();
+  });
+}
+
+/* ---------- Zoom & pan ---------- */
+function applyZoom() {
+  $("canvas").style.transform = `scale(${state.zoom})`;
+  $("zoomLabel").textContent = Math.round(state.zoom * 100) + "%";
+}
+
+let panning = false, panStart = null, scrollStart = null;
+document.querySelector("main").addEventListener("mousedown", (e) => {
+  if (e.target.id === "canvas" || e.target.id === "canvasInner" || e.target.classList.contains("lane")) {
+    panning = true;
+    panStart = { x: e.clientX, y: e.clientY };
+    const c = $("canvas");
+    const t = new DOMMatrixReadOnly(getComputedStyle(c).transform);
+    scrollStart = { x: t.e, y: t.f };
+    e.preventDefault();
+  }
+});
+window.addEventListener("mousemove", (e) => {
+  if (!panning) return;
+  const dx = e.clientX - panStart.x;
+  const dy = e.clientY - panStart.y;
+  $("canvas").style.transform = `translate(${scrollStart.x + dx}px, ${scrollStart.y + dy}px) scale(${state.zoom})`;
+});
+window.addEventListener("mouseup", () => panning = false);
+
+document.querySelector("main").addEventListener("wheel", (e) => {
+  if (!e.ctrlKey && !e.metaKey) return;
+  e.preventDefault();
+  const delta = e.deltaY > 0 ? -0.1 : 0.1;
+  state.zoom = Math.min(2, Math.max(0.3, +(state.zoom + delta).toFixed(2)));
+  applyZoom();
+}, { passive: false });
+
+/* ---------- Utilities ---------- */
+function escapeHtml(s = "") {
+  return String(s).replace(/[&<>"']/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c]));
+}
+
+/* ---------- Import / Export ---------- */
+function openImport() { $("importModal").classList.add("open"); }
+function closeImport() { $("importModal").classList.remove("open"); $("jsonInput").value = ""; $("fileInput").value = ""; }
+
+function applyImport(config) {
+  if (!config || typeof config !== "object") throw new Error("Invalid config");
+  state.title = config.title || state.title;
+  state.type = config.type || state.type;
+  if (Array.isArray(config.lanes)) {
+    state.lanes = config.lanes.map((l, i) => ({
+      id: l.id || uid(),
+      name: l.name || `Lane ${i+1}`,
+      color: l.color || LANE_COLORS[i % LANE_COLORS.length],
+    }));
+  }
+  if (Array.isArray(config.prompts)) {
+    state.prompts = config.prompts.map(p => ({
+      id: p.id || uid(),
+      category: p.category || "",
+      question: p.question || String(p),
+    }));
+  }
+  if (Array.isArray(config.ideas)) {
+    state.ideas = config.ideas.map(i => ({
+      id: i.id || uid(), text: i.text || "", laneId: i.laneId || (state.lanes[0]?.id ?? ""),
+      x: i.x ?? 100, y: i.y ?? 100, color: i.color, promptId: i.promptId,
+    }));
+  }
+  render();
+}
+
+function exportJson() {
+  const data = { title: state.title, type: state.type, lanes: state.lanes, prompts: state.prompts, ideas: state.ideas };
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = (state.title || "discovery") + ".json";
+  a.click();
+}
+
+/* ---------- Sample data ---------- */
+const SAMPLE = {
+  title: "Product Discovery — Onboarding",
+  type: "swimlanes-h",
+  lanes: [
+    { name: "Users",        color: "#6ea8ff" },
+    { name: "Problems",     color: "#ff7b9c" },
+    { name: "Opportunities",color: "#5cd6b1" },
+    { name: "Solutions",    color: "#ffd76b" },
+  ],
+  prompts: [
+    { category: "Users",         question: "Who is the primary user we are serving?" },
+    { category: "Users",         question: "What is their day-to-day context?" },
+    { category: "Problems",      question: "What is the most painful step in the current flow?" },
+    { category: "Problems",      question: "Where do users drop off today?" },
+    { category: "Opportunities", question: "What outcomes would make this a 10x improvement?" },
+    { category: "Opportunities", question: "What emerging behavior could we amplify?" },
+    { category: "Solutions",     question: "What is the simplest thing that could work?" },
+    { category: "Solutions",     question: "What have competitors tried, and why did it fail?" },
+  ],
+};
+
+/* ---------- Wire up UI ---------- */
+$("btnImport").onclick = openImport;
+$("btnImportCancel").onclick = closeImport;
+$("btnImportApply").onclick = () => {
+  try {
+    const txt = $("jsonInput").value.trim();
+    if (!txt) return alert("Paste JSON or choose a file.");
+    applyImport(JSON.parse(txt));
+    closeImport();
+  } catch (e) { alert("Invalid JSON: " + e.message); }
+};
+$("fileInput").onchange = (e) => {
+  const f = e.target.files[0]; if (!f) return;
+  const r = new FileReader();
+  r.onload = () => { $("jsonInput").value = r.result; };
+  r.readAsText(f);
+};
+$("btnExport").onclick = exportJson;
+$("btnLoadSample").onclick = () => { applyImport(structuredClone(SAMPLE)); };
+$("btnClear").onclick = () => {
+  if (!confirm("Clear the entire canvas?")) return;
+  state.title = "Untitled Discovery"; state.type = "whiteboard";
+  state.lanes = []; state.ideas = []; state.prompts = [];
+  render();
+};
+
+$("canvasTitle").oninput = e => { state.title = e.target.value; save(); };
+$("canvasType").onchange = e => { state.type = e.target.value; render(); };
+
+$("btnAddLane").onclick = () => {
+  const name = $("newLaneName").value.trim();
+  addLane(name);
+  $("newLaneName").value = "";
+};
+$("newLaneName").addEventListener("keydown", e => { if (e.key === "Enter") $("btnAddLane").click(); });
+
+$("btnAddIdea").onclick = () => {
+  const text = $("newIdeaText").value.trim();
+  if (!text) return;
+  const laneId = $("newIdeaLane").value || (state.lanes[0]?.id ?? "");
+  addIdea({ text, laneId });
+  $("newIdeaText").value = "";
+};
+
+$("btnZoomIn").onclick    = () => { state.zoom = Math.min(2, +(state.zoom + 0.1).toFixed(2)); applyZoom(); };
+$("btnZoomOut").onclick   = () => { state.zoom = Math.max(0.3, +(state.zoom - 0.1).toFixed(2)); applyZoom(); };
+$("btnZoomReset").onclick = () => { state.zoom = 1; $("canvas").style.transform = "scale(1)"; };
+
+/* ---------- Init ---------- */
+load();
+if (!state.lanes.length && !state.ideas.length && !state.prompts.length) {
+  applyImport(structuredClone(SAMPLE));
+} else {
+  render();
+}
+</script>
+</body>
+</html>
