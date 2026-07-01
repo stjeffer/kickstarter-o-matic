@@ -479,11 +479,27 @@
 <div class="modal-backdrop" id="importModal">
   <div class="modal">
     <h2>Import Configuration</h2>
-    <p style="margin:0 0 8px;color:var(--muted);font-size:12px">Paste JSON with shape: <code>{ canvasType, lanes, prompts, cards, connections }</code></p>
+    <p style="margin:0 0 8px;color:var(--muted);font-size:12px">
+      Paste JSON in either shape:<br>
+      • Single canvas: <code>{ canvasType, lanes, prompts, cards, connections }</code><br>
+      • Facilitated session: <code>{ title, customer, description, stages:[{ name, canvasType, groupings, activities }] }</code>
+    </p>
     <textarea id="importText" style="width:100%;min-height:240px;font-family:'JetBrains Mono',monospace;font-size:12px"></textarea>
     <div class="actions">
       <button class="btn" id="importCancel">Cancel</button>
       <button class="btn primary" id="importConfirm">Import</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="briefModal">
+  <div class="modal" style="width:600px">
+    <h2 id="briefTitle" style="margin-bottom:4px"></h2>
+    <div id="briefMeta" style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:14px"></div>
+    <div id="briefBody" style="font-size:13px;line-height:1.55;color:var(--ink)"></div>
+    <div class="actions">
+      <button class="btn" id="briefClose">Close</button>
+      <button class="btn primary" id="briefDrop">Drop prompt on canvas</button>
     </div>
   </div>
 </div>
@@ -501,7 +517,9 @@ const state = {
   connections: [],
   selection: { cardId: null, connId: null },
   view: { x: 0, y: 0, scale: 1 },
+  session: null,        // { title, customer, description, stages:[...], activeIndex }
 };
+
 
 const CARD_TYPES = {
   // Sticky notes
