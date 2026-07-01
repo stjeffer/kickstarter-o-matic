@@ -539,36 +539,92 @@ const STICKY_COLORS = [
   {name:'Purple', color:'#e1bee7'},
 ];
 
+const EMOTION_PRESETS = [
+  {emoji:'😊', label:'Delighted', color:'#c8e6c9'},
+  {emoji:'🙂', label:'Content',   color:'#dcedc8'},
+  {emoji:'😐', label:'Neutral',   color:'#eeeeee'},
+  {emoji:'😕', label:'Confused',  color:'#ffe0b2'},
+  {emoji:'😟', label:'Worried',   color:'#ffccbc'},
+  {emoji:'😣', label:'Frustrated',color:'#ffcdd2'},
+];
+
+function makePaletteItem({label, title, iconHTML, dataMap}){
+  const it = document.createElement('div');
+  it.className = 'palette-item';
+  it.draggable = true;
+  if(title) it.title = title;
+  it.innerHTML = `<div class="palette-icon">${iconHTML}</div><div class="palette-label">${label}</div>`;
+  it.addEventListener('dragstart', e=>{
+    Object.entries(dataMap).forEach(([k,v])=> e.dataTransfer.setData(k, v));
+    e.dataTransfer.effectAllowed = 'copy';
+  });
+  return it;
+}
+
 function renderPalette(){
   const el = $('#palette');
   el.innerHTML = '';
+
+  // Group card types
+  const groups = {};
   Object.entries(CARD_TYPES).forEach(([type, def])=>{
-    const it = document.createElement('div');
-    it.className = 'palette-item';
-    it.draggable = true;
-    it.dataset.type = type;
-    it.innerHTML = `<div class="palette-icon">${def.icon()}</div><div class="palette-label">${def.label}</div>`;
-    it.addEventListener('dragstart', e=>{
-      e.dataTransfer.setData('application/x-card-type', type);
-      e.dataTransfer.effectAllowed = 'copy';
-    });
-    el.appendChild(it);
+    const g = def.group || 'Cards';
+    (groups[g] = groups[g] || []).push([type, def]);
   });
-  // Colored sticky variants
-  STICKY_COLORS.forEach(sc=>{
-    const it = document.createElement('div');
-    it.className = 'palette-item';
-    it.draggable = true;
-    it.title = sc.name+' sticky';
-    it.innerHTML = `<div class="palette-icon"><svg width="36" height="30" viewBox="0 0 36 30"><rect x="6" y="4" width="24" height="22" fill="${sc.color}" stroke="rgba(0,0,0,.15)" transform="rotate(-2 18 15)"/></svg></div><div class="palette-label">${sc.name}</div>`;
-    it.addEventListener('dragstart', e=>{
-      e.dataTransfer.setData('application/x-card-type', 'sticky');
-      e.dataTransfer.setData('application/x-card-color', sc.color);
-      e.dataTransfer.effectAllowed = 'copy';
+
+  const order = ['Sticky Notes','Flow Shapes','Experience'];
+  order.forEach(groupName=>{
+    if(!groups[groupName]) return;
+    const gWrap = document.createElement('div');
+    gWrap.className = 'palette-group';
+    const title = document.createElement('div');
+    title.className = 'palette-group-title';
+    title.textContent = groupName;
+    gWrap.appendChild(title);
+    const grid = document.createElement('div');
+    grid.className = 'palette-grid';
+
+    groups[groupName].forEach(([type, def])=>{
+      grid.appendChild(makePaletteItem({
+        label: def.label,
+        iconHTML: def.icon(),
+        dataMap: {'application/x-card-type': type},
+      }));
     });
-    el.appendChild(it);
+
+    // Colored sticky variants appended to Sticky Notes group
+    if(groupName==='Sticky Notes'){
+      STICKY_COLORS.forEach(sc=>{
+        grid.appendChild(makePaletteItem({
+          label: sc.name,
+          title: sc.name+' sticky',
+          iconHTML: `<svg width="36" height="30" viewBox="0 0 36 30"><rect x="6" y="4" width="24" height="22" fill="${sc.color}" stroke="rgba(0,0,0,.15)" transform="rotate(-2 18 15)"/></svg>`,
+          dataMap: {'application/x-card-type':'sticky', 'application/x-card-color': sc.color},
+        }));
+      });
+    }
+
+    // Emotion emoji presets appended to Experience group
+    if(groupName==='Experience'){
+      EMOTION_PRESETS.forEach(p=>{
+        grid.appendChild(makePaletteItem({
+          label: p.label,
+          title: p.label+' emotion',
+          iconHTML: `<div style="font-size:26px;line-height:1">${p.emoji}</div>`,
+          dataMap: {
+            'application/x-card-type':'emotion',
+            'application/x-card-emoji': p.emoji,
+            'application/x-card-text': p.label,
+          },
+        }));
+      });
+    }
+
+    gWrap.appendChild(grid);
+    el.appendChild(gWrap);
   });
 }
+
 
 function renderLanes(){
   const list = $('#lanes');
