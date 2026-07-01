@@ -1919,6 +1919,7 @@ function loadSample(){ applyTemplate('sample'); }
 
 function renderAll(){
   applyView();
+  if(typeof applyCanvasTheme==='function') applyCanvasTheme();
   renderStageBar();
   renderPalette();
   renderLanes();
