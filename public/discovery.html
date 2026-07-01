@@ -1643,11 +1643,13 @@ function loadSample(){ applyTemplate('sample'); }
 
 function renderAll(){
   applyView();
+  renderStageBar();
   renderPalette();
   renderLanes();
   renderPrompts();
   renderCards();
 }
+
 
 // ============ Init ============
 if(!load()){
