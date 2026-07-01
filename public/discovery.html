@@ -1286,7 +1286,13 @@ function escapeHtml(s){return String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;',
 function hexA(hex,a){const h=hex.replace('#','');const n=parseInt(h,16);const r=(n>>16)&255,g=(n>>8)&255,b=n&255;return `rgba(${r},${g},${b},${a})`}
 
 // ============ Top toolbar wiring ============
-$('#canvasType').addEventListener('change', e=>{state.canvasType=e.target.value; renderLanesLayer(); save()});
+$('#canvasType').addEventListener('change', e=>{
+  state.canvasType=e.target.value;
+  if(state.canvasType==='mindmap' && !state.cards.length){
+    addCard({ type:'process', text:'Central Idea', x:WORLD_W/2 - 90, y:WORLD_H/2 - 30, color:'#e6f0ff' });
+  }
+  renderLanesLayer(); save();
+});
 $('#btnAddLane').addEventListener('click', ()=>{
   const id='l'+Date.now();
   state.lanes.push({id, name:'Lane '+(state.lanes.length+1), color:LANE_COLORS[state.lanes.length%LANE_COLORS.length]});
