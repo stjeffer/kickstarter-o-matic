@@ -898,6 +898,8 @@ if (!state.lanes.length && !state.ideas.length && !state.prompts.length) {
 } else {
   render();
 }
+// Auto-fit after first paint so world is centered in viewport
+requestAnimationFrame(() => fitToView());
 </script>
 </body>
 </html>
