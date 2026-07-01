@@ -1316,6 +1316,8 @@ function loadSessionFromSchema(data){
   state.session = {
     title: data.title || 'Discovery Session',
     customer: data.customer || '',
+    date: data.date || '',
+    sessionType: data.sessionType || data.type || '',
     description: data.description || '',
     stages,
     activeIndex: 0,
