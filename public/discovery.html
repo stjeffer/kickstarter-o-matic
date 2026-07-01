@@ -191,6 +191,79 @@
   }
   .prompt-info:hover{background:var(--accent);color:#fff;border-color:transparent;transform:scale(1.08)}
 
+  /* ===== Prompt Spotlight (floating, resizable discussion card) ===== */
+  .spotlight{
+    position:fixed; z-index:80; display:none; flex-direction:column;
+    left:calc(50% - 320px); top:calc(50% - 220px);
+    width:640px; height:440px; min-width:360px; min-height:260px;
+    max-width:calc(100vw - 40px); max-height:calc(100vh - 40px);
+    background:linear-gradient(180deg,#ffffff 0%,#fbfcfe 100%);
+    border:1px solid var(--line);
+    border-radius:20px;
+    box-shadow: 0 30px 80px -20px rgba(15,23,42,.35), 0 4px 12px rgba(15,23,42,.08);
+    overflow:hidden;
+    resize:both;
+    animation:spotlightIn .28s cubic-bezier(.2,.9,.3,1.2);
+  }
+  .spotlight.open{display:flex}
+  @keyframes spotlightIn{
+    from{opacity:0;transform:scale(.94) translateY(8px)}
+    to{opacity:1;transform:scale(1) translateY(0)}
+  }
+  .spotlight-header{
+    display:flex;align-items:center;gap:10px;
+    padding:12px 16px; cursor:grab;
+    background:linear-gradient(180deg,rgba(255,255,255,.6),rgba(248,250,252,.6));
+    border-bottom:1px solid var(--line);
+    user-select:none;
+  }
+  .spotlight-header:active{cursor:grabbing}
+  .spotlight-dot{width:10px;height:10px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 3px color-mix(in oklab, var(--accent) 22%, transparent)}
+  .spotlight-cat{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.14em;color:var(--accent)}
+  .spotlight-meta{margin-left:auto;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+  .spotlight-close{
+    width:26px;height:26px;border-radius:50%;border:1px solid var(--line);
+    background:#fff;color:var(--ink-2);cursor:pointer;font-size:15px;line-height:1;
+    display:flex;align-items:center;justify-content:center;transition:all .15s;
+  }
+  .spotlight-close:hover{background:#111;color:#fff;border-color:#111}
+  .spotlight-body{
+    flex:1; overflow:auto; padding:28px 36px 20px;
+    display:flex;flex-direction:column;gap:18px;
+  }
+  .spotlight-title{
+    font-family:'Space Grotesk',Inter,sans-serif;
+    font-size:clamp(22px, 2.4vw, 34px);
+    line-height:1.2; letter-spacing:-.02em; font-weight:600;
+    color:var(--ink); margin:0;
+  }
+  .spotlight-prompt{
+    font-size:clamp(16px, 1.5vw, 22px);
+    line-height:1.5; color:var(--ink);
+    padding:20px 24px; border-radius:14px;
+    background:color-mix(in oklab, var(--accent) 7%, #fff);
+    border-left:4px solid var(--accent);
+  }
+  .spotlight-context{font-size:14.5px;line-height:1.6;color:var(--ink-2);font-style:italic;margin:0}
+  .spotlight-section-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin:0 0 6px}
+  .spotlight-notes{font-size:14px;line-height:1.6;color:var(--ink-2);margin:0}
+  .spotlight-chips{display:flex;flex-wrap:wrap;gap:6px}
+  .spotlight-chip{font-size:11.5px;padding:5px 11px;border-radius:999px;background:#eef1f6;color:var(--ink-2);font-weight:500}
+  .spotlight-footer{
+    display:flex;gap:8px;justify-content:flex-end;align-items:center;
+    padding:12px 16px;border-top:1px solid var(--line);background:#fafbfd;
+  }
+  .spotlight-footer .hint{margin-right:auto;font-size:11px;color:var(--muted)}
+  .spotlight::after{
+    content:''; position:absolute; right:5px; bottom:5px; width:12px; height:12px;
+    pointer-events:none; opacity:.5;
+    background:
+      linear-gradient(135deg, transparent 45%, var(--ink-2) 45%, var(--ink-2) 55%, transparent 55%),
+      linear-gradient(135deg, transparent 75%, var(--ink-2) 75%, var(--ink-2) 85%, transparent 85%);
+  }
+
+
+
   /* ===== Canvas Stage ===== */
   main.stage{position:relative;overflow:hidden;background:var(--bg)}
   .canvas-toolbar{
@@ -603,6 +676,36 @@
   </div>
 </div>
 
+<!-- Prompt Spotlight: large, resizable, draggable discussion panel -->
+<div class="spotlight" id="spotlight" role="dialog" aria-labelledby="spotTitle">
+  <div class="spotlight-header" id="spotHeader">
+    <span class="spotlight-dot"></span>
+    <span class="spotlight-cat" id="spotCat"></span>
+    <span class="spotlight-meta" id="spotMeta"></span>
+    <button class="spotlight-close" id="spotClose" title="Close">×</button>
+  </div>
+  <div class="spotlight-body">
+    <h2 class="spotlight-title" id="spotTitle"></h2>
+    <div class="spotlight-prompt" id="spotPrompt"></div>
+    <p class="spotlight-context" id="spotContext" style="display:none"></p>
+    <div id="spotNotesWrap" style="display:none">
+      <p class="spotlight-section-label">Facilitator notes</p>
+      <p class="spotlight-notes" id="spotNotes"></p>
+    </div>
+    <div id="spotCaptureWrap" style="display:none">
+      <p class="spotlight-section-label">Capture</p>
+      <div class="spotlight-chips" id="spotChips"></div>
+    </div>
+  </div>
+  <div class="spotlight-footer">
+    <span class="hint">Drag header to move · Drag corner to resize</span>
+    <button class="btn" id="spotDrop">Drop on canvas</button>
+    <button class="btn primary" id="spotDone">Done</button>
+  </div>
+</div>
+
+
+
 <div class="modal-backdrop" id="sessionModal">
   <div class="modal" style="width:560px">
     <h2>Session details</h2>
@@ -953,7 +1056,7 @@ function renderPrompts(){
     c.innerHTML = `
       ${p.category?`<div class="prompt-cat">${escapeHtml(p.category)}</div>`:''}
       <div class="prompt-text">${escapeHtml(p.text)}</div>
-      ${hasBrief?`<button class="prompt-info" title="Open facilitator brief" aria-label="Open facilitator brief">i</button>`:''}
+      <button class="prompt-info" title="Open in spotlight" aria-label="Open in spotlight">↗</button>
     `;
     c.addEventListener('dragstart', e=>{
       const dragText = (p.activity && p.activity.prompt) ? p.activity.prompt : p.text;
@@ -961,14 +1064,18 @@ function renderPrompts(){
       e.dataTransfer.setData('application/x-card-type', 'sticky');
       e.dataTransfer.effectAllowed='copy';
     });
+    // Single click → open spotlight for discussion
+    c.addEventListener('click', ev=>{
+      if(ev.target.closest('.prompt-info')) return;
+      openSpotlight(p);
+    });
     const info = c.querySelector('.prompt-info');
     if(info){
-      info.addEventListener('click', ev=>{ ev.stopPropagation(); openBrief(p); });
+      info.addEventListener('click', ev=>{ ev.stopPropagation(); openSpotlight(p); });
       info.addEventListener('mousedown', ev=> ev.stopPropagation());
     }
-    if(hasBrief){
-      c.addEventListener('dblclick', ()=> openBrief(p));
-    }
+    c.addEventListener('dblclick', ()=> openSpotlight(p));
+
     el.appendChild(c);
   });
 
@@ -1633,6 +1740,76 @@ function openBrief(prompt){
   $('#briefModal').classList.add('open');
 }
 $('#briefClose').addEventListener('click', ()=> $('#briefModal').classList.remove('open'));
+
+// ============ Prompt Spotlight (large, resizable, draggable) ============
+const spotEl = $('#spotlight');
+let currentSpotPrompt = null;
+
+function openSpotlight(prompt){
+  currentSpotPrompt = prompt;
+  const a = prompt.activity || {};
+  $('#spotCat').textContent = (prompt.category || a.activityType || 'Prompt');
+  $('#spotMeta').textContent = a.timebox ? a.timebox : '';
+  $('#spotTitle').textContent = a.title || prompt.text;
+  $('#spotPrompt').textContent = a.prompt || prompt.text;
+
+  const ctx = $('#spotContext');
+  if(a.context){ ctx.textContent = a.context; ctx.style.display='block'; } else { ctx.style.display='none'; }
+
+  const notesWrap = $('#spotNotesWrap');
+  if(a.activityInstructions){ $('#spotNotes').textContent = a.activityInstructions; notesWrap.style.display='block'; }
+  else notesWrap.style.display='none';
+
+  const capWrap = $('#spotCaptureWrap');
+  if(Array.isArray(a.captureAreas) && a.captureAreas.length){
+    $('#spotChips').innerHTML = a.captureAreas.map(c=>`<span class="spotlight-chip">${escapeHtml(c)}</span>`).join('');
+    capWrap.style.display='block';
+  } else capWrap.style.display='none';
+
+  spotEl.classList.add('open');
+}
+function closeSpotlight(){ spotEl.classList.remove('open'); currentSpotPrompt=null; }
+
+$('#spotClose').addEventListener('click', closeSpotlight);
+$('#spotDone').addEventListener('click', closeSpotlight);
+$('#spotDrop').addEventListener('click', ()=>{
+  if(!currentSpotPrompt) return;
+  const a = currentSpotPrompt.activity || {};
+  const text = a.prompt || currentSpotPrompt.text;
+  const r = viewport.getBoundingClientRect();
+  const cx = (r.width/2 - state.view.x)/state.view.scale;
+  const cy = (r.height/2 - state.view.y)/state.view.scale;
+  addCard({ type:'sticky', text, x: cx-110, y: cy-70 });
+});
+
+// Drag spotlight by header
+(function(){
+  const header = $('#spotHeader');
+  let dragging=false, offX=0, offY=0;
+  header.addEventListener('mousedown', e=>{
+    if(e.target.closest('button')) return;
+    dragging=true;
+    const r = spotEl.getBoundingClientRect();
+    offX = e.clientX - r.left; offY = e.clientY - r.top;
+    spotEl.style.right='auto'; spotEl.style.bottom='auto';
+    e.preventDefault();
+  });
+  window.addEventListener('mousemove', e=>{
+    if(!dragging) return;
+    const w = spotEl.offsetWidth, h = spotEl.offsetHeight;
+    let x = Math.max(8, Math.min(window.innerWidth - w - 8, e.clientX - offX));
+    let y = Math.max(8, Math.min(window.innerHeight - h - 8, e.clientY - offY));
+    spotEl.style.left = x+'px'; spotEl.style.top = y+'px';
+  });
+  window.addEventListener('mouseup', ()=> dragging=false);
+})();
+
+// Escape closes spotlight
+window.addEventListener('keydown', e=>{
+  if(e.key==='Escape' && spotEl.classList.contains('open')) closeSpotlight();
+});
+
+
 
 
 $('#templatePack').addEventListener('change', e=>{
