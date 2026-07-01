@@ -1257,8 +1257,10 @@ $('#btnClear').addEventListener('click', ()=>{
   save();
 });
 $('#btnExport').addEventListener('click', ()=>{
-  const {canvasType,lanes,prompts,cards,connections} = state;
-  const blob = new Blob([JSON.stringify({canvasType,lanes,prompts,cards,connections},null,2)],{type:'application/json'});
+  if(typeof persistCurrentStage==='function') persistCurrentStage();
+  const {canvasType,lanes,prompts,cards,connections,session} = state;
+  const payload = session ? { ...session, canvasType, lanes, prompts, cards, connections } : { canvasType, lanes, prompts, cards, connections };
+  const blob = new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
   const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='discovery-canvas.json'; a.click();
 });
 $('#btnImport').addEventListener('click', ()=>{$('#importText').value=''; $('#importModal').classList.add('open')});
