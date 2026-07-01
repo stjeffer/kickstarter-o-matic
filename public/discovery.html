@@ -576,69 +576,89 @@ function makePaletteItem({label, title, iconHTML, dataMap}){
   return it;
 }
 
+let _activePaletteTab = 'Sticky Notes';
 function renderPalette(){
   const el = $('#palette');
   el.innerHTML = '';
 
-  // Group card types
   const groups = {};
   Object.entries(CARD_TYPES).forEach(([type, def])=>{
     const g = def.group || 'Cards';
     (groups[g] = groups[g] || []).push([type, def]);
   });
 
-  const order = ['Sticky Notes','Flow Shapes','Experience'];
-  order.forEach(groupName=>{
-    if(!groups[groupName]) return;
-    const gWrap = document.createElement('div');
-    gWrap.className = 'palette-group';
-    const title = document.createElement('div');
-    title.className = 'palette-group-title';
-    title.textContent = groupName;
-    gWrap.appendChild(title);
-    const grid = document.createElement('div');
-    grid.className = 'palette-grid';
+  const tabsMeta = [
+    {name:'Sticky Notes', short:'Stickies'},
+    {name:'Flow Shapes',  short:'Shapes'},
+    {name:'Experience',   short:'Experience'},
+  ].filter(t=>groups[t.name]);
 
-    groups[groupName].forEach(([type, def])=>{
-      grid.appendChild(makePaletteItem({
-        label: def.label,
-        iconHTML: def.icon(),
-        dataMap: {'application/x-card-type': type},
-      }));
-    });
+  if(!tabsMeta.find(t=>t.name===_activePaletteTab)) _activePaletteTab = tabsMeta[0]?.name;
 
-    // Colored sticky variants appended to Sticky Notes group
-    if(groupName==='Sticky Notes'){
-      STICKY_COLORS.forEach(sc=>{
-        grid.appendChild(makePaletteItem({
-          label: sc.name,
-          title: sc.name+' sticky',
-          iconHTML: `<svg width="36" height="30" viewBox="0 0 36 30"><rect x="6" y="4" width="24" height="22" fill="${sc.color}" stroke="rgba(0,0,0,.15)" transform="rotate(-2 18 15)"/></svg>`,
-          dataMap: {'application/x-card-type':'sticky', 'application/x-card-color': sc.color},
-        }));
-      });
+  // Segmented tab bar
+  const tabs = document.createElement('div');
+  tabs.className = 'palette-tabs';
+  tabs.setAttribute('role','tablist');
+  tabsMeta.forEach(t=>{
+    const b = document.createElement('button');
+    b.type='button';
+    b.className = 'palette-tab' + (t.name===_activePaletteTab?' active':'');
+    b.textContent = t.short;
+    b.setAttribute('role','tab');
+    b.addEventListener('click', ()=>{ _activePaletteTab = t.name; renderPalette(); });
+    tabs.appendChild(b);
+  });
+  el.appendChild(tabs);
+
+  // Build panels (only active is displayed via CSS)
+  tabsMeta.forEach(t=>{
+    const panel = document.createElement('div');
+    panel.className = 'palette-panel' + (t.name===_activePaletteTab?' active':'');
+
+    const buildGrid = (items)=>{
+      const grid = document.createElement('div');
+      grid.className = 'palette-grid';
+      items.forEach(fn=> grid.appendChild(fn()));
+      return grid;
+    };
+
+    // Core card types for this group
+    const coreItems = groups[t.name].map(([type, def])=> ()=> makePaletteItem({
+      label: def.label,
+      iconHTML: def.icon(),
+      dataMap: {'application/x-card-type': type},
+    }));
+
+    if(t.name==='Sticky Notes'){
+      const l1 = document.createElement('div'); l1.className='palette-section-label'; l1.textContent='Basic'; panel.appendChild(l1);
+      panel.appendChild(buildGrid(coreItems));
+      const l2 = document.createElement('div'); l2.className='palette-section-label'; l2.textContent='Colors'; panel.appendChild(l2);
+      panel.appendChild(buildGrid(STICKY_COLORS.map(sc=> ()=> makePaletteItem({
+        label: sc.name, title: sc.name+' sticky',
+        iconHTML: `<svg width="36" height="30" viewBox="0 0 36 30"><rect x="6" y="4" width="24" height="22" rx="1.5" fill="${sc.color}" stroke="rgba(0,0,0,.15)" transform="rotate(-2 18 15)"/></svg>`,
+        dataMap: {'application/x-card-type':'sticky', 'application/x-card-color': sc.color},
+      }))));
+    } else if(t.name==='Experience'){
+      const l1 = document.createElement('div'); l1.className='palette-section-label'; l1.textContent='Cards'; panel.appendChild(l1);
+      panel.appendChild(buildGrid(coreItems));
+      const l2 = document.createElement('div'); l2.className='palette-section-label'; l2.textContent='Emotions'; panel.appendChild(l2);
+      panel.appendChild(buildGrid(EMOTION_PRESETS.map(p=> ()=> makePaletteItem({
+        label: p.label, title: p.label+' emotion',
+        iconHTML: `<div style="font-size:26px;line-height:1">${p.emoji}</div>`,
+        dataMap: {
+          'application/x-card-type':'emotion',
+          'application/x-card-emoji': p.emoji,
+          'application/x-card-text': p.label,
+        },
+      }))));
+    } else {
+      panel.appendChild(buildGrid(coreItems));
     }
 
-    // Emotion emoji presets appended to Experience group
-    if(groupName==='Experience'){
-      EMOTION_PRESETS.forEach(p=>{
-        grid.appendChild(makePaletteItem({
-          label: p.label,
-          title: p.label+' emotion',
-          iconHTML: `<div style="font-size:26px;line-height:1">${p.emoji}</div>`,
-          dataMap: {
-            'application/x-card-type':'emotion',
-            'application/x-card-emoji': p.emoji,
-            'application/x-card-text': p.label,
-          },
-        }));
-      });
-    }
-
-    gWrap.appendChild(grid);
-    el.appendChild(gWrap);
+    el.appendChild(panel);
   });
 }
+
 
 
 function renderLanes(){
