@@ -1348,9 +1348,10 @@ function openBrief(prompt){
   }
   $('#briefBody').innerHTML = parts.join('') || '<p style="color:var(--muted)">No additional detail.</p>';
   $('#briefDrop').onclick = ()=>{
-    addCardOfType('sticky', { text: a.prompt || prompt.text }, 260, 200);
+    addCard({ type:'sticky', text: a.prompt || prompt.text, x:260, y:200 });
     $('#briefModal').classList.remove('open');
   };
+
   $('#briefModal').classList.add('open');
 }
 $('#briefClose').addEventListener('click', ()=> $('#briefModal').classList.remove('open'));
