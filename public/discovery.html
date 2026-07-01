@@ -736,8 +736,10 @@ function renderCards(){
 
 function buildCardEl(c){
   const def = CARD_TYPES[c.type] || CARD_TYPES.sticky;
+  const isText = ['sticky','note','quote','pain','gain','moment','persona'].includes(c.type);
+  const isShape = ['process','decision','terminator','data','circle'].includes(c.type);
   const el = document.createElement('div');
-  el.className = `card ${c.type} ${['sticky','note'].includes(c.type)?'':'shape'}`;
+  el.className = `card ${c.type} ${isShape?'shape':''}`;
   el.dataset.id = c.id;
   el.style.left = c.x+'px';
   el.style.top = c.y+'px';
@@ -750,15 +752,19 @@ function buildCardEl(c){
 
   const body = document.createElement('div');
   body.className='card-body';
-  if(c.type==='decision'){
+  if(c.type==='emotion'){
+    body.innerHTML = `<div class="emoji">${escapeHtml(c.emoji||'😊')}</div><div class="txt">${escapeHtml(c.text||'')}</div>`;
+  }else if(c.type==='decision'){
     body.innerHTML = `<div class="txt">${escapeHtml(c.text)}</div>`;
-  }else if(c.type==='sticky' || c.type==='note'){
+  }else if(isText){
     body.textContent = c.text;
+    body.style.whiteSpace = 'pre-wrap';
   }else{
     body.innerHTML = `<div class="txt">${escapeHtml(c.text)}</div>`;
   }
   if(c.color && (c.type==='sticky')) body.style.background = c.color;
   el.appendChild(body);
+
 
   ['top','right','bottom','left'].forEach(pos=>{
     const a = document.createElement('div');
