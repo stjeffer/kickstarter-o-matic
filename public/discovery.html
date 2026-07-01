@@ -6,7 +6,7 @@
 <title>Discovery Canvas</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600;9..144,700&family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet" />
 <style>
   :root{
     --bg:#f6f7f9;
@@ -31,14 +31,19 @@
   html,body{height:100%}
   body{
     margin:0;
-    font-family:'Inter',-apple-system,BlinkMacSystemFont,'SF Pro Text','Helvetica Neue',Arial,sans-serif;
+    font-family:'Geist','Inter',-apple-system,BlinkMacSystemFont,'SF Pro Text','Helvetica Neue',Arial,sans-serif;
+    font-feature-settings:'ss01','ss02','cv11','cv02','cv04';
     background:var(--bg);
     color:var(--ink);
     -webkit-font-smoothing:antialiased;
+    -moz-osx-font-smoothing:grayscale;
     text-rendering:optimizeLegibility;
-    font-size:14px;
+    font-size:13.5px;
+    letter-spacing:-.005em;
     overflow:hidden;
   }
+  code, pre, .mono, textarea{font-family:'Geist Mono','JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace}
+  .serif{font-family:'Fraunces','Instrument Serif',Georgia,serif;font-optical-sizing:auto}
   button, input, select, textarea{font-family:inherit;color:inherit}
 
   /* ===== Layout ===== */
@@ -48,7 +53,8 @@
     background:rgba(255,255,255,.85);backdrop-filter:saturate(180%) blur(20px);
     border-bottom:1px solid var(--line);z-index:20;
   }
-  .brand{display:flex;align-items:center;gap:10px;font-weight:600;letter-spacing:-.01em}
+  .brand{display:flex;align-items:center;gap:11px;font-family:'Fraunces',Georgia,serif;font-weight:400;font-size:19px;letter-spacing:-.02em;color:var(--ink);font-optical-sizing:auto}
+  .brand .logo{box-shadow:inset 0 0 0 1px rgba(255,255,255,.45),0 2px 8px rgba(10,132,255,.25)}
   .logo{width:22px;height:22px;border-radius:6px;background:conic-gradient(from 210deg,#0a84ff,#5ac8fa,#af52de,#0a84ff);box-shadow:inset 0 0 0 1px rgba(255,255,255,.4)}
   .top-actions{margin-left:auto;display:flex;gap:6px;align-items:center}
   .divider{width:1px;height:22px;background:var(--line);margin:0 4px}
@@ -61,7 +67,7 @@
   }
   .stage-bar.open{display:flex}
   .session-meta{display:flex;flex-direction:column;gap:1px;min-width:0;max-width:34%}
-  .session-title{font-size:12.5px;font-weight:600;color:var(--ink);letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .session-title{font-family:'Fraunces',Georgia,serif;font-size:16px;font-weight:500;color:var(--ink);letter-spacing:-.015em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-optical-sizing:auto}
   .session-sub{font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .stage-tabs{display:flex;gap:4px;padding:3px;background:#eef0f3;border:1px solid var(--line);border-radius:9px;flex:1;min-width:0;overflow-x:auto}
   .stage-tab{
@@ -108,7 +114,7 @@
   }
   aside.right{border-right:none;border-left:1px solid var(--line)}
   .side-section{padding:14px 16px;border-bottom:1px solid var(--line)}
-  .side-section h3{margin:0 0 10px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+  .side-section h3{margin:0 0 10px;font-size:10.5px;font-weight:600;text-transform:uppercase;letter-spacing:.11em;color:var(--muted)}
   .side-scroll{overflow-y:auto;flex:1}
 
   label.field{display:block;margin-bottom:10px}
@@ -173,7 +179,7 @@
   }
   .prompt-card:hover{border-color:var(--accent);box-shadow:var(--shadow-2)}
   .prompt-card:active{cursor:grabbing}
-  .prompt-cat{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--accent);margin-bottom:3px}
+  .prompt-cat{font-size:9.5px;font-weight:600;text-transform:uppercase;letter-spacing:.12em;color:var(--accent);margin-bottom:4px}
   .prompt-text{font-size:12.5px;line-height:1.4;color:var(--ink);padding-right:22px}
   .prompt-info{
     position:absolute;top:8px;right:8px;width:20px;height:20px;border-radius:50%;
@@ -206,11 +212,26 @@
     background-size:24px 24px;
     background-color:#fafafa;
   }
+  .world.mindmap{
+    background-image:
+      radial-gradient(circle at 50% 50%, rgba(10,132,255,.09), transparent 42%),
+      repeating-radial-gradient(circle at 50% 50%, transparent 0, transparent 119px, rgba(10,132,255,.10) 120px, transparent 121px),
+      radial-gradient(circle, #d2d2d7 1px, transparent 1px);
+    background-size:auto,auto,24px 24px;
+    background-color:#fbfcfe;
+  }
+  .mindmap-hub{
+    position:absolute;pointer-events:none;
+    width:14px;height:14px;border-radius:50%;
+    background:radial-gradient(circle,#0a84ff,#0057c2);
+    box-shadow:0 0 0 6px rgba(10,132,255,.12),0 0 0 14px rgba(10,132,255,.06);
+    transform:translate(-50%,-50%);
+  }
 
   /* Lane overlays */
   .lanes-layer{position:absolute;inset:0;pointer-events:none}
   .lane-band{position:absolute;border:1px dashed rgba(0,0,0,.08);border-radius:10px;background:rgba(255,255,255,.4)}
-  .lane-label{position:absolute;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);background:#fff;padding:3px 8px;border-radius:6px;border:1px solid var(--line)}
+  .lane-label{position:absolute;font-size:10.5px;font-weight:600;text-transform:uppercase;letter-spacing:.14em;color:var(--muted);background:#fff;padding:4px 10px;border-radius:6px;border:1px solid var(--line)}
 
   /* SVG connections */
   .connections-layer{position:absolute;top:0;left:0;pointer-events:none;overflow:visible}
@@ -423,6 +444,7 @@
         <option value="matrix2x2">2×2 Matrix</option>
         <option value="journey">Journey Map</option>
         <option value="empathy">Empathy Map</option>
+        <option value="mindmap">Mind Map</option>
       </select>
     </div>
 
@@ -787,6 +809,14 @@ function renderLanes(){
 function renderLanesLayer(){
   lanesLayer.innerHTML='';
   const ct = state.canvasType;
+  world.classList.toggle('mindmap', ct==='mindmap');
+  if(ct==='mindmap'){
+    const hub = document.createElement('div');
+    hub.className='mindmap-hub';
+    hub.style.left=(WORLD_W/2)+'px'; hub.style.top=(WORLD_H/2)+'px';
+    lanesLayer.appendChild(hub);
+    return;
+  }
   if(ct==='whiteboard') return;
   const bands = computeLaneBands();
   bands.forEach(b=>{
@@ -1186,6 +1216,9 @@ document.addEventListener('keydown', e=>{
       state.selection.connId=null; renderConnections(); save();
     }
   }
+  if((e.key==='Tab') && !isEditing() && state.canvasType==='mindmap' && state.selection.cardId){
+    e.preventDefault(); addMindmapChild(state.selection.cardId);
+  }
   if(e.key==='Escape'){ clearSelection(); }
 });
 document.addEventListener('keyup', e=>{ if(e.code==='Space'){spaceDown=false; viewport.style.cursor=''} });
@@ -1205,6 +1238,26 @@ function addCard(partial){
   renderCards();
   selectCard(c.id);
   save();
+}
+function addMindmapChild(parentId){
+  const parent = state.cards.find(c=>c.id===parentId);
+  if(!parent) return;
+  const cx = WORLD_W/2, cy = WORLD_H/2;
+  // count existing children to fan them out
+  const kidCount = state.connections.filter(c=>c.from===parentId).length;
+  const baseAngle = Math.atan2((parent.y+70)-cy, (parent.x+100)-cx);
+  const spread = (kidCount%2===0 ? 1 : -1) * (Math.ceil(kidCount/2) * 0.55);
+  const angle = baseAngle + spread;
+  const dist = parent.id ? 220 : 160;
+  const nx = (parent.x+100) + Math.cos(angle)*dist - 100;
+  const ny = (parent.y+40)  + Math.sin(angle)*dist - 30;
+  const child = {
+    id:'k'+Date.now()+Math.random().toString(36).slice(2,6),
+    type:'sticky', text:'New branch', x:nx, y:ny,
+  };
+  state.cards.push(child);
+  state.connections.push({ id:'c'+Date.now()+Math.random().toString(36).slice(2,6), from:parentId, to:child.id, fromSide:'auto', toSide:'auto' });
+  renderCards(); renderConnections(); selectCard(child.id); save();
 }
 function deleteCard(id){
   state.cards = state.cards.filter(c=>c.id!==id);
@@ -1233,13 +1286,22 @@ function escapeHtml(s){return String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;',
 function hexA(hex,a){const h=hex.replace('#','');const n=parseInt(h,16);const r=(n>>16)&255,g=(n>>8)&255,b=n&255;return `rgba(${r},${g},${b},${a})`}
 
 // ============ Top toolbar wiring ============
-$('#canvasType').addEventListener('change', e=>{state.canvasType=e.target.value; renderLanesLayer(); save()});
+$('#canvasType').addEventListener('change', e=>{
+  state.canvasType=e.target.value;
+  if(state.canvasType==='mindmap' && !state.cards.length){
+    addCard({ type:'process', text:'Central Idea', x:WORLD_W/2 - 90, y:WORLD_H/2 - 30, color:'#e6f0ff' });
+  }
+  renderLanesLayer(); save();
+});
 $('#btnAddLane').addEventListener('click', ()=>{
   const id='l'+Date.now();
   state.lanes.push({id, name:'Lane '+(state.lanes.length+1), color:LANE_COLORS[state.lanes.length%LANE_COLORS.length]});
   renderLanes(); save();
 });
 $('#btnAddIdea').addEventListener('click', ()=>{
+  if(state.canvasType==='mindmap' && state.selection.cardId){
+    addMindmapChild(state.selection.cardId); return;
+  }
   addCard({type:'sticky', x:400 + Math.random()*200, y:300 + Math.random()*200, text:'New idea'});
 });
 $('#btnClear').addEventListener('click', ()=>{
@@ -1289,6 +1351,7 @@ const CANVAS_TYPE_ALIASES = {
   'swimlanes-h':'hswimlanes', 'swimlanes-v':'vswimlanes',
   'horizontal-swimlanes':'hswimlanes', 'vertical-swimlanes':'vswimlanes',
   'matrix':'matrix2x2', '2x2':'matrix2x2',
+  'mind-map':'mindmap','mind_map':'mindmap','mindmapping':'mindmap',
 };
 function normalizeCanvasType(t){
   if(!t) return 'whiteboard';
