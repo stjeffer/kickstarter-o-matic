@@ -101,16 +101,27 @@
   .lane-name:hover, .lane-name:focus{background:#fff;outline:1px solid var(--line-2)}
 
   /* Palette (card types) */
-  .palette-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .palette-group{margin-bottom:14px}
+  .palette-group:last-child{margin-bottom:0}
+  .palette-group-title{
+    font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;
+    color:var(--muted);margin:0 0 6px;padding:0 2px;
+    display:flex;align-items:center;gap:6px;
+  }
+  .palette-group-title::after{content:'';flex:1;height:1px;background:linear-gradient(to right, var(--line), transparent)}
+  .palette-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
   .palette-item{
     display:flex;flex-direction:column;align-items:center;gap:6px;
-    padding:10px 6px;border:1px solid var(--line);border-radius:10px;background:#fff;
-    cursor:grab;transition:all .15s;text-align:center;
+    padding:10px 6px;border:1px solid var(--line);border-radius:10px;
+    background:linear-gradient(180deg,#fff,#fafafc);
+    cursor:grab;transition:all .18s cubic-bezier(.2,.8,.2,1);text-align:center;
+    position:relative;
   }
-  .palette-item:hover{border-color:var(--accent);transform:translateY(-1px);box-shadow:var(--shadow-2)}
-  .palette-item:active{cursor:grabbing}
-  .palette-icon{width:36px;height:28px;display:flex;align-items:center;justify-content:center}
-  .palette-label{font-size:11px;color:var(--ink-2);font-weight:500}
+  .palette-item:hover{border-color:var(--accent);transform:translateY(-1px);box-shadow:0 4px 12px -4px rgba(10,132,255,.25), var(--shadow-2)}
+  .palette-item:active{cursor:grabbing;transform:translateY(0)}
+  .palette-icon{width:40px;height:32px;display:flex;align-items:center;justify-content:center}
+  .palette-label{font-size:11px;color:var(--ink-2);font-weight:500;letter-spacing:.01em}
+
 
   /* Prompts */
   .prompt-card{
