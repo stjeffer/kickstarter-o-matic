@@ -898,8 +898,17 @@ $('#btnAddIdea').addEventListener('click', ()=>{
   addCard({type:'sticky', x:400 + Math.random()*200, y:300 + Math.random()*200, text:'New idea'});
 });
 $('#btnClear').addEventListener('click', ()=>{
-  if(!confirm('Clear all cards and connections?')) return;
-  state.cards=[]; state.connections=[]; clearSelection(); renderCards(); save();
+  if(!confirm('Clear all swimlanes, prompts, questions, cards and connections?')) return;
+  state.canvasType = 'whiteboard';
+  state.lanes = [];
+  state.prompts = [];
+  state.cards = [];
+  state.connections = [];
+  state.view = {x:40, y:40, scale:1};
+  clearSelection();
+  $('#canvasType').value = 'whiteboard';
+  renderAll();
+  save();
 });
 $('#btnExport').addEventListener('click', ()=>{
   const {canvasType,lanes,prompts,cards,connections} = state;
