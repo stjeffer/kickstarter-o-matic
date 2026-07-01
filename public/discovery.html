@@ -100,15 +100,30 @@
   .lane-name{flex:1;font-size:13px;background:transparent;border:none;padding:2px 4px;border-radius:4px}
   .lane-name:hover, .lane-name:focus{background:#fff;outline:1px solid var(--line-2)}
 
-  /* Palette (card types) */
-  .palette-group{margin-bottom:14px}
-  .palette-group:last-child{margin-bottom:0}
-  .palette-group-title{
-    font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;
-    color:var(--muted);margin:0 0 6px;padding:0 2px;
-    display:flex;align-items:center;gap:6px;
+  /* Palette (card types) — segmented tabs */
+  .palette-tabs{
+    display:flex;gap:2px;padding:3px;margin-bottom:12px;
+    background:#eef0f3;border-radius:9px;border:1px solid var(--line);
   }
-  .palette-group-title::after{content:'';flex:1;height:1px;background:linear-gradient(to right, var(--line), transparent)}
+  .palette-tab{
+    flex:1;font:inherit;font-size:11.5px;font-weight:600;letter-spacing:.01em;
+    color:var(--ink-2);background:transparent;border:0;border-radius:7px;
+    padding:6px 4px;cursor:pointer;transition:all .18s cubic-bezier(.2,.8,.2,1);
+    white-space:nowrap;
+  }
+  .palette-tab:hover:not(.active){color:var(--ink)}
+  .palette-tab.active{
+    background:#fff;color:var(--ink);
+    box-shadow:0 1px 2px rgba(0,0,0,.06), 0 0 0 .5px rgba(0,0,0,.04);
+  }
+  .palette-panel{display:none;animation:paletteFade .2s cubic-bezier(.2,.8,.2,1)}
+  .palette-panel.active{display:block}
+  @keyframes paletteFade{from{opacity:0;transform:translateY(2px)}to{opacity:1;transform:none}}
+  .palette-section-label{
+    font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;
+    color:var(--muted);margin:12px 2px 6px;
+  }
+  .palette-panel > .palette-section-label:first-child{margin-top:0}
   .palette-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
   .palette-item{
     display:flex;flex-direction:column;align-items:center;gap:6px;
