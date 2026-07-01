@@ -570,6 +570,7 @@ const LANE_COLORS = ['#0a84ff','#34c759','#ff9500','#af52de','#ff2d55','#5ac8fa'
 const STORAGE_KEY = 'discovery-canvas-v2';
 function save(){
   try{
+    if(typeof persistCurrentStage==='function') persistCurrentStage();
     const {selection, view, ...persist} = state;
     localStorage.setItem(STORAGE_KEY, JSON.stringify(persist));
   }catch(e){}
