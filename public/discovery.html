@@ -263,7 +263,15 @@
     <div class="top-actions">
       <button class="btn ghost sm" id="btnImport">Import JSON</button>
       <button class="btn ghost sm" id="btnExport">Export JSON</button>
-      <button class="btn ghost sm" id="btnSample">Load Sample</button>
+      <select id="templatePack" title="Load template pack" style="height:28px;border-radius:8px;border:1px solid var(--line);background:#fff;padding:0 8px;font:inherit">
+        <option value="">Templates…</option>
+        <option value="sample">Discovery Sample</option>
+        <option value="ideation">Ideation / Brainstorm</option>
+        <option value="process">Process Mapping</option>
+        <option value="experience">Experience Mapping</option>
+        <option value="empathy">Empathy Map</option>
+        <option value="retro">Retrospective</option>
+      </select>
       <button class="btn ghost sm danger" id="btnClear">Clear</button>
       <div class="divider"></div>
       <button class="btn primary sm" id="btnAddIdea">+ Sticky Note</button>
