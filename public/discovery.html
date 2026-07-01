@@ -402,6 +402,7 @@
         <option value="empathy">Empathy Map</option>
         <option value="retro">Retrospective</option>
       </select>
+      <button class="btn ghost sm" id="btnSession">Session Info</button>
       <button class="btn ghost sm danger" id="btnClear">Clear</button>
       <div class="divider"></div>
       <button class="btn primary sm" id="btnAddIdea">+ Sticky Note</button>
@@ -508,6 +509,45 @@
     <div class="actions">
       <button class="btn" id="briefClose">Close</button>
       <button class="btn primary" id="briefDrop">Drop prompt on canvas</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="sessionModal">
+  <div class="modal" style="width:560px">
+    <h2>Session details</h2>
+    <p style="margin:0 0 14px;color:var(--muted);font-size:12px">Metadata for this discovery session. Shown in the header bar and included in exports.</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      <label style="grid-column:1/-1;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-2)">Session title
+        <input id="sfTitle" maxlength="120" placeholder="e.g. Agentic AI Discovery" style="margin-top:4px;width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:8px;font:inherit">
+      </label>
+      <label style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-2)">Customer
+        <input id="sfCustomer" maxlength="120" placeholder="e.g. BBC" style="margin-top:4px;width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:8px;font:inherit">
+      </label>
+      <label style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-2)">Date
+        <input id="sfDate" type="date" style="margin-top:4px;width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:8px;font:inherit">
+      </label>
+      <label style="grid-column:1/-1;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-2)">Session type
+        <select id="sfType" style="margin-top:4px;width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:8px;font:inherit;background:#fff">
+          <option value="">Select…</option>
+          <option>Discovery</option>
+          <option>Strategy</option>
+          <option>Ideation / Brainstorm</option>
+          <option>Process Mapping</option>
+          <option>Experience Mapping</option>
+          <option>Empathy / Research</option>
+          <option>Retrospective</option>
+          <option>Workshop</option>
+          <option>Planning</option>
+        </select>
+      </label>
+      <label style="grid-column:1/-1;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-2)">Description
+        <textarea id="sfDesc" maxlength="800" rows="4" placeholder="Purpose, participants, outcomes…" style="margin-top:4px;width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:8px;font:inherit;resize:vertical"></textarea>
+      </label>
+    </div>
+    <div class="actions">
+      <button class="btn" id="sfCancel">Cancel</button>
+      <button class="btn primary" id="sfSave">Save</button>
     </div>
   </div>
 </div>
@@ -1217,8 +1257,10 @@ $('#btnClear').addEventListener('click', ()=>{
   save();
 });
 $('#btnExport').addEventListener('click', ()=>{
-  const {canvasType,lanes,prompts,cards,connections} = state;
-  const blob = new Blob([JSON.stringify({canvasType,lanes,prompts,cards,connections},null,2)],{type:'application/json'});
+  if(typeof persistCurrentStage==='function') persistCurrentStage();
+  const {canvasType,lanes,prompts,cards,connections,session} = state;
+  const payload = session ? { ...session, canvasType, lanes, prompts, cards, connections } : { canvasType, lanes, prompts, cards, connections };
+  const blob = new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
   const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='discovery-canvas.json'; a.click();
 });
 $('#btnImport').addEventListener('click', ()=>{$('#importText').value=''; $('#importModal').classList.add('open')});
@@ -1276,6 +1318,8 @@ function loadSessionFromSchema(data){
   state.session = {
     title: data.title || 'Discovery Session',
     customer: data.customer || '',
+    date: data.date || '',
+    sessionType: data.sessionType || data.type || '',
     description: data.description || '',
     stages,
     activeIndex: 0,
@@ -1326,36 +1370,84 @@ function renderStageBar(){
 
   const meta = document.createElement('div');
   meta.className = 'session-meta';
-  meta.innerHTML = `<div class="session-title">${escapeHtml(s.title)}</div>
-    <div class="session-sub">${escapeHtml(s.customer||'')}</div>`;
-  if(s.description) meta.title = s.description;
+  meta.style.cursor = 'pointer';
+  meta.title = 'Click to edit session details';
+  const subBits = [s.customer, s.sessionType, s.date].filter(Boolean).join(' · ');
+  meta.innerHTML = `<div class="session-title">${escapeHtml(s.title||'Untitled session')}</div>
+    <div class="session-sub">${escapeHtml(subBits)}</div>`;
+  meta.addEventListener('click', openSessionModal);
   bar.appendChild(meta);
 
-  const tabs = document.createElement('div');
-  tabs.className = 'stage-tabs';
-  s.stages.forEach((st, i)=>{
-    const b = document.createElement('button');
-    b.type='button';
-    b.className = 'stage-tab'+(i===s.activeIndex?' active':'');
-    b.innerHTML = `<span class="stage-num">${i+1}</span>${escapeHtml(st.name)}`;
-    if(st.description) b.title = st.description;
-    b.addEventListener('click', ()=> switchStage(i));
-    tabs.appendChild(b);
-  });
-  bar.appendChild(tabs);
+  if(Array.isArray(s.stages) && s.stages.length){
+    const tabs = document.createElement('div');
+    tabs.className = 'stage-tabs';
+    s.stages.forEach((st, i)=>{
+      const b = document.createElement('button');
+      b.type='button';
+      b.className = 'stage-tab'+(i===s.activeIndex?' active':'');
+      b.innerHTML = `<span class="stage-num">${i+1}</span>${escapeHtml(st.name)}`;
+      if(st.description) b.title = st.description;
+      b.addEventListener('click', ()=> switchStage(i));
+      tabs.appendChild(b);
+    });
+    bar.appendChild(tabs);
+  } else {
+    const spacer = document.createElement('div');
+    spacer.style.flex = '1';
+    bar.appendChild(spacer);
+  }
+
+  const edit = document.createElement('button');
+  edit.className = 'btn ghost sm';
+  edit.textContent = 'Edit details';
+  edit.addEventListener('click', openSessionModal);
+  bar.appendChild(edit);
 
   const exit = document.createElement('button');
   exit.className = 'btn ghost sm';
   exit.textContent = 'End session';
-  exit.title = 'Exit facilitated session (keeps current canvas)';
+  exit.title = 'Clear session metadata (keeps current canvas)';
   exit.addEventListener('click', ()=>{
-    if(!confirm('End the facilitated session? The current canvas stays; stage switching is disabled.')) return;
+    if(!confirm('End the session? Metadata and stages are cleared; the current canvas stays.')) return;
     persistCurrentStage();
     state.session = null;
     renderAll(); save();
   });
   bar.appendChild(exit);
 }
+
+// ============ Session details modal ============
+function openSessionModal(){
+  const s = state.session || {};
+  $('#sfTitle').value    = s.title || '';
+  $('#sfCustomer').value = s.customer || '';
+  $('#sfDate').value     = s.date || '';
+  $('#sfType').value     = s.sessionType || '';
+  $('#sfDesc').value     = s.description || '';
+  $('#sessionModal').classList.add('open');
+  setTimeout(()=> $('#sfTitle').focus(), 30);
+}
+function closeSessionModal(){ $('#sessionModal').classList.remove('open'); }
+function saveSessionModal(){
+  const title = $('#sfTitle').value.trim().slice(0,120);
+  const customer = $('#sfCustomer').value.trim().slice(0,120);
+  const date = $('#sfDate').value;
+  const sessionType = $('#sfType').value;
+  const description = $('#sfDesc').value.trim().slice(0,800);
+  if(!title && !customer && !date && !sessionType && !description){
+    // treat as clearing
+    state.session = null;
+  } else {
+    const base = state.session || { stages:[], activeIndex:0 };
+    state.session = Object.assign(base, { title, customer, date, sessionType, description });
+  }
+  closeSessionModal();
+  renderStageBar(); save();
+}
+$('#btnSession').addEventListener('click', openSessionModal);
+$('#sfCancel').addEventListener('click', closeSessionModal);
+$('#sfSave').addEventListener('click', saveSessionModal);
+$('#sessionModal').addEventListener('click', e=>{ if(e.target.id==='sessionModal') closeSessionModal(); });
 
 // ============ Facilitator brief modal ============
 function openBrief(prompt){
