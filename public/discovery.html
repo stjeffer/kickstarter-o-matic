@@ -177,7 +177,7 @@
     background: radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,0.55) 100%);
   }
   #canvas { position: absolute; inset: 0; transform-origin: 0 0; will-change: transform; }
-  #canvasInner { position: relative; width: 2000px; height: 1400px; }
+  #canvasInner { position: relative; width: 1600px; height: 1000px; }
 
   /* ---------- Lanes ---------- */
   .lane {
@@ -489,7 +489,7 @@ function labelForType(t) {
 }
 
 function computeLaneRects() {
-  const W = 2000, H = 1400, pad = 20;
+  const W = 1600, H = 1000, pad = 20;
   const n = state.lanes.length || 1;
   const rects = {};
   if (state.type === "whiteboard") {
@@ -882,7 +882,7 @@ $("btnFit").onclick = () => { fitToView(); };
 
 function fitToView() {
   const r = mainEl.getBoundingClientRect();
-  const W = 2000, H = 1400, margin = 30;
+  const W = 1600, H = 1000, margin = 24;
   const z = Math.min((r.width - margin*2) / W, (r.height - margin*2) / H);
   state.zoom = +z.toFixed(3);
   state.pan.x = (r.width  - W * state.zoom) / 2;
