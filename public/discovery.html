@@ -42,7 +42,7 @@
   button, input, select, textarea{font-family:inherit;color:inherit}
 
   /* ===== Layout ===== */
-  .app{display:grid;grid-template-columns:280px 1fr 300px;grid-template-rows:52px 1fr;height:100vh;background:var(--bg)}
+  .app{display:grid;grid-template-columns:280px 1fr 300px;grid-template-rows:52px auto 1fr;height:100vh;background:var(--bg)}
   header.topbar{
     grid-column:1 / -1;display:flex;align-items:center;gap:14px;padding:0 16px;
     background:rgba(255,255,255,.85);backdrop-filter:saturate(180%) blur(20px);
@@ -52,6 +52,33 @@
   .logo{width:22px;height:22px;border-radius:6px;background:conic-gradient(from 210deg,#0a84ff,#5ac8fa,#af52de,#0a84ff);box-shadow:inset 0 0 0 1px rgba(255,255,255,.4)}
   .top-actions{margin-left:auto;display:flex;gap:6px;align-items:center}
   .divider{width:1px;height:22px;background:var(--line);margin:0 4px}
+
+  /* Session / stage bar (only when a multi-stage session is loaded) */
+  .stage-bar{
+    grid-column:1 / -1;display:none;align-items:center;gap:14px;
+    padding:10px 16px;background:linear-gradient(180deg,#fbfbfd,#f4f5f8);
+    border-bottom:1px solid var(--line);z-index:19;min-height:0;
+  }
+  .stage-bar.open{display:flex}
+  .session-meta{display:flex;flex-direction:column;gap:1px;min-width:0;max-width:34%}
+  .session-title{font-size:12.5px;font-weight:600;color:var(--ink);letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .session-sub{font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .stage-tabs{display:flex;gap:4px;padding:3px;background:#eef0f3;border:1px solid var(--line);border-radius:9px;flex:1;min-width:0;overflow-x:auto}
+  .stage-tab{
+    font:inherit;font-size:12px;font-weight:600;color:var(--ink-2);
+    background:transparent;border:0;border-radius:7px;padding:6px 12px;cursor:pointer;
+    transition:all .18s cubic-bezier(.2,.8,.2,1);white-space:nowrap;display:flex;align-items:center;gap:6px;
+  }
+  .stage-tab .stage-num{
+    display:inline-flex;align-items:center;justify-content:center;
+    width:18px;height:18px;border-radius:50%;background:rgba(0,0,0,.06);
+    font-size:10px;font-weight:700;color:var(--ink-2);
+  }
+  .stage-tab:hover:not(.active){color:var(--ink)}
+  .stage-tab.active{background:#fff;color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.06),0 0 0 .5px rgba(0,0,0,.04)}
+  .stage-tab.active .stage-num{background:var(--accent);color:#fff}
+  .btn.icon-only{padding:6px;width:28px;height:28px;justify-content:center}
+
 
   /* ===== Buttons (Apple style) ===== */
   .btn{
@@ -147,7 +174,15 @@
   .prompt-card:hover{border-color:var(--accent);box-shadow:var(--shadow-2)}
   .prompt-card:active{cursor:grabbing}
   .prompt-cat{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--accent);margin-bottom:3px}
-  .prompt-text{font-size:12.5px;line-height:1.4;color:var(--ink)}
+  .prompt-text{font-size:12.5px;line-height:1.4;color:var(--ink);padding-right:22px}
+  .prompt-info{
+    position:absolute;top:8px;right:8px;width:20px;height:20px;border-radius:50%;
+    border:1px solid var(--line-2);background:#fff;color:var(--ink-2);
+    font:600 11px/1 'Instrument Serif',Georgia,serif;font-style:italic;
+    cursor:pointer;display:flex;align-items:center;justify-content:center;
+    transition:all .15s;
+  }
+  .prompt-info:hover{background:var(--accent);color:#fff;border-color:transparent;transform:scale(1.08)}
 
   /* ===== Canvas Stage ===== */
   main.stage{position:relative;overflow:hidden;background:var(--bg)}
@@ -373,6 +408,10 @@
     </div>
   </header>
 
+  <div class="stage-bar" id="stageBar"></div>
+
+
+
   <aside class="left side-scroll">
     <div class="side-section">
       <h3>Canvas Type</h3>
@@ -448,11 +487,27 @@
 <div class="modal-backdrop" id="importModal">
   <div class="modal">
     <h2>Import Configuration</h2>
-    <p style="margin:0 0 8px;color:var(--muted);font-size:12px">Paste JSON with shape: <code>{ canvasType, lanes, prompts, cards, connections }</code></p>
+    <p style="margin:0 0 8px;color:var(--muted);font-size:12px">
+      Paste JSON in either shape:<br>
+      • Single canvas: <code>{ canvasType, lanes, prompts, cards, connections }</code><br>
+      • Facilitated session: <code>{ title, customer, description, stages:[{ name, canvasType, groupings, activities }] }</code>
+    </p>
     <textarea id="importText" style="width:100%;min-height:240px;font-family:'JetBrains Mono',monospace;font-size:12px"></textarea>
     <div class="actions">
       <button class="btn" id="importCancel">Cancel</button>
       <button class="btn primary" id="importConfirm">Import</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="briefModal">
+  <div class="modal" style="width:600px">
+    <h2 id="briefTitle" style="margin-bottom:4px"></h2>
+    <div id="briefMeta" style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:14px"></div>
+    <div id="briefBody" style="font-size:13px;line-height:1.55;color:var(--ink)"></div>
+    <div class="actions">
+      <button class="btn" id="briefClose">Close</button>
+      <button class="btn primary" id="briefDrop">Drop prompt on canvas</button>
     </div>
   </div>
 </div>
@@ -470,7 +525,9 @@ const state = {
   connections: [],
   selection: { cardId: null, connId: null },
   view: { x: 0, y: 0, scale: 1 },
+  session: null,        // { title, customer, description, stages:[...], activeIndex }
 };
+
 
 const CARD_TYPES = {
   // Sticky notes
@@ -513,6 +570,7 @@ const LANE_COLORS = ['#0a84ff','#34c759','#ff9500','#af52de','#ff2d55','#5ac8fa'
 const STORAGE_KEY = 'discovery-canvas-v2';
 function save(){
   try{
+    if(typeof persistCurrentStage==='function') persistCurrentStage();
     const {selection, view, ...persist} = state;
     localStorage.setItem(STORAGE_KEY, JSON.stringify(persist));
   }catch(e){}
@@ -753,14 +811,29 @@ function renderPrompts(){
     const c = document.createElement('div');
     c.className='prompt-card';
     c.draggable=true;
-    c.innerHTML = `${p.category?`<div class="prompt-cat">${escapeHtml(p.category)}</div>`:''}<div class="prompt-text">${escapeHtml(p.text)}</div>`;
+    const hasBrief = !!p.activity;
+    c.innerHTML = `
+      ${p.category?`<div class="prompt-cat">${escapeHtml(p.category)}</div>`:''}
+      <div class="prompt-text">${escapeHtml(p.text)}</div>
+      ${hasBrief?`<button class="prompt-info" title="Open facilitator brief" aria-label="Open facilitator brief">i</button>`:''}
+    `;
     c.addEventListener('dragstart', e=>{
-      e.dataTransfer.setData('application/x-prompt', p.text);
+      const dragText = (p.activity && p.activity.prompt) ? p.activity.prompt : p.text;
+      e.dataTransfer.setData('application/x-prompt', dragText);
       e.dataTransfer.setData('application/x-card-type', 'sticky');
       e.dataTransfer.effectAllowed='copy';
     });
+    const info = c.querySelector('.prompt-info');
+    if(info){
+      info.addEventListener('click', ev=>{ ev.stopPropagation(); openBrief(p); });
+      info.addEventListener('mousedown', ev=> ev.stopPropagation());
+    }
+    if(hasBrief){
+      c.addEventListener('dblclick', ()=> openBrief(p));
+    }
     el.appendChild(c);
   });
+
 }
 
 function renderCards(){
@@ -1131,6 +1204,7 @@ $('#btnAddIdea').addEventListener('click', ()=>{
 });
 $('#btnClear').addEventListener('click', ()=>{
   if(!confirm('Clear all swimlanes, prompts, questions, cards and connections?')) return;
+  state.session = null;
   state.canvasType = 'whiteboard';
   state.lanes = [];
   state.prompts = [];
@@ -1152,16 +1226,162 @@ $('#importCancel').addEventListener('click', ()=>$('#importModal').classList.rem
 $('#importConfirm').addEventListener('click', ()=>{
   try{
     const data = JSON.parse($('#importText').value);
-    if(data.canvasType) state.canvasType = data.canvasType;
-    if(Array.isArray(data.lanes)) state.lanes = data.lanes;
-    if(Array.isArray(data.prompts)) state.prompts = data.prompts;
-    if(Array.isArray(data.cards)) state.cards = data.cards;
-    if(Array.isArray(data.connections)) state.connections = data.connections;
+    if(Array.isArray(data.stages)){
+      loadSessionFromSchema(data);
+    }else{
+      state.session = null;
+      if(data.canvasType) state.canvasType = data.canvasType;
+      if(Array.isArray(data.lanes)) state.lanes = data.lanes;
+      if(Array.isArray(data.prompts)) state.prompts = data.prompts;
+      if(Array.isArray(data.cards)) state.cards = data.cards;
+      if(Array.isArray(data.connections)) state.connections = data.connections;
+    }
     $('#canvasType').value = state.canvasType;
     renderAll(); save();
     $('#importModal').classList.remove('open');
   }catch(e){ alert('Invalid JSON: '+e.message) }
 });
+
+// ============ Session (multi-stage discovery) ============
+const CANVAS_TYPE_ALIASES = {
+  'swimlanes-h':'hswimlanes', 'swimlanes-v':'vswimlanes',
+  'horizontal-swimlanes':'hswimlanes', 'vertical-swimlanes':'vswimlanes',
+  'matrix':'matrix2x2', '2x2':'matrix2x2',
+};
+function normalizeCanvasType(t){
+  if(!t) return 'whiteboard';
+  const k = String(t).toLowerCase();
+  return CANVAS_TYPE_ALIASES[k] || k;
+}
+
+function loadSessionFromSchema(data){
+  const stages = data.stages.map((s, i)=>{
+    const canvasType = normalizeCanvasType(s.canvasType);
+    const lanes = (s.groupings||[]).map((name, li)=>({
+      id:'l-'+i+'-'+li, name, color: LANE_COLORS[li % LANE_COLORS.length],
+    }));
+    const prompts = (s.activities||[]).map(a=>({
+      category: [a.activityType, a.timebox].filter(Boolean).join(' · '),
+      text: a.title || a.prompt || 'Untitled',
+      activity: a,
+    }));
+    return {
+      name: s.name || ('Stage '+(i+1)),
+      description: s.description || '',
+      canvasType, lanes, prompts,
+      cards: [], connections: [],
+      view: { x:40, y:40, scale:1 },
+    };
+  });
+  state.session = {
+    title: data.title || 'Discovery Session',
+    customer: data.customer || '',
+    description: data.description || '',
+    stages,
+    activeIndex: 0,
+  };
+  loadStage(0);
+}
+
+function persistCurrentStage(){
+  if(!state.session) return;
+  const st = state.session.stages[state.session.activeIndex];
+  if(!st) return;
+  st.canvasType = state.canvasType;
+  st.lanes = state.lanes;
+  st.prompts = state.prompts;
+  st.cards = state.cards;
+  st.connections = state.connections;
+  st.view = state.view;
+}
+
+function loadStage(idx){
+  if(!state.session) return;
+  const st = state.session.stages[idx];
+  if(!st) return;
+  state.session.activeIndex = idx;
+  state.canvasType = st.canvasType;
+  state.lanes = st.lanes;
+  state.prompts = st.prompts;
+  state.cards = st.cards;
+  state.connections = st.connections;
+  state.view = st.view || {x:40,y:40,scale:1};
+  state.selection = { cardId:null, connId:null };
+  $('#canvasType').value = state.canvasType;
+  renderAll(); save();
+}
+
+function switchStage(idx){
+  if(!state.session || idx===state.session.activeIndex) return;
+  persistCurrentStage();
+  loadStage(idx);
+}
+
+function renderStageBar(){
+  const bar = $('#stageBar');
+  if(!state.session){ bar.classList.remove('open'); bar.innerHTML=''; return; }
+  bar.classList.add('open');
+  const s = state.session;
+  bar.innerHTML = '';
+
+  const meta = document.createElement('div');
+  meta.className = 'session-meta';
+  meta.innerHTML = `<div class="session-title">${escapeHtml(s.title)}</div>
+    <div class="session-sub">${escapeHtml(s.customer||'')}</div>`;
+  if(s.description) meta.title = s.description;
+  bar.appendChild(meta);
+
+  const tabs = document.createElement('div');
+  tabs.className = 'stage-tabs';
+  s.stages.forEach((st, i)=>{
+    const b = document.createElement('button');
+    b.type='button';
+    b.className = 'stage-tab'+(i===s.activeIndex?' active':'');
+    b.innerHTML = `<span class="stage-num">${i+1}</span>${escapeHtml(st.name)}`;
+    if(st.description) b.title = st.description;
+    b.addEventListener('click', ()=> switchStage(i));
+    tabs.appendChild(b);
+  });
+  bar.appendChild(tabs);
+
+  const exit = document.createElement('button');
+  exit.className = 'btn ghost sm';
+  exit.textContent = 'End session';
+  exit.title = 'Exit facilitated session (keeps current canvas)';
+  exit.addEventListener('click', ()=>{
+    if(!confirm('End the facilitated session? The current canvas stays; stage switching is disabled.')) return;
+    persistCurrentStage();
+    state.session = null;
+    renderAll(); save();
+  });
+  bar.appendChild(exit);
+}
+
+// ============ Facilitator brief modal ============
+function openBrief(prompt){
+  const a = prompt.activity || {};
+  $('#briefTitle').textContent = a.title || prompt.text;
+  $('#briefMeta').textContent = [a.activityType, a.timebox].filter(Boolean).join(' · ');
+  const parts = [];
+  if(a.context)               parts.push(`<p style="margin:0 0 10px;color:var(--ink-2)"><em>${escapeHtml(a.context)}</em></p>`);
+  if(a.prompt)                parts.push(`<div style="padding:12px 14px;background:#f4f7fb;border-left:3px solid var(--accent);border-radius:6px;margin:0 0 12px;font-size:13.5px">${escapeHtml(a.prompt)}</div>`);
+  if(a.activityInstructions)  parts.push(`<p style="margin:0 0 6px;font-weight:600">Facilitator notes</p><p style="margin:0 0 12px">${escapeHtml(a.activityInstructions)}</p>`);
+  if(Array.isArray(a.captureAreas) && a.captureAreas.length){
+    parts.push(`<p style="margin:0 0 6px;font-weight:600">Capture</p><div style="display:flex;flex-wrap:wrap;gap:6px">${
+      a.captureAreas.map(c=>`<span style="font-size:11px;padding:3px 9px;border-radius:999px;background:#eef0f3;color:var(--ink-2)">${escapeHtml(c)}</span>`).join('')
+    }</div>`);
+  }
+  $('#briefBody').innerHTML = parts.join('') || '<p style="color:var(--muted)">No additional detail.</p>';
+  $('#briefDrop').onclick = ()=>{
+    addCard({ type:'sticky', text: a.prompt || prompt.text, x:260, y:200 });
+    $('#briefModal').classList.remove('open');
+  };
+
+  $('#briefModal').classList.add('open');
+}
+$('#briefClose').addEventListener('click', ()=> $('#briefModal').classList.remove('open'));
+
+
 $('#templatePack').addEventListener('change', e=>{
   const key = e.target.value;
   if(!key) return;
@@ -1448,11 +1668,13 @@ function loadSample(){ applyTemplate('sample'); }
 
 function renderAll(){
   applyView();
+  renderStageBar();
   renderPalette();
   renderLanes();
   renderPrompts();
   renderCards();
 }
+
 
 // ============ Init ============
 if(!load()){
