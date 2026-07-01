@@ -4,278 +4,359 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Discovery Canvas</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Instrument+Serif&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #0a0a0f;
-    --bg-2: #0f0f17;
-    --panel: rgba(20, 20, 30, 0.72);
-    --panel-solid: #14141e;
-    --panel-2: rgba(255, 255, 255, 0.04);
-    --border: rgba(255, 255, 255, 0.08);
-    --border-strong: rgba(255, 255, 255, 0.14);
-    --text: #f4f4f8;
-    --muted: #8a8aa0;
-    --dim: #5c5c72;
-    --accent: #a78bfa;
-    --accent-2: #f0abfc;
-    --accent-3: #67e8f9;
-    --danger: #fb7185;
-    --lane-bg: rgba(255,255,255,0.015);
-    --grid: rgba(255,255,255,0.025);
-    --grid-strong: rgba(255,255,255,0.05);
-    --glow: 0 0 40px rgba(167, 139, 250, 0.15);
-    --shadow-lg: 0 20px 60px -20px rgba(0,0,0,0.6), 0 8px 20px -8px rgba(0,0,0,0.4);
+    /* Apple-inspired system palette (dark) */
+    --bg: #1c1c1e;
+    --bg-2: #000000;
+    --panel: rgba(30, 30, 32, 0.72);
+    --panel-solid: #1c1c1e;
+    --panel-2: rgba(255, 255, 255, 0.06);
+    --panel-3: rgba(255, 255, 255, 0.09);
+    --hairline: rgba(255, 255, 255, 0.09);
+    --hairline-strong: rgba(255, 255, 255, 0.16);
+    --text: #f5f5f7;
+    --muted: #a1a1a6;
+    --dim: #6e6e73;
+    --accent: #0a84ff;         /* Apple system blue (dark) */
+    --accent-hover: #409cff;
+    --accent-soft: rgba(10, 132, 255, 0.16);
+    --danger: #ff453a;
+    --success: #30d158;
+    --canvas-bg: #101014;
+    --grid: rgba(255,255,255,0.028);
+    --grid-strong: rgba(255,255,255,0.055);
+    --shadow-sm: 0 1px 2px rgba(0,0,0,0.35);
+    --shadow-md: 0 6px 18px -4px rgba(0,0,0,0.5), 0 2px 6px rgba(0,0,0,0.3);
+    --shadow-lg: 0 24px 60px -18px rgba(0,0,0,0.7), 0 8px 20px -6px rgba(0,0,0,0.4);
   }
   * { box-sizing: border-box; }
   html, body { height: 100%; margin: 0; }
   body {
-    font: 13px/1.5 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-    font-feature-settings: 'cv11', 'ss01', 'ss03';
-    -webkit-font-smoothing: antialiased;
-    background: var(--bg); color: var(--text);
-    display: grid; grid-template-columns: 300px 1fr 340px; grid-template-rows: 56px 1fr;
+    font: 13px/1.45 -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display",
+          "Helvetica Neue", Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;
+    letter-spacing: -0.005em;
+    background: var(--bg-2); color: var(--text);
+    display: grid;
+    grid-template-columns: 288px 1fr 320px;
+    grid-template-rows: 52px 1fr;
     grid-template-areas: "topbar topbar topbar" "left canvas right";
     height: 100vh; overflow: hidden;
   }
-  body::before {
-    content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 0;
-    background:
-      radial-gradient(1000px 600px at 15% -10%, rgba(167,139,250,0.12), transparent 60%),
-      radial-gradient(900px 500px at 100% 100%, rgba(103,232,249,0.08), transparent 55%);
-  }
+
+  /* ---------- Top bar (Apple traffic-light style toolbar) ---------- */
   header {
-    grid-area: topbar; display: flex; align-items: center; gap: 14px;
-    padding: 0 20px; background: rgba(10, 10, 15, 0.7);
-    backdrop-filter: blur(20px) saturate(140%); -webkit-backdrop-filter: blur(20px) saturate(140%);
-    border-bottom: 1px solid var(--border);
-    position: relative; z-index: 10;
+    grid-area: topbar; display: flex; align-items: center; gap: 12px;
+    padding: 0 18px;
+    background: rgba(28, 28, 30, 0.82);
+    backdrop-filter: saturate(180%) blur(30px);
+    -webkit-backdrop-filter: saturate(180%) blur(30px);
+    border-bottom: 1px solid var(--hairline);
+    position: relative; z-index: 20;
   }
-  header .brand { display: flex; align-items: center; gap: 10px; }
-  header .logo {
-    width: 26px; height: 26px; border-radius: 8px;
-    background: conic-gradient(from 210deg, var(--accent), var(--accent-2), var(--accent-3), var(--accent));
-    box-shadow: 0 0 20px rgba(167,139,250,0.5), inset 0 0 0 1px rgba(255,255,255,0.15);
-    position: relative;
+  header .traffic { display: flex; gap: 8px; margin-right: 8px; }
+  header .traffic span {
+    width: 12px; height: 12px; border-radius: 50%;
+    box-shadow: inset 0 0 0 0.5px rgba(0,0,0,0.25);
   }
-  header .logo::after {
-    content: ""; position: absolute; inset: 6px; border-radius: 4px; background: var(--bg);
+  header .traffic .r { background: #ff5f57; }
+  header .traffic .y { background: #febc2e; }
+  header .traffic .g { background: #28c840; }
+  header .brand {
+    display: flex; align-items: center; gap: 8px;
+    font-weight: 600; font-size: 13px; letter-spacing: -0.01em;
   }
-  header h1 {
-    font-family: 'Instrument Serif', serif; font-size: 20px; margin: 0; font-weight: 400;
-    letter-spacing: -0.01em;
+  header .brand .logo {
+    width: 20px; height: 20px; border-radius: 6px;
+    background: linear-gradient(135deg, #0a84ff, #64d2ff);
+    box-shadow: inset 0 0 0 0.5px rgba(255,255,255,0.35),
+                0 2px 6px rgba(10,132,255,0.35);
   }
   header .spacer { flex: 1; }
-  button, .btn, select, input, textarea {
-    background: var(--panel-2); color: var(--text);
-    border: 1px solid var(--border);
-    border-radius: 8px; padding: 7px 12px; font: inherit; outline: none;
-    transition: all .18s cubic-bezier(.4,0,.2,1);
-  }
-  input:focus, textarea:focus, select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(167,139,250,0.15); }
-  button { cursor: pointer; font-weight: 500; }
-  button:hover { background: rgba(255,255,255,0.07); border-color: var(--border-strong); }
-  button.primary {
-    background: linear-gradient(135deg, var(--accent), var(--accent-2));
-    color: #0a0a0f; border-color: transparent; font-weight: 600;
-    box-shadow: 0 4px 20px -4px rgba(167,139,250,0.5);
-  }
-  button.primary:hover { transform: translateY(-1px); box-shadow: 0 6px 24px -4px rgba(167,139,250,0.6); }
-  button.ghost { background: transparent; border-color: transparent; color: var(--muted); }
-  button.ghost:hover { color: var(--text); background: var(--panel-2); }
-  button.danger { background: transparent; color: var(--danger); border-color: rgba(251,113,133,0.25); }
-  button.danger:hover { background: rgba(251,113,133,0.1); border-color: var(--danger); }
 
+  /* ---------- Buttons (Apple pill / rounded rect) ---------- */
+  button, .btn {
+    -webkit-appearance: none; appearance: none;
+    background: var(--panel-2); color: var(--text);
+    border: 0.5px solid var(--hairline-strong);
+    border-radius: 7px; padding: 5px 12px;
+    font: 500 12.5px/1.2 inherit; letter-spacing: -0.005em;
+    cursor: pointer; outline: none;
+    transition: background .15s ease, transform .08s ease, border-color .15s ease;
+    box-shadow: var(--shadow-sm), inset 0 0.5px 0 rgba(255,255,255,0.05);
+  }
+  button:hover { background: var(--panel-3); }
+  button:active { transform: scale(0.97); }
+  button:focus-visible { box-shadow: 0 0 0 3px var(--accent-soft); }
+
+  button.primary {
+    background: linear-gradient(180deg, #0a84ff, #0060df);
+    color: #fff; border-color: rgba(0,0,0,0.35);
+    box-shadow: 0 1px 0 rgba(255,255,255,0.15) inset,
+                0 1px 2px rgba(0,0,0,0.4),
+                0 4px 12px -2px rgba(10,132,255,0.4);
+    font-weight: 600;
+  }
+  button.primary:hover { background: linear-gradient(180deg, #2b95ff, #0a6fe9); }
+  button.ghost { background: transparent; border-color: transparent; color: var(--muted); box-shadow: none; }
+  button.ghost:hover { color: var(--text); background: var(--panel-2); }
+  button.danger { background: transparent; color: var(--danger); border-color: rgba(255,69,58,0.35); }
+  button.danger:hover { background: rgba(255,69,58,0.12); }
+
+  /* ---------- Inputs ---------- */
+  select, input, textarea {
+    -webkit-appearance: none; appearance: none;
+    background: rgba(0,0,0,0.25); color: var(--text);
+    border: 0.5px solid var(--hairline-strong);
+    border-radius: 7px; padding: 6px 10px;
+    font: 13px/1.3 inherit; letter-spacing: -0.005em;
+    outline: none; width: 100%;
+    transition: border-color .15s, box-shadow .15s;
+  }
+  textarea { resize: vertical; font-family: inherit; }
+  select {
+    background-image:
+      linear-gradient(45deg, transparent 50%, var(--muted) 50%),
+      linear-gradient(135deg, var(--muted) 50%, transparent 50%);
+    background-position: calc(100% - 14px) 50%, calc(100% - 9px) 50%;
+    background-size: 5px 5px, 5px 5px; background-repeat: no-repeat;
+    padding-right: 26px;
+  }
+  input:focus, textarea:focus, select:focus {
+    border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft);
+  }
+
+  /* ---------- Side panels ---------- */
   aside {
-    background: rgba(15, 15, 23, 0.6);
-    backdrop-filter: blur(24px) saturate(140%); -webkit-backdrop-filter: blur(24px) saturate(140%);
-    border-right: 1px solid var(--border);
-    overflow-y: auto; padding: 20px; position: relative; z-index: 5;
+    background: rgba(28, 28, 30, 0.72);
+    backdrop-filter: saturate(180%) blur(30px);
+    -webkit-backdrop-filter: saturate(180%) blur(30px);
+    border-right: 1px solid var(--hairline);
+    overflow-y: auto; padding: 16px 14px 20px;
+    position: relative; z-index: 5;
   }
+  aside.right { grid-area: right; border-right: none; border-left: 1px solid var(--hairline); }
+  aside.left  { grid-area: left; }
   aside::-webkit-scrollbar { width: 8px; }
-  aside::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 4px; }
-  aside.right { grid-area: right; border-right: none; border-left: 1px solid var(--border); }
-  aside.left { grid-area: left; }
+  aside::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.10); border-radius: 4px; }
+  aside::-webkit-scrollbar-track { background: transparent; }
+
   aside h2 {
-    font-size: 10px; text-transform: uppercase; letter-spacing: 1.6px;
-    color: var(--dim); margin: 22px 0 10px; font-weight: 600;
-    display: flex; align-items: center; gap: 8px;
+    font-size: 11px; text-transform: uppercase; letter-spacing: 0.6px;
+    color: var(--dim); margin: 18px 0 8px; font-weight: 600;
   }
-  aside h2::before {
-    content: ""; width: 4px; height: 4px; border-radius: 50%; background: var(--accent);
-    box-shadow: 0 0 8px var(--accent);
-  }
-  aside h2:first-child { margin-top: 0; }
-  .field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 10px; }
+  aside h2:first-child { margin-top: 4px; }
+  .field { display: flex; flex-direction: column; gap: 5px; margin-bottom: 8px; }
   .field label { font-size: 11px; color: var(--muted); font-weight: 500; }
   .row { display: flex; gap: 6px; }
   .row > * { flex: 1; }
 
-  /* Canvas */
+  .segmented {
+    display: flex; background: rgba(0,0,0,0.28);
+    border: 0.5px solid var(--hairline); border-radius: 8px;
+    padding: 2px; gap: 2px;
+  }
+
+  /* ---------- Canvas ---------- */
   main {
     grid-area: canvas; position: relative; overflow: hidden;
     background:
-      radial-gradient(circle at 30% 20%, rgba(167,139,250,0.06), transparent 50%),
-      radial-gradient(circle at 80% 90%, rgba(103,232,249,0.05), transparent 50%),
+      radial-gradient(1200px 700px at 20% 0%, rgba(10,132,255,0.06), transparent 60%),
+      radial-gradient(900px 600px at 100% 100%, rgba(100,210,255,0.05), transparent 60%),
       linear-gradient(var(--grid) 1px, transparent 1px) 0 0 / 32px 32px,
       linear-gradient(90deg, var(--grid) 1px, transparent 1px) 0 0 / 32px 32px,
       linear-gradient(var(--grid-strong) 1px, transparent 1px) 0 0 / 128px 128px,
       linear-gradient(90deg, var(--grid-strong) 1px, transparent 1px) 0 0 / 128px 128px,
-      #08080d;
+      var(--canvas-bg);
+    cursor: grab;
   }
+  main.panning { cursor: grabbing; }
   main::after {
     content: ""; position: absolute; inset: 0; pointer-events: none;
-    background: radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.5) 100%);
+    background: radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,0.55) 100%);
   }
-  #canvas { position: absolute; inset: 0; transform-origin: 0 0; }
+  #canvas { position: absolute; inset: 0; transform-origin: 0 0; will-change: transform; }
   #canvasInner { position: relative; width: 4000px; height: 3000px; }
 
+  /* ---------- Lanes ---------- */
   .lane {
     position: absolute;
-    background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.005));
-    border: 1px solid var(--border); border-radius: 16px;
-    padding: 40px 14px 14px 14px;
-    backdrop-filter: blur(8px);
+    background: linear-gradient(180deg, rgba(255,255,255,0.028), rgba(255,255,255,0.008));
+    border: 0.5px solid var(--hairline-strong);
+    border-radius: 14px;
+    padding: 38px 12px 12px 12px;
+    backdrop-filter: blur(6px);
+    transition: border-color .2s;
   }
+  .lane:hover { border-color: rgba(255,255,255,0.24); }
   .lane .lane-title {
-    position: absolute; top: 12px; left: 16px; font-size: 10px;
-    color: var(--text); font-weight: 600; text-transform: uppercase; letter-spacing: 1.8px;
-    display: flex; align-items: center; gap: 10px;
+    position: absolute; top: 11px; left: 14px; font-size: 11px;
+    color: var(--text); font-weight: 600; letter-spacing: -0.01em;
+    display: flex; align-items: center; gap: 8px;
   }
   .lane .lane-title .dot {
     width: 8px; height: 8px; border-radius: 50%;
-    box-shadow: 0 0 12px currentColor;
+    box-shadow: 0 0 0 0.5px rgba(255,255,255,0.25);
+  }
+  .lane .lane-count {
+    font-size: 10px; color: var(--dim); font-weight: 500;
+    padding: 1px 7px; border-radius: 999px;
+    background: var(--panel-2); border: 0.5px solid var(--hairline);
   }
   .lane .lane-actions { position: absolute; top: 8px; right: 10px; display: none; gap: 4px; }
   .lane:hover .lane-actions { display: flex; }
   .lane-actions button { padding: 3px 8px; font-size: 11px; }
 
+  /* ---------- Idea sticky notes ---------- */
   .idea {
-    position: absolute; width: 190px; min-height: 100px;
-    background: linear-gradient(135deg, #fff4b3, #ffe58a);
-    color: #1a1a1a; border-radius: 4px;
-    padding: 14px 12px 26px;
+    position: absolute; width: 188px; min-height: 96px;
+    background: linear-gradient(160deg, #fff2b0, #ffe17a);
+    color: #1c1c1e; border-radius: 10px;
+    padding: 12px 12px 24px;
     box-shadow:
-      0 1px 2px rgba(0,0,0,0.3),
-      0 8px 24px -6px rgba(0,0,0,0.5),
-      inset 0 1px 0 rgba(255,255,255,0.5);
+      0 1px 1px rgba(0,0,0,0.28),
+      0 10px 24px -8px rgba(0,0,0,0.55),
+      inset 0 0.5px 0 rgba(255,255,255,0.55);
     cursor: grab; user-select: none;
-    font-size: 13px; line-height: 1.4; font-weight: 500;
-    transition: transform .15s ease, box-shadow .15s ease;
-    transform: rotate(-0.5deg);
+    font-size: 13px; line-height: 1.42; font-weight: 500;
+    letter-spacing: -0.005em;
+    transition: transform .18s cubic-bezier(.2,.8,.2,1), box-shadow .18s;
   }
-  .idea:nth-child(even) { transform: rotate(0.7deg); }
-  .idea:hover { transform: rotate(0) translateY(-2px); box-shadow: 0 2px 4px rgba(0,0,0,0.3), 0 16px 32px -8px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.5); z-index: 2; }
+  .idea:hover {
+    transform: translateY(-2px) scale(1.015); z-index: 2;
+    box-shadow: 0 2px 3px rgba(0,0,0,0.3), 0 20px 40px -10px rgba(0,0,0,0.6),
+                inset 0 0.5px 0 rgba(255,255,255,0.55);
+  }
   .idea:active { cursor: grabbing; }
-  .idea .idea-text { outline: none; white-space: pre-wrap; word-wrap: break-word; }
+  .idea .idea-text {
+    outline: none; white-space: pre-wrap; word-wrap: break-word;
+    min-height: 40px;
+  }
+  .idea .idea-text:focus { background: rgba(255,255,255,0.35); border-radius: 4px; }
   .idea .idea-meta {
-    position: absolute; bottom: 6px; left: 12px; right: 12px;
+    position: absolute; bottom: 5px; left: 12px; right: 12px;
     display: flex; justify-content: space-between; font-size: 10px;
-    color: rgba(0,0,0,.5); font-weight: 600; text-transform: uppercase; letter-spacing: .5px;
+    color: rgba(0,0,0,.5); font-weight: 600; letter-spacing: 0.02em;
   }
   .idea .idea-del {
-    position: absolute; top: 4px; right: 6px; background: transparent; border: none;
-    color: rgba(0,0,0,.3); cursor: pointer; font-size: 16px; padding: 0 4px; line-height: 1;
-    border-radius: 4px;
+    position: absolute; top: 4px; right: 4px; width: 20px; height: 20px;
+    background: transparent; border: none; box-shadow: none;
+    color: rgba(0,0,0,.35); cursor: pointer; font-size: 16px; padding: 0; line-height: 1;
+    border-radius: 50%; display: flex; align-items: center; justify-content: center;
   }
-  .idea .idea-del:hover { color: var(--danger); background: rgba(0,0,0,0.06); }
+  .idea .idea-del:hover { color: #fff; background: var(--danger); }
 
-  /* Zoom controls */
+  /* ---------- Zoom controls (Apple segmented) ---------- */
   .zoom-controls {
-    position: absolute; bottom: 20px; right: 20px; display: flex; gap: 2px;
-    background: rgba(15, 15, 23, 0.85); backdrop-filter: blur(20px);
-    border: 1px solid var(--border); border-radius: 10px; padding: 4px;
-    box-shadow: var(--shadow-lg); z-index: 20;
+    position: absolute; bottom: 18px; right: 18px; display: flex; gap: 2px;
+    background: rgba(30, 30, 32, 0.78);
+    backdrop-filter: saturate(180%) blur(30px);
+    -webkit-backdrop-filter: saturate(180%) blur(30px);
+    border: 0.5px solid var(--hairline-strong); border-radius: 10px; padding: 3px;
+    box-shadow: var(--shadow-md); z-index: 20;
   }
   .zoom-controls button {
-    padding: 6px 12px; border: none; background: transparent;
-    font-family: 'JetBrains Mono', monospace; font-size: 12px;
+    padding: 5px 10px; border: none; background: transparent;
+    box-shadow: none; font-variant-numeric: tabular-nums;
+    min-width: 30px;
   }
-  .zoom-controls button:hover { background: var(--panel-2); }
+  .zoom-controls button:hover { background: var(--panel-3); }
+  .zoom-controls #zoomLabel { display: inline-block; min-width: 40px; }
 
-  /* Prompt list */
+  .canvas-badge {
+    position: absolute; top: 18px; left: 18px;
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 5px 12px 5px 8px;
+    background: rgba(30, 30, 32, 0.78);
+    backdrop-filter: saturate(180%) blur(30px);
+    -webkit-backdrop-filter: saturate(180%) blur(30px);
+    border: 0.5px solid var(--hairline-strong); border-radius: 999px;
+    box-shadow: var(--shadow-md); z-index: 20;
+    font-size: 12px; font-weight: 500; letter-spacing: -0.005em;
+  }
+  .canvas-badge .icon {
+    width: 16px; height: 16px; border-radius: 4px;
+    background: linear-gradient(135deg, var(--accent), #64d2ff);
+  }
+
+  /* ---------- Prompt items ---------- */
   .prompt-item {
-    background: linear-gradient(135deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));
-    border: 1px solid var(--border); border-radius: 10px;
-    padding: 12px 14px; margin-bottom: 8px; cursor: grab;
-    transition: all .18s ease; position: relative; overflow: hidden;
+    background: var(--panel-2);
+    border: 0.5px solid var(--hairline);
+    border-radius: 10px;
+    padding: 10px 12px; margin-bottom: 6px; cursor: grab;
+    transition: background .15s, border-color .15s, transform .1s;
   }
-  .prompt-item::before {
-    content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 2px;
-    background: linear-gradient(180deg, var(--accent), var(--accent-2));
-    opacity: 0; transition: opacity .18s;
-  }
-  .prompt-item:hover { border-color: var(--border-strong); transform: translateX(2px); }
-  .prompt-item:hover::before { opacity: 1; }
-  .prompt-item .q { font-size: 13px; line-height: 1.45; font-weight: 500; }
+  .prompt-item:hover { background: var(--panel-3); border-color: var(--hairline-strong); }
+  .prompt-item:active { transform: scale(0.98); }
+  .prompt-item .q { font-size: 13px; line-height: 1.4; font-weight: 500; letter-spacing: -0.005em; }
   .prompt-item .cat {
-    font-size: 9px; color: var(--accent); text-transform: uppercase;
-    letter-spacing: 1.2px; margin-top: 6px; font-weight: 700;
-    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px; color: var(--accent); text-transform: uppercase;
+    letter-spacing: 0.6px; margin-top: 4px; font-weight: 600;
   }
 
+  /* ---------- Lane items in sidebar ---------- */
   .lane-item {
-    display: flex; align-items: center; gap: 10px; padding: 8px 10px;
-    background: var(--panel-2); border: 1px solid var(--border);
-    border-radius: 8px; margin-bottom: 5px;
-    transition: border-color .15s;
+    display: flex; align-items: center; gap: 10px; padding: 7px 10px;
+    background: var(--panel-2); border: 0.5px solid var(--hairline);
+    border-radius: 8px; margin-bottom: 4px;
+    transition: background .15s, border-color .15s;
   }
-  .lane-item:hover { border-color: var(--border-strong); }
+  .lane-item:hover { background: var(--panel-3); border-color: var(--hairline-strong); }
   .lane-item .swatch {
-    width: 14px; height: 14px; border-radius: 4px;
-    box-shadow: 0 0 12px currentColor, inset 0 0 0 1px rgba(255,255,255,.2);
+    width: 12px; height: 12px; border-radius: 3px;
+    box-shadow: inset 0 0 0 0.5px rgba(255,255,255,.25);
   }
   .lane-item .name { flex: 1; font-size: 13px; outline: none; font-weight: 500; }
-  .lane-item button { padding: 2px 8px; font-size: 12px; }
+  .lane-item .name:focus { background: rgba(0,0,0,0.3); border-radius: 4px; padding: 0 4px; }
+  .lane-item button {
+    padding: 2px 8px; font-size: 14px; line-height: 1;
+    background: transparent; border-color: transparent; color: var(--muted);
+    box-shadow: none;
+  }
+  .lane-item button:hover { color: var(--danger); background: rgba(255,69,58,0.12); }
 
-  .empty { color: var(--dim); font-size: 12px; font-style: italic; line-height: 1.5; }
+  .empty { color: var(--dim); font-size: 12px; line-height: 1.5; margin: 4px 0; }
 
-  /* Modal */
+  /* ---------- Modal ---------- */
   .modal-backdrop {
-    position: fixed; inset: 0; background: rgba(0,0,0,.7);
-    backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+    position: fixed; inset: 0; background: rgba(0,0,0,.55);
+    backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
     display: none; align-items: center; justify-content: center; z-index: 100;
   }
   .modal-backdrop.open { display: flex; }
   .modal {
-    background: var(--panel-solid); border: 1px solid var(--border-strong); border-radius: 16px;
-    padding: 24px; width: 580px; max-width: 92vw; max-height: 82vh; overflow: auto;
-    box-shadow: var(--shadow-lg), var(--glow);
+    background: rgba(40, 40, 43, 0.92);
+    backdrop-filter: blur(40px) saturate(180%);
+    border: 0.5px solid var(--hairline-strong);
+    border-radius: 14px;
+    padding: 22px 22px 18px; width: 560px; max-width: 92vw; max-height: 82vh; overflow: auto;
+    box-shadow: var(--shadow-lg);
   }
-  .modal h3 { margin: 0 0 14px; font-family: 'Instrument Serif', serif; font-size: 22px; font-weight: 400; }
+  .modal h3 {
+    margin: 0 0 6px; font-size: 17px; font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+  .modal p { color: var(--muted); font-size: 12px; margin: 0 0 12px; }
+  .modal code {
+    font: 11px/1.4 ui-monospace, "SF Mono", Menlo, monospace;
+    background: rgba(0,0,0,0.35); padding: 1px 5px; border-radius: 4px;
+  }
   .modal textarea {
-    width: 100%; min-height: 260px;
-    font-family: 'JetBrains Mono', ui-monospace, Menlo, monospace;
-    font-size: 12px; line-height: 1.5;
+    min-height: 240px;
+    font: 12px/1.5 ui-monospace, "SF Mono", Menlo, monospace;
   }
   .modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 14px; }
-
-  .canvas-type-pill {
-    display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px;
-    background: rgba(167,139,250,0.12);
-    color: var(--accent);
-    border: 1px solid rgba(167,139,250,0.25);
-    border-radius: 999px; font-size: 10px; font-weight: 600;
-    text-transform: uppercase; letter-spacing: 1.2px;
-    font-family: 'JetBrains Mono', monospace;
-  }
-  .canvas-type-pill::before {
-    content: ""; width: 6px; height: 6px; border-radius: 50%;
-    background: var(--accent); box-shadow: 0 0 8px var(--accent);
-    animation: pulse 2s ease-in-out infinite;
-  }
-  @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
 </style>
 </head>
 <body>
 
 <header>
-  <div class="brand"><div class="logo"></div><h1>Discovery Canvas</h1></div>
-  <span class="canvas-type-pill" id="canvasTypePill">Whiteboard</span>
+  <div class="traffic"><span class="r"></span><span class="y"></span><span class="g"></span></div>
+  <div class="brand"><div class="logo"></div>Discovery Canvas</div>
   <span class="spacer"></span>
-  <button id="btnImport">Import JSON</button>
+  <button id="btnImport">Import</button>
   <button id="btnExport">Export</button>
   <button id="btnLoadSample" class="ghost">Load Sample</button>
   <button id="btnClear" class="danger">Clear</button>
@@ -291,8 +372,8 @@
     <label>Type</label>
     <select id="canvasType">
       <option value="whiteboard">Whiteboard (free)</option>
-      <option value="swimlanes-h">Swimlanes (horizontal)</option>
-      <option value="swimlanes-v">Swimlanes (vertical)</option>
+      <option value="swimlanes-h">Swimlanes — horizontal</option>
+      <option value="swimlanes-v">Swimlanes — vertical</option>
       <option value="matrix-2x2">2×2 Matrix</option>
       <option value="journey">Journey Map</option>
       <option value="empathy">Empathy Map</option>
@@ -303,16 +384,16 @@
   <div id="laneList"></div>
   <div class="row" style="margin-top:6px;">
     <input id="newLaneName" placeholder="New lane name" />
-    <button id="btnAddLane">+ Add</button>
+    <button id="btnAddLane" style="flex:0 0 auto;">Add</button>
   </div>
 
   <h2>Add Idea</h2>
   <div class="field">
-    <textarea id="newIdeaText" placeholder="Type an idea and press Add…" rows="3"></textarea>
+    <textarea id="newIdeaText" placeholder="Type an idea…" rows="3"></textarea>
   </div>
   <div class="row">
     <select id="newIdeaLane"></select>
-    <button class="primary" id="btnAddIdea">+ Add Idea</button>
+    <button class="primary" id="btnAddIdea" style="flex:0 0 auto;">Add</button>
   </div>
 </aside>
 
@@ -320,28 +401,26 @@
   <div id="canvas">
     <div id="canvasInner"></div>
   </div>
+  <div class="canvas-badge"><span class="icon"></span><span id="canvasTypePill">Whiteboard</span></div>
   <div class="zoom-controls">
-    <button id="btnZoomOut">−</button>
-    <button id="btnZoomReset"><span id="zoomLabel">100%</span></button>
-    <button id="btnZoomIn">+</button>
+    <button id="btnZoomOut" title="Zoom out">−</button>
+    <button id="btnZoomReset" title="Reset zoom"><span id="zoomLabel">100%</span></button>
+    <button id="btnZoomIn" title="Zoom in">+</button>
   </div>
 </main>
 
 <aside class="right">
   <h2>Preconfigured Prompts</h2>
-  <p class="empty" id="promptsEmpty">Import a JSON config or load the sample to see prompts here. Click a prompt to drop it on the canvas.</p>
+  <p class="empty" id="promptsEmpty">Import JSON or load the sample to see prompts. Click a prompt to drop it on the canvas.</p>
   <div id="promptList"></div>
 </aside>
 
 <!-- Import modal -->
 <div class="modal-backdrop" id="importModal">
   <div class="modal">
-    <h3>Import Configuration (JSON)</h3>
-    <p style="color:var(--muted);font-size:12px;margin-top:0;">
-      Paste JSON or choose a file. Schema:
-      <code>{ title, type, lanes:[{id,name,color}], prompts:[{id,category,question}] }</code>
-    </p>
-    <input type="file" id="fileInput" accept="application/json,.json" style="margin-bottom:8px;" />
+    <h3>Import Configuration</h3>
+    <p>Paste JSON or choose a file. Schema: <code>{ title, type, lanes:[{id,name,color}], prompts:[{id,category,question}] }</code></p>
+    <input type="file" id="fileInput" accept="application/json,.json" style="margin-bottom:10px;" />
     <textarea id="jsonInput" placeholder='{"title":"...","type":"swimlanes-h","lanes":[...],"prompts":[...]}'></textarea>
     <div class="modal-actions">
       <button id="btnImportCancel" class="ghost">Cancel</button>
@@ -351,37 +430,40 @@
 </div>
 
 <script>
-/* -----------------------------------------------------------
-   Discovery Canvas — state + rendering
-   ----------------------------------------------------------- */
-
-const STICKY_COLORS = ["#ffe58a","#ffb3ba","#bae1ff","#baffc9","#ffdfba","#e0baff","#d0f0c0"];
-const LANE_COLORS  = ["#6ea8ff","#b58bff","#5cd6b1","#ffb86b","#ff7b9c","#ffd76b","#7be0ff"];
+/* ---------------- state ---------------- */
+const STICKY_COLORS = [
+  "linear-gradient(160deg,#fff2b0,#ffe17a)",
+  "linear-gradient(160deg,#ffd6db,#ffb0b8)",
+  "linear-gradient(160deg,#cfe6ff,#a3ccff)",
+  "linear-gradient(160deg,#d4f4d4,#a8e2a8)",
+  "linear-gradient(160deg,#ffe1c2,#ffc48a)",
+  "linear-gradient(160deg,#e8d5ff,#c8a8ff)",
+];
+const LANE_COLORS  = ["#0a84ff","#bf5af2","#30d158","#ff9f0a","#ff375f","#ffd60a","#64d2ff"];
 
 const state = {
   title: "Untitled Discovery",
   type: "whiteboard",
-  lanes: [],   // {id, name, color}
-  ideas: [],   // {id, text, laneId, x, y, color, promptId?}
-  prompts: [], // {id, category, question}
-  zoom: 1,
+  lanes: [], ideas: [], prompts: [],
+  zoom: 1, pan: { x: 0, y: 0 },
 };
 
 const $ = (id) => document.getElementById(id);
 const uid = () => Math.random().toString(36).slice(2, 9);
 
-/* ---------- LocalStorage persistence ---------- */
-function save() {
-  localStorage.setItem("discovery-canvas", JSON.stringify(state));
-}
+function save() { localStorage.setItem("discovery-canvas", JSON.stringify(state)); }
 function load() {
   try {
     const raw = localStorage.getItem("discovery-canvas");
-    if (raw) Object.assign(state, JSON.parse(raw));
+    if (raw) {
+      const s = JSON.parse(raw);
+      Object.assign(state, s);
+      if (!state.pan) state.pan = { x: 0, y: 0 };
+    }
   } catch(e){}
 }
 
-/* ---------- Rendering ---------- */
+/* ---------------- rendering ---------------- */
 function render() {
   $("canvasTitle").value = state.title;
   $("canvasType").value = state.type;
@@ -390,28 +472,26 @@ function render() {
   renderLaneOptions();
   renderIdeas();
   renderPrompts();
-  applyZoom();
+  applyTransform();
   save();
 }
 
 function labelForType(t) {
   return ({
     "whiteboard":"Whiteboard",
-    "swimlanes-h":"Swimlanes",
-    "swimlanes-v":"Swimlanes V",
+    "swimlanes-h":"Horizontal Swimlanes",
+    "swimlanes-v":"Vertical Swimlanes",
     "matrix-2x2":"2×2 Matrix",
     "journey":"Journey Map",
     "empathy":"Empathy Map",
   })[t] || t;
 }
 
-/* ---------- Lane layout by canvas type ---------- */
 function computeLaneRects() {
   const W = 4000, H = 3000, pad = 24;
   const n = state.lanes.length || 1;
   const rects = {};
   if (state.type === "whiteboard") {
-    // no visible lane rectangles — but we still return full bounds for containment
     state.lanes.forEach(l => rects[l.id] = { x: pad, y: pad, w: W - pad*2, h: H - pad*2 });
     return rects;
   }
@@ -426,7 +506,6 @@ function computeLaneRects() {
     return rects;
   }
   if (state.type === "matrix-2x2") {
-    // first 4 lanes → quadrants
     const halfW = (W - pad*2) / 2, halfH = (H - pad*2) / 2;
     const positions = [[0,0],[1,0],[0,1],[1,1]];
     state.lanes.slice(0,4).forEach((l, i) => {
@@ -436,7 +515,6 @@ function computeLaneRects() {
     return rects;
   }
   if (state.type === "journey" || state.type === "empathy") {
-    // columns
     const laneW = (W - pad*2) / n;
     state.lanes.forEach((l, i) => rects[l.id] = { x: pad + i*laneW, y: pad, w: laneW - 12, h: H - pad*2 });
     return rects;
@@ -447,9 +525,12 @@ function computeLaneRects() {
 function renderLanes() {
   const inner = $("canvasInner");
   inner.querySelectorAll(".lane").forEach(el => el.remove());
-  if (state.type === "whiteboard") return; // hide lane boxes
+  if (state.type === "whiteboard") return;
 
   const rects = computeLaneRects();
+  const counts = {};
+  state.ideas.forEach(i => counts[i.laneId] = (counts[i.laneId] || 0) + 1);
+
   state.lanes.forEach(l => {
     const r = rects[l.id]; if (!r) return;
     const el = document.createElement("div");
@@ -457,7 +538,11 @@ function renderLanes() {
     el.style.left = r.x + "px"; el.style.top = r.y + "px";
     el.style.width = r.w + "px"; el.style.height = r.h + "px";
     el.innerHTML = `
-      <div class="lane-title"><span class="dot" style="background:${l.color}"></span>${escapeHtml(l.name)}</div>
+      <div class="lane-title">
+        <span class="dot" style="background:${l.color}"></span>
+        ${escapeHtml(l.name)}
+        <span class="lane-count">${counts[l.id] || 0}</span>
+      </div>
       <div class="lane-actions">
         <button data-act="add" data-id="${l.id}">+ Idea</button>
       </div>`;
@@ -465,7 +550,7 @@ function renderLanes() {
   });
 
   inner.querySelectorAll('.lane-actions button[data-act="add"]').forEach(b => {
-    b.onclick = () => addIdea({ laneId: b.dataset.id, text: "New idea" });
+    b.onclick = (e) => { e.stopPropagation(); addIdea({ laneId: b.dataset.id, text: "New idea" }); };
   });
 }
 
@@ -477,7 +562,7 @@ function renderIdeas() {
     el.className = "idea";
     el.style.left = idea.x + "px";
     el.style.top = idea.y + "px";
-    el.style.background = idea.color || "#ffe58a";
+    el.style.background = idea.color || STICKY_COLORS[0];
     const lane = state.lanes.find(l => l.id === idea.laneId);
     el.innerHTML = `
       <button class="idea-del" title="Delete">×</button>
@@ -485,18 +570,14 @@ function renderIdeas() {
       <div class="idea-meta"><span>${lane ? escapeHtml(lane.name) : "—"}</span><span>${idea.promptId ? "★" : ""}</span></div>
     `;
     inner.appendChild(el);
-
-    // Edit
     el.querySelector(".idea-text").addEventListener("blur", (e) => {
-      idea.text = e.target.innerText;
-      save();
+      idea.text = e.target.innerText; save();
     });
-    // Delete
-    el.querySelector(".idea-del").onclick = () => {
+    el.querySelector(".idea-del").onclick = (e) => {
+      e.stopPropagation();
       state.ideas = state.ideas.filter(i => i.id !== idea.id);
       render();
     };
-    // Drag
     makeDraggable(el, idea);
   });
 }
@@ -518,7 +599,7 @@ function renderLaneOptions() {
   const list = $("laneList");
   list.innerHTML = "";
   if (!state.lanes.length) {
-    list.innerHTML = '<p class="empty">No lanes yet.</p>';
+    list.innerHTML = '<p class="empty">No lanes yet — add one below.</p>';
     return;
   }
   state.lanes.forEach(l => {
@@ -526,8 +607,8 @@ function renderLaneOptions() {
     row.className = "lane-item";
     row.innerHTML = `
       <span class="swatch" style="background:${l.color}"></span>
-      <span class="name" contenteditable="true">${escapeHtml(l.name)}</span>
-      <button data-act="del" data-id="${l.id}">×</button>
+      <span class="name" contenteditable="true" spellcheck="false">${escapeHtml(l.name)}</span>
+      <button data-act="del" data-id="${l.id}" title="Delete">×</button>
     `;
     row.querySelector(".name").addEventListener("blur", (e) => {
       l.name = e.target.innerText.trim() || l.name;
@@ -552,14 +633,16 @@ function renderPrompts() {
     el.innerHTML = `<div class="q">${escapeHtml(p.question)}</div>
                     <div class="cat">${escapeHtml(p.category || "prompt")}</div>`;
     el.onclick = () => {
-      const laneId = state.lanes[0]?.id || "";
+      // Prefer lane matching the prompt's category
+      const catLane = state.lanes.find(l => (l.name || "").toLowerCase() === (p.category || "").toLowerCase());
+      const laneId = catLane?.id || state.lanes[0]?.id || "";
       addIdea({ text: p.question, laneId, promptId: p.id });
     };
     list.appendChild(el);
   });
 }
 
-/* ---------- Actions ---------- */
+/* ---------------- actions ---------------- */
 function addLane(name, color) {
   const lane = {
     id: uid(),
@@ -577,10 +660,10 @@ function addIdea({ text = "New idea", laneId = "", x, y, color, promptId } = {})
   if (x == null || y == null) {
     if (r) {
       x = r.x + 20 + Math.random() * Math.max(20, r.w - 220);
-      y = r.y + 40 + Math.random() * Math.max(20, r.h - 140);
+      y = r.y + 44 + Math.random() * Math.max(20, r.h - 160);
     } else {
-      x = 100 + Math.random() * 400;
-      y = 100 + Math.random() * 300;
+      x = 200 + Math.random() * 600;
+      y = 160 + Math.random() * 400;
     }
   }
   const idea = {
@@ -593,76 +676,98 @@ function addIdea({ text = "New idea", laneId = "", x, y, color, promptId } = {})
   return idea;
 }
 
-/* ---------- Drag ---------- */
+/* ---------------- drag ---------------- */
 function makeDraggable(el, idea) {
-  let sx, sy, ox, oy, dragging = false;
+  let sx, sy, ox, oy, dragging = false, moved = false;
   el.addEventListener("mousedown", (e) => {
     if (e.target.closest(".idea-del") || e.target.classList.contains("idea-text")) return;
-    dragging = true;
+    dragging = true; moved = false;
     sx = e.clientX; sy = e.clientY; ox = idea.x; oy = idea.y;
-    e.preventDefault();
+    e.preventDefault(); e.stopPropagation();
   });
   window.addEventListener("mousemove", (e) => {
     if (!dragging) return;
     const dx = (e.clientX - sx) / state.zoom;
     const dy = (e.clientY - sy) / state.zoom;
+    if (Math.abs(dx) + Math.abs(dy) > 2) moved = true;
     idea.x = ox + dx; idea.y = oy + dy;
     el.style.left = idea.x + "px"; el.style.top = idea.y + "px";
   });
   window.addEventListener("mouseup", () => {
     if (!dragging) return;
     dragging = false;
-    // reassign lane based on center point
-    const rects = computeLaneRects();
-    const cx = idea.x + 90, cy = idea.y + 45;
-    let matched = idea.laneId;
-    for (const [id, r] of Object.entries(rects)) {
-      if (cx >= r.x && cx <= r.x + r.w && cy >= r.y && cy <= r.y + r.h) { matched = id; break; }
+    if (moved) {
+      const rects = computeLaneRects();
+      const cx = idea.x + 94, cy = idea.y + 48;
+      let matched = idea.laneId;
+      for (const [id, r] of Object.entries(rects)) {
+        if (cx >= r.x && cx <= r.x + r.w && cy >= r.y && cy <= r.y + r.h) { matched = id; break; }
+      }
+      if (matched !== idea.laneId) { idea.laneId = matched; render(); }
+      else save();
     }
-    if (matched !== idea.laneId) { idea.laneId = matched; renderIdeas(); }
-    save();
   });
 }
 
-/* ---------- Zoom & pan ---------- */
-function applyZoom() {
-  $("canvas").style.transform = `scale(${state.zoom})`;
+/* ---------------- zoom & pan (single source of truth) ---------------- */
+function applyTransform() {
+  $("canvas").style.transform =
+    `translate(${state.pan.x}px, ${state.pan.y}px) scale(${state.zoom})`;
   $("zoomLabel").textContent = Math.round(state.zoom * 100) + "%";
 }
 
-let panning = false, panStart = null, scrollStart = null;
-document.querySelector("main").addEventListener("mousedown", (e) => {
-  if (e.target.id === "canvas" || e.target.id === "canvasInner" || e.target.classList.contains("lane")) {
-    panning = true;
-    panStart = { x: e.clientX, y: e.clientY };
-    const c = $("canvas");
-    const t = new DOMMatrixReadOnly(getComputedStyle(c).transform);
-    scrollStart = { x: t.e, y: t.f };
-    e.preventDefault();
-  }
+function zoomAt(factor, cx, cy) {
+  const newZoom = Math.min(2.5, Math.max(0.25, +(state.zoom * factor).toFixed(3)));
+  const k = newZoom / state.zoom;
+  // keep the point under (cx, cy) stable
+  state.pan.x = cx - k * (cx - state.pan.x);
+  state.pan.y = cy - k * (cy - state.pan.y);
+  state.zoom = newZoom;
+  applyTransform();
+}
+
+let panning = false, panStart = null, panOrigin = null;
+const mainEl = document.querySelector("main");
+mainEl.addEventListener("mousedown", (e) => {
+  // Pan on empty canvas / lane background / middle-click anywhere
+  const isBg = e.target.id === "canvas" || e.target.id === "canvasInner" || e.target.classList.contains("lane");
+  if (!isBg && e.button !== 1) return;
+  panning = true; mainEl.classList.add("panning");
+  panStart = { x: e.clientX, y: e.clientY };
+  panOrigin = { x: state.pan.x, y: state.pan.y };
+  e.preventDefault();
 });
 window.addEventListener("mousemove", (e) => {
   if (!panning) return;
-  const dx = e.clientX - panStart.x;
-  const dy = e.clientY - panStart.y;
-  $("canvas").style.transform = `translate(${scrollStart.x + dx}px, ${scrollStart.y + dy}px) scale(${state.zoom})`;
+  state.pan.x = panOrigin.x + (e.clientX - panStart.x);
+  state.pan.y = panOrigin.y + (e.clientY - panStart.y);
+  applyTransform();
 });
-window.addEventListener("mouseup", () => panning = false);
+window.addEventListener("mouseup", () => {
+  if (panning) { panning = false; mainEl.classList.remove("panning"); save(); }
+});
 
-document.querySelector("main").addEventListener("wheel", (e) => {
-  if (!e.ctrlKey && !e.metaKey) return;
-  e.preventDefault();
-  const delta = e.deltaY > 0 ? -0.1 : 0.1;
-  state.zoom = Math.min(2, Math.max(0.3, +(state.zoom + delta).toFixed(2)));
-  applyZoom();
+mainEl.addEventListener("wheel", (e) => {
+  const rect = mainEl.getBoundingClientRect();
+  const cx = e.clientX - rect.left, cy = e.clientY - rect.top;
+  if (e.ctrlKey || e.metaKey) {
+    e.preventDefault();
+    zoomAt(e.deltaY > 0 ? 0.92 : 1.08, cx, cy);
+  } else {
+    // pan with wheel/trackpad
+    e.preventDefault();
+    state.pan.x -= e.deltaX;
+    state.pan.y -= e.deltaY;
+    applyTransform();
+  }
 }, { passive: false });
 
-/* ---------- Utilities ---------- */
+/* ---------------- utils ---------------- */
 function escapeHtml(s = "") {
   return String(s).replace(/[&<>"']/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c]));
 }
 
-/* ---------- Import / Export ---------- */
+/* ---------------- import / export ---------------- */
 function openImport() { $("importModal").classList.add("open"); }
 function closeImport() { $("importModal").classList.remove("open"); $("jsonInput").value = ""; $("fileInput").value = ""; }
 
@@ -687,7 +792,7 @@ function applyImport(config) {
   if (Array.isArray(config.ideas)) {
     state.ideas = config.ideas.map(i => ({
       id: i.id || uid(), text: i.text || "", laneId: i.laneId || (state.lanes[0]?.id ?? ""),
-      x: i.x ?? 100, y: i.y ?? 100, color: i.color, promptId: i.promptId,
+      x: i.x ?? 200, y: i.y ?? 200, color: i.color, promptId: i.promptId,
     }));
   }
   render();
@@ -698,33 +803,33 @@ function exportJson() {
   const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
   const a = document.createElement("a");
   a.href = URL.createObjectURL(blob);
-  a.download = (state.title || "discovery") + ".json";
+  a.download = (state.title || "discovery").replace(/\s+/g,"-").toLowerCase() + ".json";
   a.click();
 }
 
-/* ---------- Sample data ---------- */
+/* ---------------- sample ---------------- */
 const SAMPLE = {
   title: "Product Discovery — Onboarding",
   type: "swimlanes-h",
   lanes: [
-    { name: "Users",        color: "#6ea8ff" },
-    { name: "Problems",     color: "#ff7b9c" },
-    { name: "Opportunities",color: "#5cd6b1" },
-    { name: "Solutions",    color: "#ffd76b" },
+    { name: "Users",         color: "#0a84ff" },
+    { name: "Problems",      color: "#ff375f" },
+    { name: "Opportunities", color: "#30d158" },
+    { name: "Solutions",     color: "#ffd60a" },
   ],
   prompts: [
     { category: "Users",         question: "Who is the primary user we are serving?" },
     { category: "Users",         question: "What is their day-to-day context?" },
     { category: "Problems",      question: "What is the most painful step in the current flow?" },
     { category: "Problems",      question: "Where do users drop off today?" },
-    { category: "Opportunities", question: "What outcomes would make this a 10x improvement?" },
-    { category: "Opportunities", question: "What emerging behavior could we amplify?" },
+    { category: "Opportunities", question: "What outcomes would make this a 10× improvement?" },
+    { category: "Opportunities", question: "What emerging behaviour could we amplify?" },
     { category: "Solutions",     question: "What is the simplest thing that could work?" },
     { category: "Solutions",     question: "What have competitors tried, and why did it fail?" },
   ],
 };
 
-/* ---------- Wire up UI ---------- */
+/* ---------------- wire up ---------------- */
 $("btnImport").onclick = openImport;
 $("btnImportCancel").onclick = closeImport;
 $("btnImportApply").onclick = () => {
@@ -747,6 +852,7 @@ $("btnClear").onclick = () => {
   if (!confirm("Clear the entire canvas?")) return;
   state.title = "Untitled Discovery"; state.type = "whiteboard";
   state.lanes = []; state.ideas = []; state.prompts = [];
+  state.pan = { x: 0, y: 0 }; state.zoom = 1;
   render();
 };
 
@@ -768,11 +874,11 @@ $("btnAddIdea").onclick = () => {
   $("newIdeaText").value = "";
 };
 
-$("btnZoomIn").onclick    = () => { state.zoom = Math.min(2, +(state.zoom + 0.1).toFixed(2)); applyZoom(); };
-$("btnZoomOut").onclick   = () => { state.zoom = Math.max(0.3, +(state.zoom - 0.1).toFixed(2)); applyZoom(); };
-$("btnZoomReset").onclick = () => { state.zoom = 1; $("canvas").style.transform = "scale(1)"; };
+$("btnZoomIn").onclick  = () => { const r = mainEl.getBoundingClientRect(); zoomAt(1.1, r.width/2, r.height/2); };
+$("btnZoomOut").onclick = () => { const r = mainEl.getBoundingClientRect(); zoomAt(1/1.1, r.width/2, r.height/2); };
+$("btnZoomReset").onclick = () => { state.zoom = 1; state.pan = { x: 0, y: 0 }; applyTransform(); };
 
-/* ---------- Init ---------- */
+/* ---------------- init ---------------- */
 load();
 if (!state.lanes.length && !state.ideas.length && !state.prompts.length) {
   applyImport(structuredClone(SAMPLE));
