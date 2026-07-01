@@ -513,6 +513,45 @@
   </div>
 </div>
 
+<div class="modal-backdrop" id="sessionModal">
+  <div class="modal" style="width:560px">
+    <h2>Session details</h2>
+    <p style="margin:0 0 14px;color:var(--muted);font-size:12px">Metadata for this discovery session. Shown in the header bar and included in exports.</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      <label style="grid-column:1/-1;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-2)">Session title
+        <input id="sfTitle" maxlength="120" placeholder="e.g. Agentic AI Discovery" style="margin-top:4px;width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:8px;font:inherit">
+      </label>
+      <label style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-2)">Customer
+        <input id="sfCustomer" maxlength="120" placeholder="e.g. BBC" style="margin-top:4px;width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:8px;font:inherit">
+      </label>
+      <label style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-2)">Date
+        <input id="sfDate" type="date" style="margin-top:4px;width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:8px;font:inherit">
+      </label>
+      <label style="grid-column:1/-1;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-2)">Session type
+        <select id="sfType" style="margin-top:4px;width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:8px;font:inherit;background:#fff">
+          <option value="">Select…</option>
+          <option>Discovery</option>
+          <option>Strategy</option>
+          <option>Ideation / Brainstorm</option>
+          <option>Process Mapping</option>
+          <option>Experience Mapping</option>
+          <option>Empathy / Research</option>
+          <option>Retrospective</option>
+          <option>Workshop</option>
+          <option>Planning</option>
+        </select>
+      </label>
+      <label style="grid-column:1/-1;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-2)">Description
+        <textarea id="sfDesc" maxlength="800" rows="4" placeholder="Purpose, participants, outcomes…" style="margin-top:4px;width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:8px;font:inherit;resize:vertical"></textarea>
+      </label>
+    </div>
+    <div class="actions">
+      <button class="btn" id="sfCancel">Cancel</button>
+      <button class="btn primary" id="sfSave">Save</button>
+    </div>
+  </div>
+</div>
+
 <script>
 'use strict';
 
