@@ -1203,6 +1203,7 @@ $('#btnAddIdea').addEventListener('click', ()=>{
 });
 $('#btnClear').addEventListener('click', ()=>{
   if(!confirm('Clear all swimlanes, prompts, questions, cards and connections?')) return;
+  state.session = null;
   state.canvasType = 'whiteboard';
   state.lanes = [];
   state.prompts = [];
