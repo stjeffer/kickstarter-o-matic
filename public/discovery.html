@@ -853,15 +853,20 @@ viewport.addEventListener('drop', e=>{
   const pt = clientToWorld(e.clientX, e.clientY);
   const promptText = e.dataTransfer.getData('application/x-prompt');
   const color = e.dataTransfer.getData('application/x-card-color');
+  const emoji = e.dataTransfer.getData('application/x-card-emoji');
+  const presetText = e.dataTransfer.getData('application/x-card-text');
   const def = CARD_TYPES[type].defaults;
   const card = {
     type,
     x: pt.x - def.w/2,
     y: pt.y - def.h/2,
-    text: promptText || def.text,
+    text: promptText || presetText || def.text,
   };
   if(color) card.color = color;
+  if(emoji) card.emoji = emoji;
+  else if(type==='emotion' && def.emoji) card.emoji = def.emoji;
   addCard(card);
+
 });
 
 cardsLayer.addEventListener('mousedown', e=>{
