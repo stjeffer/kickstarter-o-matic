@@ -1299,6 +1299,9 @@ $('#btnAddLane').addEventListener('click', ()=>{
   renderLanes(); save();
 });
 $('#btnAddIdea').addEventListener('click', ()=>{
+  if(state.canvasType==='mindmap' && state.selection.cardId){
+    addMindmapChild(state.selection.cardId); return;
+  }
   addCard({type:'sticky', x:400 + Math.random()*200, y:300 + Math.random()*200, text:'New idea'});
 });
 $('#btnClear').addEventListener('click', ()=>{
