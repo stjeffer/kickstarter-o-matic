@@ -222,6 +222,75 @@
     border-left:3px solid var(--accent);
   }
 
+  /* ===== Experience cards ===== */
+  .card.emotion .card-body{
+    width:120px;height:120px;border-radius:50%;
+    background:radial-gradient(circle at 30% 25%, #fff, #f4f5f7 70%);
+    border:1px solid var(--line-2);box-shadow:0 8px 24px -10px rgba(0,0,0,.18), inset 0 -3px 8px rgba(0,0,0,.04);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:8px;
+    font-size:12px;color:var(--ink-2);font-weight:500;
+  }
+  .card.emotion .emoji{font-size:38px;line-height:1}
+  .card.emotion .txt{font-size:11px;color:var(--ink-2)}
+
+  .card.quote .card-body{
+    width:220px;min-height:96px;padding:16px 16px 14px 32px;
+    background:#fff;border:1px solid var(--line-2);border-radius:12px;
+    box-shadow:var(--shadow-2);position:relative;
+    font-family:'Instrument Serif','Georgia',serif;font-size:15px;line-height:1.35;
+    color:var(--ink);font-style:italic;
+  }
+  .card.quote .card-body::before{
+    content:'"';position:absolute;top:2px;left:10px;
+    font-family:'Instrument Serif',serif;font-size:44px;line-height:1;
+    color:var(--accent);opacity:.55;
+  }
+
+  .card.pain .card-body{
+    width:190px;min-height:64px;padding:12px 14px 12px 40px;
+    background:linear-gradient(180deg,#fff5f4,#ffe9e7);
+    border:1px solid #ffb4ac;border-radius:12px;color:#7a1a10;
+    font-size:13px;line-height:1.35;font-weight:500;
+    box-shadow:0 4px 12px -6px rgba(255,59,48,.25);position:relative;
+  }
+  .card.pain .card-body::before{content:'●';position:absolute;left:14px;top:12px;font-size:16px;color:#ff3b30}
+  .card.pain .card-body::after{content:'PAIN';position:absolute;top:-8px;right:10px;font-size:9px;font-weight:700;letter-spacing:.1em;background:#ff3b30;color:#fff;padding:2px 6px;border-radius:4px}
+
+  .card.gain .card-body{
+    width:190px;min-height:64px;padding:12px 14px 12px 40px;
+    background:linear-gradient(180deg,#f0fbf4,#dff5e6);
+    border:1px solid #a4e0b8;border-radius:12px;color:#0e4d24;
+    font-size:13px;line-height:1.35;font-weight:500;
+    box-shadow:0 4px 12px -6px rgba(52,199,89,.25);position:relative;
+  }
+  .card.gain .card-body::before{content:'★';position:absolute;left:12px;top:11px;font-size:15px;color:#34c759}
+  .card.gain .card-body::after{content:'GAIN';position:absolute;top:-8px;right:10px;font-size:9px;font-weight:700;letter-spacing:.1em;background:#34c759;color:#fff;padding:2px 6px;border-radius:4px}
+
+  .card.moment .card-body{
+    width:170px;min-height:76px;padding:12px 14px;
+    background:#fff;border:1px solid var(--line-2);border-radius:10px;
+    box-shadow:var(--shadow-2);position:relative;
+    font-size:13px;line-height:1.35;color:var(--ink);
+    border-top:3px solid var(--accent);
+  }
+
+  .card.persona .card-body{
+    width:200px;min-height:110px;padding:14px 14px 12px 60px;
+    background:#fff;border:1px solid var(--line-2);border-radius:14px;
+    box-shadow:var(--shadow-2);position:relative;
+    font-size:12.5px;line-height:1.4;color:var(--ink);
+  }
+  .card.persona .card-body::before{
+    content:'';position:absolute;left:12px;top:14px;width:36px;height:36px;border-radius:50%;
+    background:linear-gradient(135deg,#0a84ff,#5ac8fa);
+    box-shadow:inset 0 -3px 6px rgba(0,0,0,.15);
+  }
+  .card.persona .card-body::after{
+    content:'PERSONA';position:absolute;top:-8px;left:14px;
+    font-size:9px;font-weight:700;letter-spacing:.1em;background:var(--ink);color:#fff;padding:2px 6px;border-radius:4px;
+  }
+
+
   .card-body{cursor:grab;position:relative;outline-offset:2px}
   .card.dragging .card-body{cursor:grabbing}
   .card-body[contenteditable="true"]{cursor:text}
