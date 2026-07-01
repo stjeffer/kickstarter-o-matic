@@ -101,16 +101,27 @@
   .lane-name:hover, .lane-name:focus{background:#fff;outline:1px solid var(--line-2)}
 
   /* Palette (card types) */
-  .palette-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .palette-group{margin-bottom:14px}
+  .palette-group:last-child{margin-bottom:0}
+  .palette-group-title{
+    font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;
+    color:var(--muted);margin:0 0 6px;padding:0 2px;
+    display:flex;align-items:center;gap:6px;
+  }
+  .palette-group-title::after{content:'';flex:1;height:1px;background:linear-gradient(to right, var(--line), transparent)}
+  .palette-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
   .palette-item{
     display:flex;flex-direction:column;align-items:center;gap:6px;
-    padding:10px 6px;border:1px solid var(--line);border-radius:10px;background:#fff;
-    cursor:grab;transition:all .15s;text-align:center;
+    padding:10px 6px;border:1px solid var(--line);border-radius:10px;
+    background:linear-gradient(180deg,#fff,#fafafc);
+    cursor:grab;transition:all .18s cubic-bezier(.2,.8,.2,1);text-align:center;
+    position:relative;
   }
-  .palette-item:hover{border-color:var(--accent);transform:translateY(-1px);box-shadow:var(--shadow-2)}
-  .palette-item:active{cursor:grabbing}
-  .palette-icon{width:36px;height:28px;display:flex;align-items:center;justify-content:center}
-  .palette-label{font-size:11px;color:var(--ink-2);font-weight:500}
+  .palette-item:hover{border-color:var(--accent);transform:translateY(-1px);box-shadow:0 4px 12px -4px rgba(10,132,255,.25), var(--shadow-2)}
+  .palette-item:active{cursor:grabbing;transform:translateY(0)}
+  .palette-icon{width:40px;height:32px;display:flex;align-items:center;justify-content:center}
+  .palette-label{font-size:11px;color:var(--ink-2);font-weight:500;letter-spacing:.01em}
+
 
   /* Prompts */
   .prompt-card{
@@ -211,6 +222,75 @@
     border-left:3px solid var(--accent);
   }
 
+  /* ===== Experience cards ===== */
+  .card.emotion .card-body{
+    width:120px;height:120px;border-radius:50%;
+    background:radial-gradient(circle at 30% 25%, #fff, #f4f5f7 70%);
+    border:1px solid var(--line-2);box-shadow:0 8px 24px -10px rgba(0,0,0,.18), inset 0 -3px 8px rgba(0,0,0,.04);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:8px;
+    font-size:12px;color:var(--ink-2);font-weight:500;
+  }
+  .card.emotion .emoji{font-size:38px;line-height:1}
+  .card.emotion .txt{font-size:11px;color:var(--ink-2)}
+
+  .card.quote .card-body{
+    width:220px;min-height:96px;padding:16px 16px 14px 32px;
+    background:#fff;border:1px solid var(--line-2);border-radius:12px;
+    box-shadow:var(--shadow-2);position:relative;
+    font-family:'Instrument Serif','Georgia',serif;font-size:15px;line-height:1.35;
+    color:var(--ink);font-style:italic;
+  }
+  .card.quote .card-body::before{
+    content:'"';position:absolute;top:2px;left:10px;
+    font-family:'Instrument Serif',serif;font-size:44px;line-height:1;
+    color:var(--accent);opacity:.55;
+  }
+
+  .card.pain .card-body{
+    width:190px;min-height:64px;padding:12px 14px 12px 40px;
+    background:linear-gradient(180deg,#fff5f4,#ffe9e7);
+    border:1px solid #ffb4ac;border-radius:12px;color:#7a1a10;
+    font-size:13px;line-height:1.35;font-weight:500;
+    box-shadow:0 4px 12px -6px rgba(255,59,48,.25);position:relative;
+  }
+  .card.pain .card-body::before{content:'●';position:absolute;left:14px;top:12px;font-size:16px;color:#ff3b30}
+  .card.pain .card-body::after{content:'PAIN';position:absolute;top:-8px;right:10px;font-size:9px;font-weight:700;letter-spacing:.1em;background:#ff3b30;color:#fff;padding:2px 6px;border-radius:4px}
+
+  .card.gain .card-body{
+    width:190px;min-height:64px;padding:12px 14px 12px 40px;
+    background:linear-gradient(180deg,#f0fbf4,#dff5e6);
+    border:1px solid #a4e0b8;border-radius:12px;color:#0e4d24;
+    font-size:13px;line-height:1.35;font-weight:500;
+    box-shadow:0 4px 12px -6px rgba(52,199,89,.25);position:relative;
+  }
+  .card.gain .card-body::before{content:'★';position:absolute;left:12px;top:11px;font-size:15px;color:#34c759}
+  .card.gain .card-body::after{content:'GAIN';position:absolute;top:-8px;right:10px;font-size:9px;font-weight:700;letter-spacing:.1em;background:#34c759;color:#fff;padding:2px 6px;border-radius:4px}
+
+  .card.moment .card-body{
+    width:170px;min-height:76px;padding:12px 14px;
+    background:#fff;border:1px solid var(--line-2);border-radius:10px;
+    box-shadow:var(--shadow-2);position:relative;
+    font-size:13px;line-height:1.35;color:var(--ink);
+    border-top:3px solid var(--accent);
+  }
+
+  .card.persona .card-body{
+    width:200px;min-height:110px;padding:14px 14px 12px 60px;
+    background:#fff;border:1px solid var(--line-2);border-radius:14px;
+    box-shadow:var(--shadow-2);position:relative;
+    font-size:12.5px;line-height:1.4;color:var(--ink);
+  }
+  .card.persona .card-body::before{
+    content:'';position:absolute;left:12px;top:14px;width:36px;height:36px;border-radius:50%;
+    background:linear-gradient(135deg,#0a84ff,#5ac8fa);
+    box-shadow:inset 0 -3px 6px rgba(0,0,0,.15);
+  }
+  .card.persona .card-body::after{
+    content:'PERSONA';position:absolute;top:-8px;left:14px;
+    font-size:9px;font-weight:700;letter-spacing:.1em;background:var(--ink);color:#fff;padding:2px 6px;border-radius:4px;
+  }
+
+
   .card-body{cursor:grab;position:relative;outline-offset:2px}
   .card.dragging .card-body{cursor:grabbing}
   .card-body[contenteditable="true"]{cursor:text}
@@ -293,7 +373,7 @@
 
     <div class="side-section">
       <h3>Card Palette</h3>
-      <div class="palette-grid" id="palette">
+      <div id="palette">
         <!-- populated in JS -->
       </div>
       <p class="empty" style="margin:8px 0 0;padding:0">Drag onto canvas to place.</p>
@@ -378,13 +458,22 @@ const state = {
 };
 
 const CARD_TYPES = {
-  sticky:     { label:'Sticky',    icon:stickyIcon,    defaults:{ text:'New idea', w:180, h:130 } },
-  note:       { label:'Note',      icon:noteIcon,      defaults:{ text:'Note',     w:220, h:100 } },
-  process:    { label:'Process',   icon:rectIcon,      defaults:{ text:'Process',  w:160, h:80  } },
-  decision:   { label:'Decision',  icon:diamondIcon,   defaults:{ text:'Decision', w:140, h:140 } },
-  terminator: { label:'Start/End', icon:pillIcon,      defaults:{ text:'Start',    w:160, h:64  } },
-  data:       { label:'Data',      icon:paraIcon,      defaults:{ text:'Data',     w:170, h:76  } },
-  circle:     { label:'Circle',    icon:circleIcon,    defaults:{ text:'Node',     w:100, h:100 } },
+  // Sticky notes
+  sticky:     { group:'Sticky Notes', label:'Sticky',    icon:stickyIcon,    defaults:{ text:'New idea', w:180, h:130 } },
+  note:       { group:'Sticky Notes', label:'Note',      icon:noteIcon,      defaults:{ text:'Note',     w:220, h:100 } },
+  // Flow shapes
+  process:    { group:'Flow Shapes',  label:'Process',   icon:rectIcon,      defaults:{ text:'Process',  w:160, h:80  } },
+  decision:   { group:'Flow Shapes',  label:'Decision',  icon:diamondIcon,   defaults:{ text:'Decision', w:140, h:140 } },
+  terminator: { group:'Flow Shapes',  label:'Start/End', icon:pillIcon,      defaults:{ text:'Start',    w:160, h:64  } },
+  data:       { group:'Flow Shapes',  label:'Data',      icon:paraIcon,      defaults:{ text:'Data',     w:170, h:76  } },
+  circle:     { group:'Flow Shapes',  label:'Node',      icon:circleIcon,    defaults:{ text:'Node',     w:100, h:100 } },
+  // Experience cards
+  emotion:    { group:'Experience',   label:'Emotion',   icon:emotionIcon,   defaults:{ text:'Happy', emoji:'😊', w:120, h:120 } },
+  quote:      { group:'Experience',   label:'Quote',     icon:quoteIcon,     defaults:{ text:'Type a customer quote…', w:220, h:96 } },
+  pain:       { group:'Experience',   label:'Pain',      icon:painIcon,      defaults:{ text:'Pain point', w:190, h:64 } },
+  gain:       { group:'Experience',   label:'Gain',      icon:gainIcon,      defaults:{ text:'Gain / opportunity', w:190, h:64 } },
+  moment:     { group:'Experience',   label:'Moment',    icon:momentIcon,    defaults:{ text:'Journey moment', w:170, h:76 } },
+  persona:    { group:'Experience',   label:'Persona',   icon:personaIcon,   defaults:{ text:'Name — role\nGoals · needs', w:200, h:110 } },
 };
 
 function stickyIcon(){return svgTag('<rect x="6" y="4" width="24" height="22" fill="#fff9b1" stroke="#e5c400" transform="rotate(-2 18 15)"/>')}
@@ -394,7 +483,14 @@ function diamondIcon(){return svgTag('<polygon points="18,3 33,15 18,27 3,15" fi
 function pillIcon(){return svgTag('<rect x="4" y="8" width="28" height="14" rx="7" fill="#eaf4ff" stroke="#0a84ff" stroke-width="1.5"/>')}
 function paraIcon(){return svgTag('<polygon points="8,7 33,7 28,23 3,23" fill="#f0fff4" stroke="#34c759" stroke-width="1.5"/>')}
 function circleIcon(){return svgTag('<circle cx="18" cy="15" r="11" fill="#fff5e6" stroke="#ff9500" stroke-width="1.5"/>')}
+function emotionIcon(){return svgTag('<circle cx="18" cy="15" r="11" fill="#fff" stroke="#1d1d1f" stroke-width="1.2"/><circle cx="14" cy="13" r="1.3" fill="#1d1d1f"/><circle cx="22" cy="13" r="1.3" fill="#1d1d1f"/><path d="M13 18 Q18 22 23 18" stroke="#1d1d1f" stroke-width="1.3" fill="none" stroke-linecap="round"/>')}
+function quoteIcon(){return svgTag('<rect x="3" y="5" width="30" height="20" rx="4" fill="#fff" stroke="#0a84ff" stroke-width="1.3"/><text x="8" y="21" font-family="Georgia,serif" font-size="18" font-style="italic" fill="#0a84ff">"</text><line x1="16" y1="13" x2="28" y2="13" stroke="#c9dcf2" stroke-width="1.3"/><line x1="16" y1="17" x2="26" y2="17" stroke="#c9dcf2" stroke-width="1.3"/>')}
+function painIcon(){return svgTag('<rect x="3" y="8" width="30" height="14" rx="7" fill="#fff5f4" stroke="#ff3b30" stroke-width="1.3"/><circle cx="9" cy="15" r="2" fill="#ff3b30"/><line x1="14" y1="14" x2="28" y2="14" stroke="#ffb4ac" stroke-width="1.3"/><line x1="14" y1="17" x2="24" y2="17" stroke="#ffb4ac" stroke-width="1.3"/>')}
+function gainIcon(){return svgTag('<rect x="3" y="8" width="30" height="14" rx="7" fill="#f0fbf4" stroke="#34c759" stroke-width="1.3"/><polygon points="9,11 10.2,14 13.4,14 10.8,16 11.8,19 9,17.2 6.2,19 7.2,16 4.6,14 7.8,14" fill="#34c759"/><line x1="15" y1="14" x2="28" y2="14" stroke="#a4e0b8" stroke-width="1.3"/><line x1="15" y1="17" x2="25" y2="17" stroke="#a4e0b8" stroke-width="1.3"/>')}
+function momentIcon(){return svgTag('<rect x="4" y="7" width="28" height="16" rx="3" fill="#fff" stroke="#c7c7cc" stroke-width="1.2"/><rect x="4" y="7" width="28" height="3" fill="#0a84ff"/>')}
+function personaIcon(){return svgTag('<rect x="3" y="5" width="30" height="20" rx="4" fill="#fff" stroke="#1d1d1f" stroke-width="1.2"/><circle cx="10" cy="14" r="4" fill="url(#pg)" /><defs><linearGradient id="pg" x1="0" x2="1" y1="0" y2="1"><stop stop-color="#0a84ff"/><stop offset="1" stop-color="#5ac8fa"/></linearGradient></defs><line x1="17" y1="12" x2="29" y2="12" stroke="#c7c7cc" stroke-width="1.3"/><line x1="17" y1="16" x2="27" y2="16" stroke="#c7c7cc" stroke-width="1.3"/><line x1="17" y1="20" x2="25" y2="20" stroke="#c7c7cc" stroke-width="1.3"/>')}
 function svgTag(inner){return `<svg width="36" height="30" viewBox="0 0 36 30">${inner}</svg>`}
+
 
 const LANE_COLORS = ['#0a84ff','#34c759','#ff9500','#af52de','#ff2d55','#5ac8fa','#ffcc00'];
 
@@ -443,36 +539,92 @@ const STICKY_COLORS = [
   {name:'Purple', color:'#e1bee7'},
 ];
 
+const EMOTION_PRESETS = [
+  {emoji:'😊', label:'Delighted', color:'#c8e6c9'},
+  {emoji:'🙂', label:'Content',   color:'#dcedc8'},
+  {emoji:'😐', label:'Neutral',   color:'#eeeeee'},
+  {emoji:'😕', label:'Confused',  color:'#ffe0b2'},
+  {emoji:'😟', label:'Worried',   color:'#ffccbc'},
+  {emoji:'😣', label:'Frustrated',color:'#ffcdd2'},
+];
+
+function makePaletteItem({label, title, iconHTML, dataMap}){
+  const it = document.createElement('div');
+  it.className = 'palette-item';
+  it.draggable = true;
+  if(title) it.title = title;
+  it.innerHTML = `<div class="palette-icon">${iconHTML}</div><div class="palette-label">${label}</div>`;
+  it.addEventListener('dragstart', e=>{
+    Object.entries(dataMap).forEach(([k,v])=> e.dataTransfer.setData(k, v));
+    e.dataTransfer.effectAllowed = 'copy';
+  });
+  return it;
+}
+
 function renderPalette(){
   const el = $('#palette');
   el.innerHTML = '';
+
+  // Group card types
+  const groups = {};
   Object.entries(CARD_TYPES).forEach(([type, def])=>{
-    const it = document.createElement('div');
-    it.className = 'palette-item';
-    it.draggable = true;
-    it.dataset.type = type;
-    it.innerHTML = `<div class="palette-icon">${def.icon()}</div><div class="palette-label">${def.label}</div>`;
-    it.addEventListener('dragstart', e=>{
-      e.dataTransfer.setData('application/x-card-type', type);
-      e.dataTransfer.effectAllowed = 'copy';
-    });
-    el.appendChild(it);
+    const g = def.group || 'Cards';
+    (groups[g] = groups[g] || []).push([type, def]);
   });
-  // Colored sticky variants
-  STICKY_COLORS.forEach(sc=>{
-    const it = document.createElement('div');
-    it.className = 'palette-item';
-    it.draggable = true;
-    it.title = sc.name+' sticky';
-    it.innerHTML = `<div class="palette-icon"><svg width="36" height="30" viewBox="0 0 36 30"><rect x="6" y="4" width="24" height="22" fill="${sc.color}" stroke="rgba(0,0,0,.15)" transform="rotate(-2 18 15)"/></svg></div><div class="palette-label">${sc.name}</div>`;
-    it.addEventListener('dragstart', e=>{
-      e.dataTransfer.setData('application/x-card-type', 'sticky');
-      e.dataTransfer.setData('application/x-card-color', sc.color);
-      e.dataTransfer.effectAllowed = 'copy';
+
+  const order = ['Sticky Notes','Flow Shapes','Experience'];
+  order.forEach(groupName=>{
+    if(!groups[groupName]) return;
+    const gWrap = document.createElement('div');
+    gWrap.className = 'palette-group';
+    const title = document.createElement('div');
+    title.className = 'palette-group-title';
+    title.textContent = groupName;
+    gWrap.appendChild(title);
+    const grid = document.createElement('div');
+    grid.className = 'palette-grid';
+
+    groups[groupName].forEach(([type, def])=>{
+      grid.appendChild(makePaletteItem({
+        label: def.label,
+        iconHTML: def.icon(),
+        dataMap: {'application/x-card-type': type},
+      }));
     });
-    el.appendChild(it);
+
+    // Colored sticky variants appended to Sticky Notes group
+    if(groupName==='Sticky Notes'){
+      STICKY_COLORS.forEach(sc=>{
+        grid.appendChild(makePaletteItem({
+          label: sc.name,
+          title: sc.name+' sticky',
+          iconHTML: `<svg width="36" height="30" viewBox="0 0 36 30"><rect x="6" y="4" width="24" height="22" fill="${sc.color}" stroke="rgba(0,0,0,.15)" transform="rotate(-2 18 15)"/></svg>`,
+          dataMap: {'application/x-card-type':'sticky', 'application/x-card-color': sc.color},
+        }));
+      });
+    }
+
+    // Emotion emoji presets appended to Experience group
+    if(groupName==='Experience'){
+      EMOTION_PRESETS.forEach(p=>{
+        grid.appendChild(makePaletteItem({
+          label: p.label,
+          title: p.label+' emotion',
+          iconHTML: `<div style="font-size:26px;line-height:1">${p.emoji}</div>`,
+          dataMap: {
+            'application/x-card-type':'emotion',
+            'application/x-card-emoji': p.emoji,
+            'application/x-card-text': p.label,
+          },
+        }));
+      });
+    }
+
+    gWrap.appendChild(grid);
+    el.appendChild(gWrap);
   });
 }
+
 
 function renderLanes(){
   const list = $('#lanes');
@@ -584,8 +736,10 @@ function renderCards(){
 
 function buildCardEl(c){
   const def = CARD_TYPES[c.type] || CARD_TYPES.sticky;
+  const isText = ['sticky','note','quote','pain','gain','moment','persona'].includes(c.type);
+  const isShape = ['process','decision','terminator','data','circle'].includes(c.type);
   const el = document.createElement('div');
-  el.className = `card ${c.type} ${['sticky','note'].includes(c.type)?'':'shape'}`;
+  el.className = `card ${c.type} ${isShape?'shape':''}`;
   el.dataset.id = c.id;
   el.style.left = c.x+'px';
   el.style.top = c.y+'px';
@@ -598,15 +752,19 @@ function buildCardEl(c){
 
   const body = document.createElement('div');
   body.className='card-body';
-  if(c.type==='decision'){
+  if(c.type==='emotion'){
+    body.innerHTML = `<div class="emoji">${escapeHtml(c.emoji||'😊')}</div><div class="txt">${escapeHtml(c.text||'')}</div>`;
+  }else if(c.type==='decision'){
     body.innerHTML = `<div class="txt">${escapeHtml(c.text)}</div>`;
-  }else if(c.type==='sticky' || c.type==='note'){
+  }else if(isText){
     body.textContent = c.text;
+    body.style.whiteSpace = 'pre-wrap';
   }else{
     body.innerHTML = `<div class="txt">${escapeHtml(c.text)}</div>`;
   }
   if(c.color && (c.type==='sticky')) body.style.background = c.color;
   el.appendChild(body);
+
 
   ['top','right','bottom','left'].forEach(pos=>{
     const a = document.createElement('div');
@@ -695,15 +853,20 @@ viewport.addEventListener('drop', e=>{
   const pt = clientToWorld(e.clientX, e.clientY);
   const promptText = e.dataTransfer.getData('application/x-prompt');
   const color = e.dataTransfer.getData('application/x-card-color');
+  const emoji = e.dataTransfer.getData('application/x-card-emoji');
+  const presetText = e.dataTransfer.getData('application/x-card-text');
   const def = CARD_TYPES[type].defaults;
   const card = {
     type,
     x: pt.x - def.w/2,
     y: pt.y - def.h/2,
-    text: promptText || def.text,
+    text: promptText || presetText || def.text,
   };
   if(color) card.color = color;
+  if(emoji) card.emoji = emoji;
+  else if(type==='emotion' && def.emoji) card.emoji = def.emoji;
   addCard(card);
+
 });
 
 cardsLayer.addEventListener('mousedown', e=>{
