@@ -434,6 +434,15 @@ function applyView(){
   $('#zoomLevel').textContent = Math.round(state.view.scale*100)+'%';
 }
 
+const STICKY_COLORS = [
+  {name:'Yellow', color:'#fff59d'},
+  {name:'Pink',   color:'#f8bbd0'},
+  {name:'Blue',   color:'#bbdefb'},
+  {name:'Green',  color:'#c8e6c9'},
+  {name:'Orange', color:'#ffe0b2'},
+  {name:'Purple', color:'#e1bee7'},
+];
+
 function renderPalette(){
   const el = $('#palette');
   el.innerHTML = '';
@@ -445,6 +454,20 @@ function renderPalette(){
     it.innerHTML = `<div class="palette-icon">${def.icon()}</div><div class="palette-label">${def.label}</div>`;
     it.addEventListener('dragstart', e=>{
       e.dataTransfer.setData('application/x-card-type', type);
+      e.dataTransfer.effectAllowed = 'copy';
+    });
+    el.appendChild(it);
+  });
+  // Colored sticky variants
+  STICKY_COLORS.forEach(sc=>{
+    const it = document.createElement('div');
+    it.className = 'palette-item';
+    it.draggable = true;
+    it.title = sc.name+' sticky';
+    it.innerHTML = `<div class="palette-icon"><svg width="36" height="30" viewBox="0 0 36 30"><rect x="6" y="4" width="24" height="22" fill="${sc.color}" stroke="rgba(0,0,0,.15)" transform="rotate(-2 18 15)"/></svg></div><div class="palette-label">${sc.name}</div>`;
+    it.addEventListener('dragstart', e=>{
+      e.dataTransfer.setData('application/x-card-type', 'sticky');
+      e.dataTransfer.setData('application/x-card-color', sc.color);
       e.dataTransfer.effectAllowed = 'copy';
     });
     el.appendChild(it);
