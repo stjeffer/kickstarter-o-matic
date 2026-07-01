@@ -964,7 +964,15 @@ $('#importConfirm').addEventListener('click', ()=>{
     $('#importModal').classList.remove('open');
   }catch(e){ alert('Invalid JSON: '+e.message) }
 });
-$('#btnSample').addEventListener('click', loadSample);
+$('#templatePack').addEventListener('change', e=>{
+  const key = e.target.value;
+  if(!key) return;
+  if(state.cards.length && !confirm('Load "'+e.target.selectedOptions[0].text+'" template? This will replace the current canvas.')){
+    e.target.value=''; return;
+  }
+  applyTemplate(key);
+  e.target.value='';
+});
 $('#btnFit').addEventListener('click', fitToView);
 $('#btnReset').addEventListener('click', ()=>{state.view={x:40,y:40,scale:1}; applyView()});
 $('#btnZoomIn').addEventListener('click', ()=>{const r=viewport.getBoundingClientRect();zoomAt(r.left+r.width/2, r.top+r.height/2, state.view.scale*1.2)});
