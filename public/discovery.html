@@ -802,14 +802,29 @@ function renderPrompts(){
     const c = document.createElement('div');
     c.className='prompt-card';
     c.draggable=true;
-    c.innerHTML = `${p.category?`<div class="prompt-cat">${escapeHtml(p.category)}</div>`:''}<div class="prompt-text">${escapeHtml(p.text)}</div>`;
+    const hasBrief = !!p.activity;
+    c.innerHTML = `
+      ${p.category?`<div class="prompt-cat">${escapeHtml(p.category)}</div>`:''}
+      <div class="prompt-text">${escapeHtml(p.text)}</div>
+      ${hasBrief?`<button class="prompt-info" title="Open facilitator brief" aria-label="Open facilitator brief">i</button>`:''}
+    `;
     c.addEventListener('dragstart', e=>{
-      e.dataTransfer.setData('application/x-prompt', p.text);
+      const dragText = (p.activity && p.activity.prompt) ? p.activity.prompt : p.text;
+      e.dataTransfer.setData('application/x-prompt', dragText);
       e.dataTransfer.setData('application/x-card-type', 'sticky');
       e.dataTransfer.effectAllowed='copy';
     });
+    const info = c.querySelector('.prompt-info');
+    if(info){
+      info.addEventListener('click', ev=>{ ev.stopPropagation(); openBrief(p); });
+      info.addEventListener('mousedown', ev=> ev.stopPropagation());
+    }
+    if(hasBrief){
+      c.addEventListener('dblclick', ()=> openBrief(p));
+    }
     el.appendChild(c);
   });
+
 }
 
 function renderCards(){
