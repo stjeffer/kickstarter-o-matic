@@ -174,7 +174,15 @@
   .prompt-card:hover{border-color:var(--accent);box-shadow:var(--shadow-2)}
   .prompt-card:active{cursor:grabbing}
   .prompt-cat{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--accent);margin-bottom:3px}
-  .prompt-text{font-size:12.5px;line-height:1.4;color:var(--ink)}
+  .prompt-text{font-size:12.5px;line-height:1.4;color:var(--ink);padding-right:22px}
+  .prompt-info{
+    position:absolute;top:8px;right:8px;width:20px;height:20px;border-radius:50%;
+    border:1px solid var(--line-2);background:#fff;color:var(--ink-2);
+    font:600 11px/1 'Instrument Serif',Georgia,serif;font-style:italic;
+    cursor:pointer;display:flex;align-items:center;justify-content:center;
+    transition:all .15s;
+  }
+  .prompt-info:hover{background:var(--accent);color:#fff;border-color:transparent;transform:scale(1.08)}
 
   /* ===== Canvas Stage ===== */
   main.stage{position:relative;overflow:hidden;background:var(--bg)}
