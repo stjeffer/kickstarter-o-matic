@@ -1,5 +1,6 @@
 import { Window } from 'happy-dom';
 import fs from 'fs';
+import vm from 'vm';
 
 const html = fs.readFileSync('/dev-server/public/discovery.html', 'utf-8');
 const window = new Window({ url: 'http://localhost:3000/discovery.html' });
@@ -15,26 +16,25 @@ window.getSelection = () => ({
 // Set document HTML
 document.documentElement.innerHTML = html;
 
-// Execute inline scripts
-const scripts = document.querySelectorAll('script');
+// Execute inline scripts in window context
+const scripts = Array.from(document.querySelectorAll('script')).filter(s => !s.src);
+const context = vm.createContext(window);
 for (const script of scripts) {
-  if (!script.src) {
-    try {
-      window.eval(script.textContent);
-    } catch (e) {
-      console.error('Script error:', e.message);
-      process.exit(1);
-    }
+  try {
+    vm.runInContext(script.textContent, context, { timeout: 1000 });
+  } catch (e) {
+    console.error('Script error:', e.message);
+    process.exit(1);
   }
 }
 
 // Test adding a prompt card
-if (typeof window.addCard !== 'function') {
-  console.error('addCard not global');
+if (typeof context.addCard !== 'function') {
+  console.error('addCard not available in context');
   process.exit(1);
 }
 
-window.addCard({ type: 'prompt', text: 'Who are our primary users?', category: 'Audience', x: 200, y: 200 });
+context.addCard({ type: 'prompt', text: 'Who are our primary users?', category: 'Audience', x: 200, y: 200 });
 
 const card = document.querySelector('.card');
 if (!card) {
