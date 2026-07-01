@@ -1337,13 +1337,15 @@ function selectCard(id){
   state.selection = {cardId:id, connId:null};
   cardsLayer.querySelectorAll('.card').forEach(el=>el.classList.toggle('selected', el.dataset.id===id));
   renderConnections();
+  if(typeof applyCanvasTheme==='function') applyCanvasTheme();
 }
 function selectConn(id){
   state.selection = {cardId:null, connId:id};
   cardsLayer.querySelectorAll('.card').forEach(el=>el.classList.remove('selected'));
   renderConnections();
+  if(typeof applyCanvasTheme==='function') applyCanvasTheme();
 }
-function clearSelection(){ state.selection={cardId:null,connId:null}; cardsLayer.querySelectorAll('.card').forEach(el=>el.classList.remove('selected')); renderConnections(); }
+function clearSelection(){ state.selection={cardId:null,connId:null}; cardsLayer.querySelectorAll('.card').forEach(el=>el.classList.remove('selected')); renderConnections(); if(typeof applyCanvasTheme==='function') applyCanvasTheme(); }
 
 // ============ Utils ============
 function clientToWorld(cx, cy){
