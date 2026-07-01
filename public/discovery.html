@@ -694,13 +694,16 @@ viewport.addEventListener('drop', e=>{
   e.preventDefault();
   const pt = clientToWorld(e.clientX, e.clientY);
   const promptText = e.dataTransfer.getData('application/x-prompt');
+  const color = e.dataTransfer.getData('application/x-card-color');
   const def = CARD_TYPES[type].defaults;
-  addCard({
+  const card = {
     type,
     x: pt.x - def.w/2,
     y: pt.y - def.h/2,
     text: promptText || def.text,
-  });
+  };
+  if(color) card.color = color;
+  addCard(card);
 });
 
 cardsLayer.addEventListener('mousedown', e=>{
