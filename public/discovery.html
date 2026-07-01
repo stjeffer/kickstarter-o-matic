@@ -31,14 +31,19 @@
   html,body{height:100%}
   body{
     margin:0;
-    font-family:'Inter',-apple-system,BlinkMacSystemFont,'SF Pro Text','Helvetica Neue',Arial,sans-serif;
+    font-family:'Geist','Inter',-apple-system,BlinkMacSystemFont,'SF Pro Text','Helvetica Neue',Arial,sans-serif;
+    font-feature-settings:'ss01','ss02','cv11','cv02','cv04';
     background:var(--bg);
     color:var(--ink);
     -webkit-font-smoothing:antialiased;
+    -moz-osx-font-smoothing:grayscale;
     text-rendering:optimizeLegibility;
-    font-size:14px;
+    font-size:13.5px;
+    letter-spacing:-.005em;
     overflow:hidden;
   }
+  code, pre, .mono, textarea{font-family:'Geist Mono','JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace}
+  .serif{font-family:'Fraunces','Instrument Serif',Georgia,serif;font-optical-sizing:auto}
   button, input, select, textarea{font-family:inherit;color:inherit}
 
   /* ===== Layout ===== */
