@@ -1916,9 +1916,13 @@ $('#importConfirm').addEventListener('click', ()=>{
 
 // ============ Session (multi-stage discovery) ============
 const CANVAS_TYPE_ALIASES = {
+  'freestyle':'whiteboard','free':'whiteboard','blank':'whiteboard',
+  'swimlanes':'hswimlanes','swimlane':'hswimlanes','process':'hswimlanes','process-mapping':'hswimlanes',
   'swimlanes-h':'hswimlanes', 'swimlanes-v':'vswimlanes',
   'horizontal-swimlanes':'hswimlanes', 'vertical-swimlanes':'vswimlanes',
   'matrix':'matrix2x2', '2x2':'matrix2x2',
+  'raci-matrix':'raci',
+  'strategy-on-a-page':'strategy','strategy_page':'strategy','sop':'strategy',
   'mind-map':'mindmap','mind_map':'mindmap','mindmapping':'mindmap',
 };
 function normalizeCanvasType(t){
