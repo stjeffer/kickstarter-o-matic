@@ -588,6 +588,64 @@
     border-left:3px solid var(--accent);
   }
 
+  /* --- Title block --- */
+  .card.title .card-body{
+    width:520px;min-height:120px;padding:22px 28px;
+    background:linear-gradient(135deg,#ffffff 0%,#f5f8ff 100%);
+    border:1px solid var(--line-2);border-left:6px solid var(--accent);
+    border-radius:14px;box-shadow:0 12px 32px -14px rgba(0,0,0,.18);
+    display:flex;flex-direction:column;justify-content:center;gap:6px;text-align:left;
+  }
+  .card.title .title-main{
+    font-family:"Segoe UI Semibold","Segoe UI",system-ui,sans-serif;
+    font-weight:600;font-size:28px;line-height:1.15;color:var(--ink);letter-spacing:-.01em;
+  }
+  .card.title .title-sub{
+    font-size:14px;color:var(--ink-2);font-weight:400;line-height:1.4;
+  }
+
+  /* --- Extra process-mapping shapes --- */
+  /* Delay: D-shape */
+  .card.delay .card-body{
+    width:160px;height:80px;background:#fff;border:none;position:relative;
+    color:var(--ink);padding:10px 22px 10px 14px;
+  }
+  .card.delay .card-body::before{
+    content:'';position:absolute;inset:0;background:#fffaf0;border:2px solid #ff9500;
+    border-radius:0 40px 40px 0;z-index:-1;
+  }
+  /* Handoff: chevron / arrow-right */
+  .card.handoff .card-body{
+    width:170px;height:74px;background:transparent;border:none;position:relative;
+    color:#1c3d5a;padding:10px 22px 10px 18px;
+  }
+  .card.handoff .card-body::before{
+    content:'';position:absolute;inset:0;background:#eaf4ff;border:2px solid #0a84ff;
+    clip-path:polygon(0 0, 82% 0, 100% 50%, 82% 100%, 0 100%, 12% 50%);
+    z-index:-1;
+  }
+  /* Exception: octagon */
+  .card.exception .card-body{
+    width:130px;height:130px;background:transparent;border:none;position:relative;
+    color:#7a1e14;padding:14px;
+  }
+  .card.exception .card-body::before{
+    content:'';position:absolute;inset:0;background:#fff5f4;border:2px solid #ff3b30;
+    clip-path:polygon(30% 0,70% 0,100% 30%,100% 70%,70% 100%,30% 100%,0 70%,0 30%);
+    z-index:-1;
+  }
+  /* Parallel: rectangle with double-bar top/bottom (BPMN parallel gateway feel) */
+  .card.parallel .card-body{
+    width:170px;height:80px;background:#f5f0ff;border:2px solid #af52de;color:#4a1d7a;
+    border-radius:6px;position:relative;padding:14px 16px;
+  }
+  .card.parallel .card-body::before,
+  .card.parallel .card-body::after{
+    content:'';position:absolute;left:8px;right:8px;height:3px;background:#af52de;border-radius:2px;
+  }
+  .card.parallel .card-body::before{top:5px}
+  .card.parallel .card-body::after{bottom:5px}
+
   /* ===== Experience cards ===== */
   .card.emotion .card-body{
     width:120px;height:120px;border-radius:50%;
