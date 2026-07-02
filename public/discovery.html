@@ -1275,6 +1275,28 @@ function computeLaneBands(){
     lanes.slice(0,4).forEach((l,i)=>{bands[i].name=l.name; bands[i].color=l.color});
     return bands;
   }
+  if(ct==='raci'){
+    const cols = [
+      {name:'Responsible', x:0,           y:0, w:WORLD_W/4, h:WORLD_H, color:'#0a84ff'},
+      {name:'Accountable', x:WORLD_W/4,   y:0, w:WORLD_W/4, h:WORLD_H, color:'#ff3b30'},
+      {name:'Consulted',   x:WORLD_W/2,   y:0, w:WORLD_W/4, h:WORLD_H, color:'#ff9500'},
+      {name:'Informed',    x:3*WORLD_W/4, y:0, w:WORLD_W/4, h:WORLD_H, color:'#34c759'},
+    ];
+    lanes.slice(0,4).forEach((l,i)=>{cols[i].name=l.name; if(l.color) cols[i].color=l.color});
+    return cols;
+  }
+  if(ct==='strategy'){
+    const headerH = 260;
+    const colW = WORLD_W/3;
+    const bands = [
+      {name:'Vision & Objectives', x:0, y:0, w:WORLD_W, h:headerH, color:'#5856d6'},
+      {name:'3 Months (Now)',      x:0,         y:headerH, w:colW, h:WORLD_H-headerH, color:'#34c759'},
+      {name:'6 Months (Next)',     x:colW,      y:headerH, w:colW, h:WORLD_H-headerH, color:'#ff9500'},
+      {name:'12 Months (Later)',   x:2*colW,    y:headerH, w:colW, h:WORLD_H-headerH, color:'#0a84ff'},
+    ];
+    lanes.slice(0,4).forEach((l,i)=>{bands[i].name=l.name; if(l.color) bands[i].color=l.color});
+    return bands;
+  }
   if(!lanes.length) return [];
   if(ct==='hswimlanes' || ct==='journey'){
     const bandH = WORLD_H / lanes.length;
