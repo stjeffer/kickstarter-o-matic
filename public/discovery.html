@@ -1825,13 +1825,15 @@ function hexA(hex,a){const h=hex.replace('#','');const n=parseInt(h,16);const r=
 
 // ============ Top toolbar wiring ============
 const CANVAS_META = {
-  whiteboard:  { label:'Whiteboard',           addLabel:'+ Sticky Note' },
-  hswimlanes:  { label:'Horizontal Swimlanes', addLabel:'+ Add Card'    },
-  vswimlanes:  { label:'Vertical Swimlanes',   addLabel:'+ Add Card'    },
-  matrix2x2:   { label:'2×2 Matrix',           addLabel:'+ Add Item'    },
-  journey:     { label:'Journey Map',          addLabel:'+ Add Step'    },
-  empathy:     { label:'Empathy Map',          addLabel:'+ Observation' },
-  mindmap:     { label:'Mind Map',             addLabel:'+ Add Branch'  },
+  whiteboard:  { label:'Freestyle',             addLabel:'+ Sticky Note' },
+  hswimlanes:  { label:'Swimlanes',              addLabel:'+ Add Card'    },
+  vswimlanes:  { label:'Vertical Swimlanes',    addLabel:'+ Add Card'    },
+  matrix2x2:   { label:'2×2 Matrix',            addLabel:'+ Add Item'    },
+  raci:        { label:'RACI Matrix',           addLabel:'+ Add Task'    },
+  strategy:    { label:'Strategy on a Page',    addLabel:'+ Add Objective'},
+  journey:     { label:'Journey Map',           addLabel:'+ Add Step'    },
+  empathy:     { label:'Empathy Map',           addLabel:'+ Observation' },
+  mindmap:     { label:'Mind Map',              addLabel:'+ Add Branch'  },
 };
 function applyCanvasTheme(){
   const ct = state.canvasType || 'whiteboard';
