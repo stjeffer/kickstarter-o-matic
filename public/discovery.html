@@ -1470,7 +1470,7 @@ function renderCards(){
 function buildCardEl(c){
   const def = CARD_TYPES[c.type] || CARD_TYPES.sticky;
   const isText = ['sticky','note','quote','pain','gain','moment','persona','prompt'].includes(c.type);
-  const isShape = ['process','decision','terminator','data','circle'].includes(c.type);
+  const isShape = ['process','decision','terminator','data','circle','delay','handoff','exception','parallel'].includes(c.type);
   const el = document.createElement('div');
   el.className = `card ${c.type} ${isShape?'shape':''}`;
   el.dataset.id = c.id;
@@ -1487,6 +1487,8 @@ function buildCardEl(c){
   body.className='card-body';
   if(c.type==='emotion'){
     body.innerHTML = `<div class="emoji">${escapeHtml(c.emoji||'😊')}</div><div class="txt">${escapeHtml(c.text||'')}</div>`;
+  }else if(c.type==='title'){
+    body.innerHTML = `<div class="title-main">${escapeHtml(c.text||'Untitled')}</div>${c.subtitle?`<div class="title-sub">${escapeHtml(c.subtitle)}</div>`:''}`;
   }else if(c.type==='decision'){
     body.innerHTML = `<div class="txt">${escapeHtml(c.text)}</div>`;
   }else if(c.type==='prompt'){
