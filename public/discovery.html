@@ -2060,6 +2060,7 @@ let currentSpotPrompt = null;
 
 function openSpotlight(prompt){
   currentSpotPrompt = prompt;
+  window.__lastPrompt = { text: (prompt.activity && prompt.activity.prompt) || prompt.text, category: prompt.category || (prompt.activity && prompt.activity.activityType) || '' };
   const a = prompt.activity || {};
   $('#spotCat').textContent = (prompt.category || a.activityType || 'Prompt');
   $('#spotMeta').textContent = a.timebox ? a.timebox : '';
