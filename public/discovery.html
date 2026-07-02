@@ -837,13 +837,56 @@
     <div class="zoom-level" id="zoomLevel">100%</div>
   </main>
 
-  <aside class="right side-scroll">
+  <aside class="right" id="rightPanel"><div class="side-scroll">
     <div class="side-section">
       <h3>Prompts & Questions</h3>
+      <p class="empty" style="padding:0;margin:0 0 10px">Use these to set the scene. Drag to canvas or click to open in spotlight.</p>
       <div id="prompts"></div>
     </div>
-  </aside>
+  </div></aside>
 </div>
+
+<div class="flyout-scrim" id="flyoutScrim"></div>
+
+<div class="timer-pop" id="timerPop">
+  <h4>Session Timer</h4>
+  <div class="presets">
+    <button data-sec="60">1m</button>
+    <button data-sec="180">3m</button>
+    <button data-sec="300">5m</button>
+    <button data-sec="600">10m</button>
+    <button data-sec="900">15m</button>
+    <button data-sec="1200">20m</button>
+    <button data-sec="1800">30m</button>
+    <button data-sec="2700">45m</button>
+  </div>
+  <div class="row">
+    <label>Custom</label>
+    <input type="number" id="timerMin" min="0" max="180" value="5"> <span style="font-size:12px;color:var(--muted)">min</span>
+    <input type="number" id="timerSec" min="0" max="59" value="0"> <span style="font-size:12px;color:var(--muted)">sec</span>
+  </div>
+  <div class="row" style="margin-top:10px;justify-content:flex-end">
+    <button class="btn sm" id="timerPopClose">Close</button>
+    <button class="btn sm primary" id="timerApply">Set</button>
+  </div>
+</div>
+
+<div class="ctxmenu" id="ctxMenu">
+  <div class="ctx-label">Add card</div>
+  <button data-ctx="sticky"><span class="ico">🟨</span>Sticky note</button>
+  <button data-ctx="note"><span class="ico">📝</span>Text note</button>
+  <button data-ctx="process"><span class="ico">▭</span>Process step</button>
+  <button data-ctx="decision"><span class="ico">◇</span>Decision</button>
+  <button data-ctx="startend"><span class="ico">⬭</span>Start / End</button>
+  <div class="ctx-label">Sticky color</div>
+  <div class="swatches" id="ctxSwatches"></div>
+  <div class="ctx-sep"></div>
+  <button data-ctx="paste-prompt" id="ctxPastePrompt"><span class="ico">💬</span>Paste last prompt</button>
+  <div class="ctx-sep"></div>
+  <button data-ctx="fit"><span class="ico">⤢</span>Fit to view</button>
+  <button data-ctx="reset"><span class="ico">100</span>Zoom 100%</button>
+</div>
+
 
 <div class="modal-backdrop" id="importModal">
   <div class="modal">
