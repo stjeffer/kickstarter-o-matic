@@ -467,6 +467,29 @@
     background-size:auto,24px 24px;
     background-color:#fbf9f4;
   }
+  .world.raci{
+    background-image:
+      repeating-linear-gradient(90deg,
+        rgba(10,132,255,.06) 0 25%,
+        rgba(255,59,48,.06)  25% 50%,
+        rgba(255,149,0,.06)  50% 75%,
+        rgba(52,199,89,.06)  75% 100%),
+      linear-gradient(90deg, transparent calc(25% - 1px), rgba(0,0,0,.10) calc(25% - 1px) 25%, transparent 25%),
+      linear-gradient(90deg, transparent calc(50% - 1px), rgba(0,0,0,.10) calc(50% - 1px) 50%, transparent 50%),
+      linear-gradient(90deg, transparent calc(75% - 1px), rgba(0,0,0,.10) calc(75% - 1px) 75%, transparent 75%),
+      radial-gradient(circle, #d9d9de 1px, transparent 1px);
+    background-size:auto,auto,auto,auto,24px 24px;
+    background-color:#fafbff;
+  }
+  .world.strategy{
+    background-image:
+      linear-gradient(180deg, rgba(88,86,214,.08) 0 260px, transparent 260px),
+      linear-gradient(0deg, transparent 259px, rgba(88,86,214,.28) 259px 261px, transparent 261px),
+      repeating-linear-gradient(90deg, rgba(0,0,0,.05) 0 1px, transparent 1px calc(100%/3)),
+      radial-gradient(circle, #d9d9de 1px, transparent 1px);
+    background-size:auto,auto,auto,24px 24px;
+    background-color:#fbfaff;
+  }
   .world.whiteboard{
     background-color:#fafafa;
   }
@@ -475,6 +498,8 @@
   main.stage[data-canvas="hswimlanes"]{ --ct-accent:#34c759; --ct-tint:#eef8ef; }
   main.stage[data-canvas="vswimlanes"]{ --ct-accent:#ff9500; --ct-tint:#fff4e5; }
   main.stage[data-canvas="matrix2x2"]{ --ct-accent:#5856d6; --ct-tint:#efeeff; }
+  main.stage[data-canvas="raci"]{ --ct-accent:#0a84ff; --ct-tint:#eef4ff; }
+  main.stage[data-canvas="strategy"]{ --ct-accent:#5856d6; --ct-tint:#efeeff; }
   main.stage[data-canvas="journey"]{ --ct-accent:#ff2d55; --ct-tint:#ffeef2; }
   main.stage[data-canvas="empathy"]{ --ct-accent:#ffcc00; --ct-tint:#fff8dc; }
   main.stage[data-canvas="whiteboard"]{ --ct-accent:#0a84ff; --ct-tint:#eef4ff; }
@@ -777,13 +802,11 @@
     <div class="side-section">
       <h3>Canvas Type</h3>
       <select id="canvasType">
-        <option value="whiteboard">Whiteboard (free)</option>
-        <option value="hswimlanes">Horizontal Swimlanes</option>
-        <option value="vswimlanes">Vertical Swimlanes</option>
+        <option value="whiteboard">Freestyle (empty)</option>
         <option value="matrix2x2">2×2 Matrix</option>
-        <option value="journey">Journey Map</option>
-        <option value="empathy">Empathy Map</option>
-        <option value="mindmap">Mind Map</option>
+        <option value="raci">RACI Matrix</option>
+        <option value="strategy">Strategy on a Page</option>
+        <option value="hswimlanes">Swimlanes (Process Mapping)</option>
       </select>
     </div>
 
@@ -1275,6 +1298,28 @@ function computeLaneBands(){
       {name:'Feels', x:WORLD_W/2, y:WORLD_H/2, w:WORLD_W/2, h:WORLD_H/2, color:'#ff3b30'},
     ];
     lanes.slice(0,4).forEach((l,i)=>{bands[i].name=l.name; bands[i].color=l.color});
+    return bands;
+  }
+  if(ct==='raci'){
+    const cols = [
+      {name:'Responsible', x:0,           y:0, w:WORLD_W/4, h:WORLD_H, color:'#0a84ff'},
+      {name:'Accountable', x:WORLD_W/4,   y:0, w:WORLD_W/4, h:WORLD_H, color:'#ff3b30'},
+      {name:'Consulted',   x:WORLD_W/2,   y:0, w:WORLD_W/4, h:WORLD_H, color:'#ff9500'},
+      {name:'Informed',    x:3*WORLD_W/4, y:0, w:WORLD_W/4, h:WORLD_H, color:'#34c759'},
+    ];
+    lanes.slice(0,4).forEach((l,i)=>{cols[i].name=l.name; if(l.color) cols[i].color=l.color});
+    return cols;
+  }
+  if(ct==='strategy'){
+    const headerH = 260;
+    const colW = WORLD_W/3;
+    const bands = [
+      {name:'Vision & Objectives', x:0, y:0, w:WORLD_W, h:headerH, color:'#5856d6'},
+      {name:'3 Months (Now)',      x:0,         y:headerH, w:colW, h:WORLD_H-headerH, color:'#34c759'},
+      {name:'6 Months (Next)',     x:colW,      y:headerH, w:colW, h:WORLD_H-headerH, color:'#ff9500'},
+      {name:'12 Months (Later)',   x:2*colW,    y:headerH, w:colW, h:WORLD_H-headerH, color:'#0a84ff'},
+    ];
+    lanes.slice(0,4).forEach((l,i)=>{bands[i].name=l.name; if(l.color) bands[i].color=l.color});
     return bands;
   }
   if(!lanes.length) return [];
@@ -1780,13 +1825,15 @@ function hexA(hex,a){const h=hex.replace('#','');const n=parseInt(h,16);const r=
 
 // ============ Top toolbar wiring ============
 const CANVAS_META = {
-  whiteboard:  { label:'Whiteboard',           addLabel:'+ Sticky Note' },
-  hswimlanes:  { label:'Horizontal Swimlanes', addLabel:'+ Add Card'    },
-  vswimlanes:  { label:'Vertical Swimlanes',   addLabel:'+ Add Card'    },
-  matrix2x2:   { label:'2×2 Matrix',           addLabel:'+ Add Item'    },
-  journey:     { label:'Journey Map',          addLabel:'+ Add Step'    },
-  empathy:     { label:'Empathy Map',          addLabel:'+ Observation' },
-  mindmap:     { label:'Mind Map',             addLabel:'+ Add Branch'  },
+  whiteboard:  { label:'Freestyle',             addLabel:'+ Sticky Note' },
+  hswimlanes:  { label:'Swimlanes',              addLabel:'+ Add Card'    },
+  vswimlanes:  { label:'Vertical Swimlanes',    addLabel:'+ Add Card'    },
+  matrix2x2:   { label:'2×2 Matrix',            addLabel:'+ Add Item'    },
+  raci:        { label:'RACI Matrix',           addLabel:'+ Add Task'    },
+  strategy:    { label:'Strategy on a Page',    addLabel:'+ Add Objective'},
+  journey:     { label:'Journey Map',           addLabel:'+ Add Step'    },
+  empathy:     { label:'Empathy Map',           addLabel:'+ Observation' },
+  mindmap:     { label:'Mind Map',              addLabel:'+ Add Branch'  },
 };
 function applyCanvasTheme(){
   const ct = state.canvasType || 'whiteboard';
@@ -1869,9 +1916,13 @@ $('#importConfirm').addEventListener('click', ()=>{
 
 // ============ Session (multi-stage discovery) ============
 const CANVAS_TYPE_ALIASES = {
+  'freestyle':'whiteboard','free':'whiteboard','blank':'whiteboard',
+  'swimlanes':'hswimlanes','swimlane':'hswimlanes','process':'hswimlanes','process-mapping':'hswimlanes',
   'swimlanes-h':'hswimlanes', 'swimlanes-v':'vswimlanes',
   'horizontal-swimlanes':'hswimlanes', 'vertical-swimlanes':'vswimlanes',
   'matrix':'matrix2x2', '2x2':'matrix2x2',
+  'raci-matrix':'raci',
+  'strategy-on-a-page':'strategy','strategy_page':'strategy','sop':'strategy',
   'mind-map':'mindmap','mind_map':'mindmap','mindmapping':'mindmap',
 };
 function normalizeCanvasType(t){
