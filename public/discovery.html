@@ -1648,7 +1648,8 @@ function nearestAnchor(cardId, ev){
 // Pan / zoom
 viewport.addEventListener('mousedown', e=>{
   if(e.target.closest('.card')) return;
-  const isPan = e.button===1 || e.button===2 || e.shiftKey || spaceDown;
+  if(e.button===2) return; // right-click reserved for context menu
+  const isPan = e.button===1 || e.shiftKey || spaceDown;
   if(!isPan && e.button===0){ clearSelection(); return; }
   e.preventDefault();
   viewport.classList.add('panning');
