@@ -7,7 +7,7 @@ export const Route = createFileRoute("/")({
 
 function Index() {
   useEffect(() => {
-    window.location.replace("/discovery.html?v=segoe1");
+    window.location.replace("/discovery.html?v=flyout1");
   }, []);
   return null;
 }

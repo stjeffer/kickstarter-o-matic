@@ -49,7 +49,7 @@
   button, input, select, textarea{font-family:inherit;color:inherit}
 
   /* ===== Layout ===== */
-   .app{display:grid;grid-template-columns:280px 1fr 300px;grid-template-rows:60px auto 1fr;height:100vh;background:var(--bg)}
+   .app{display:grid;grid-template-columns:1fr;grid-template-rows:60px auto 1fr;height:100vh;background:var(--bg)}
    header.topbar{
      grid-column:1 / -1;display:flex;align-items:center;gap:14px;padding:0 18px;
      background:linear-gradient(180deg,rgba(255,255,255,.92),rgba(250,250,252,.86));
@@ -115,15 +115,88 @@
   .segmented button{border:none;background:transparent;padding:5px 10px;border-radius:6px;font-size:12px;font-weight:500;color:var(--ink-2);cursor:pointer}
   .segmented button.active{background:#fff;color:var(--ink);box-shadow:var(--shadow-1)}
 
-  /* ===== Sidebars ===== */
+  /* ===== Flyout Sidebars ===== */
   aside{
-    background:var(--panel);border-right:1px solid var(--line);
+    position:fixed;top:60px;bottom:0;width:300px;z-index:25;
+    background:var(--panel);
     display:flex;flex-direction:column;overflow:hidden;
+    transition:transform .28s cubic-bezier(.2,.8,.2,1), box-shadow .28s;
+    box-shadow:none;
   }
-  aside.right{border-right:none;border-left:1px solid var(--line)}
+  aside.left{left:0;border-right:1px solid var(--line);transform:translateX(-102%)}
+  aside.right{right:0;border-left:1px solid var(--line);transform:translateX(102%)}
+  aside.open{transform:translateX(0);box-shadow:0 10px 40px -10px rgba(0,0,0,.18), 0 2px 8px rgba(0,0,0,.06)}
+  body.session-open aside{top:calc(60px + var(--stagebar-h,0px))}
+  .flyout-scrim{
+    position:fixed;inset:60px 0 0 0;background:rgba(15,17,20,.14);
+    opacity:0;pointer-events:none;transition:opacity .2s;z-index:24;
+    backdrop-filter:blur(1px);
+  }
+  .flyout-scrim.show{opacity:1;pointer-events:auto}
   .side-section{padding:14px 16px;border-bottom:1px solid var(--line)}
   .side-section h3{margin:0 0 10px;font-size:10.5px;font-weight:600;text-transform:uppercase;letter-spacing:.11em;color:var(--muted)}
   .side-scroll{overflow-y:auto;flex:1}
+
+  /* Toggle buttons in topbar */
+  .btn.toggle-panel{background:#fff;border:1px solid var(--line-2);border-radius:8px;padding:6px 11px;font-weight:600;color:var(--ink-2);box-shadow:var(--shadow-1)}
+  .btn.toggle-panel:hover{background:#f5f5f7;color:var(--ink)}
+  .btn.toggle-panel.active{background:var(--accent);color:#fff;border-color:transparent;box-shadow:0 1px 2px rgba(0,113,227,.35)}
+
+  /* Timer widget */
+  .timer{
+    display:inline-flex;align-items:center;gap:6px;
+    background:#fff;border:1px solid var(--line-2);border-radius:10px;
+    padding:3px 4px 3px 10px;box-shadow:var(--shadow-1);
+    font-variant-numeric:tabular-nums;
+  }
+  .timer.warn{border-color:#ffb020;box-shadow:0 0 0 3px rgba(255,176,32,.15)}
+  .timer.done{border-color:var(--danger);box-shadow:0 0 0 3px rgba(255,59,48,.15);animation:tflash 1s infinite}
+  @keyframes tflash{50%{background:#fff5f5}}
+  .timer .tval{font-family:var(--font-mono);font-size:13px;font-weight:600;color:var(--ink);min-width:52px;text-align:center;letter-spacing:.02em}
+  .timer .tbtn{
+    width:24px;height:24px;border:0;border-radius:6px;background:transparent;cursor:pointer;
+    display:inline-flex;align-items:center;justify-content:center;color:var(--ink-2);
+  }
+  .timer .tbtn:hover{background:#f0f1f4;color:var(--ink)}
+  .timer.done .tval{color:var(--danger)}
+
+  /* Timer settings popover */
+  .timer-pop{
+    position:absolute;top:56px;right:12px;z-index:60;
+    background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px;
+    box-shadow:0 10px 30px -10px rgba(0,0,0,.2), 0 2px 8px rgba(0,0,0,.08);
+    display:none;min-width:240px;
+  }
+  .timer-pop.show{display:block}
+  .timer-pop h4{margin:0 0 10px;font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);font-weight:700}
+  .timer-pop .presets{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:10px}
+  .timer-pop .presets button{padding:6px 4px;border:1px solid var(--line);background:#fbfbfd;border-radius:7px;font:inherit;font-size:12px;font-weight:600;cursor:pointer;color:var(--ink-2)}
+  .timer-pop .presets button:hover{background:#f0f1f4;color:var(--ink)}
+  .timer-pop .row{display:flex;gap:6px;align-items:center}
+  .timer-pop input[type=number]{width:60px;padding:6px 8px;border:1px solid var(--line);border-radius:7px;font:inherit;text-align:center}
+  .timer-pop label{font-size:12px;color:var(--muted);font-weight:600}
+
+  /* Context menu */
+  .ctxmenu{
+    position:fixed;z-index:80;min-width:220px;
+    background:#fff;border:1px solid var(--line);border-radius:12px;padding:6px;
+    box-shadow:0 12px 40px -12px rgba(0,0,0,.28), 0 2px 8px rgba(0,0,0,.08);
+    font-size:13px;display:none;
+  }
+  .ctxmenu.show{display:block;animation:ctxin .12s ease-out}
+  @keyframes ctxin{from{opacity:0;transform:translateY(-4px) scale(.98)}to{opacity:1;transform:none}}
+  .ctxmenu .ctx-sep{height:1px;background:var(--line);margin:4px 2px}
+  .ctxmenu .ctx-label{padding:4px 10px 2px;font-size:10px;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);font-weight:700}
+  .ctxmenu button{
+    width:100%;text-align:left;background:transparent;border:0;padding:7px 10px;border-radius:7px;
+    display:flex;align-items:center;gap:9px;cursor:pointer;color:var(--ink);font:inherit;
+  }
+  .ctxmenu button:hover{background:#f0f4fb;color:var(--accent)}
+  .ctxmenu button .ico{width:16px;height:16px;display:inline-flex;align-items:center;justify-content:center;color:var(--ink-2)}
+  .ctxmenu button:hover .ico{color:var(--accent)}
+  .ctxmenu .swatches{display:flex;gap:4px;padding:4px 10px}
+  .ctxmenu .swatches button{width:22px;height:22px;padding:0;border-radius:6px;border:1px solid rgba(0,0,0,.08)}
+
 
   label.field{display:block;margin-bottom:10px}
   label.field span{display:block;font-size:12px;color:var(--muted);margin-bottom:4px}
@@ -624,7 +697,30 @@
 <div class="app">
   <header class="topbar">
     <div class="brand"><div class="logo"></div><span>Discovery Canvas</span></div>
+    <div class="btn-group" role="group" aria-label="Panels" style="margin-left:8px">
+      <button class="btn toggle-panel" id="btnTogglePalette" title="Toggle palette (P)">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="7" height="16" rx="1.5"/><rect x="13" y="4" width="8" height="7" rx="1.5"/><rect x="13" y="14" width="8" height="6" rx="1.5"/></svg>
+        Palette
+      </button>
+      <button class="btn toggle-panel" id="btnTogglePrompts" title="Toggle prompts (Q)">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H8l-5 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        Prompts
+      </button>
+    </div>
     <div class="top-actions">
+      <div class="timer" id="timerWidget" title="Session timer">
+        <span class="tval" id="timerVal">05:00</span>
+        <button class="tbtn" id="timerStart" title="Start / Pause">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+        </button>
+        <button class="tbtn" id="timerReset" title="Reset">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg>
+        </button>
+        <button class="tbtn" id="timerSettings" title="Set duration">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1A1.7 1.7 0 0 0 9 19.4a1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1A1.7 1.7 0 0 0 4.6 9a1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
+        </button>
+      </div>
+
       <div class="btn-group" role="group" aria-label="File">
         <button class="btn" id="btnImport" title="Import JSON">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
@@ -674,7 +770,7 @@
 
 
 
-  <aside class="left side-scroll">
+  <aside class="left" id="leftPanel"><div class="side-scroll">
     <div class="side-section">
       <h3>Canvas Type</h3>
       <select id="canvasType">
@@ -711,7 +807,8 @@
         • Delete key removes selected card or line
       </div>
     </div>
-  </aside>
+    </div></aside>
+
 
   <main class="stage" id="stage" data-canvas="whiteboard">
     <div class="canvas-badge" id="canvasBadge"><span class="dot"></span><span id="canvasBadgeText">Whiteboard</span></div>
@@ -740,13 +837,56 @@
     <div class="zoom-level" id="zoomLevel">100%</div>
   </main>
 
-  <aside class="right side-scroll">
+  <aside class="right" id="rightPanel"><div class="side-scroll">
     <div class="side-section">
       <h3>Prompts & Questions</h3>
+      <p class="empty" style="padding:0;margin:0 0 10px">Use these to set the scene. Drag to canvas or click to open in spotlight.</p>
       <div id="prompts"></div>
     </div>
-  </aside>
+  </div></aside>
 </div>
+
+<div class="flyout-scrim" id="flyoutScrim"></div>
+
+<div class="timer-pop" id="timerPop">
+  <h4>Session Timer</h4>
+  <div class="presets">
+    <button data-sec="60">1m</button>
+    <button data-sec="180">3m</button>
+    <button data-sec="300">5m</button>
+    <button data-sec="600">10m</button>
+    <button data-sec="900">15m</button>
+    <button data-sec="1200">20m</button>
+    <button data-sec="1800">30m</button>
+    <button data-sec="2700">45m</button>
+  </div>
+  <div class="row">
+    <label>Custom</label>
+    <input type="number" id="timerMin" min="0" max="180" value="5"> <span style="font-size:12px;color:var(--muted)">min</span>
+    <input type="number" id="timerSec" min="0" max="59" value="0"> <span style="font-size:12px;color:var(--muted)">sec</span>
+  </div>
+  <div class="row" style="margin-top:10px;justify-content:flex-end">
+    <button class="btn sm" id="timerPopClose">Close</button>
+    <button class="btn sm primary" id="timerApply">Set</button>
+  </div>
+</div>
+
+<div class="ctxmenu" id="ctxMenu">
+  <div class="ctx-label">Add card</div>
+  <button data-ctx="sticky"><span class="ico">🟨</span>Sticky note</button>
+  <button data-ctx="note"><span class="ico">📝</span>Text note</button>
+  <button data-ctx="process"><span class="ico">▭</span>Process step</button>
+  <button data-ctx="decision"><span class="ico">◇</span>Decision</button>
+  <button data-ctx="startend"><span class="ico">⬭</span>Start / End</button>
+  <div class="ctx-label">Sticky color</div>
+  <div class="swatches" id="ctxSwatches"></div>
+  <div class="ctx-sep"></div>
+  <button data-ctx="paste-prompt" id="ctxPastePrompt"><span class="ico">💬</span>Paste last prompt</button>
+  <div class="ctx-sep"></div>
+  <button data-ctx="fit"><span class="ico">⤢</span>Fit to view</button>
+  <button data-ctx="reset"><span class="ico">100</span>Zoom 100%</button>
+</div>
+
 
 <div class="modal-backdrop" id="importModal">
   <div class="modal">
@@ -1920,6 +2060,7 @@ let currentSpotPrompt = null;
 
 function openSpotlight(prompt){
   currentSpotPrompt = prompt;
+  window.__lastPrompt = { text: (prompt.activity && prompt.activity.prompt) || prompt.text, category: prompt.category || (prompt.activity && prompt.activity.activityType) || '' };
   const a = prompt.activity || {};
   $('#spotCat').textContent = (prompt.category || a.activityType || 'Prompt');
   $('#spotMeta').textContent = a.timebox ? a.timebox : '';
@@ -2283,7 +2424,163 @@ function renderAll(){
 }
 
 
-// ============ Init ============
+// ============ Flyout Panels ============
+(function(){
+  const left = $('#leftPanel'), right = $('#rightPanel'), scrim = $('#flyoutScrim');
+  const tL = $('#btnTogglePalette'), tR = $('#btnTogglePrompts');
+  function sync(){
+    const anyOpen = left.classList.contains('open') || right.classList.contains('open');
+    scrim.classList.toggle('show', anyOpen);
+    tL.classList.toggle('active', left.classList.contains('open'));
+    tR.classList.toggle('active', right.classList.contains('open'));
+  }
+  function open(side){
+    if(side==='left'){ left.classList.add('open'); right.classList.remove('open'); }
+    else{ right.classList.add('open'); left.classList.remove('open'); }
+    sync();
+  }
+  function toggle(side){
+    const el = side==='left'?left:right;
+    if(el.classList.contains('open')){ el.classList.remove('open'); sync(); }
+    else open(side);
+  }
+  tL.addEventListener('click', ()=>toggle('left'));
+  tR.addEventListener('click', ()=>toggle('right'));
+  scrim.addEventListener('click', ()=>{ left.classList.remove('open'); right.classList.remove('open'); sync(); });
+  document.addEventListener('keydown', e=>{
+    if(isEditing()) return;
+    if(e.key==='p' || e.key==='P'){ toggle('left'); }
+    if(e.key==='q' || e.key==='Q'){ toggle('right'); }
+    if(e.key==='Escape'){ left.classList.remove('open'); right.classList.remove('open'); sync(); }
+  });
+  window.__closeFlyouts = ()=>{ left.classList.remove('open'); right.classList.remove('open'); sync(); };
+})();
+
+// ============ Timer ============
+(function(){
+  const val = $('#timerVal'), widget = $('#timerWidget');
+  const startBtn = $('#timerStart'), resetBtn = $('#timerReset'), setBtn = $('#timerSettings');
+  const pop = $('#timerPop');
+  let total = 5*60, remaining = total, running = false, tId = null;
+  function fmt(s){ s=Math.max(0,s|0); const m=(s/60|0), r=s%60; return String(m).padStart(2,'0')+':'+String(r).padStart(2,'0'); }
+  function paint(){
+    val.textContent = fmt(remaining);
+    widget.classList.toggle('warn', running && remaining>0 && remaining<=30);
+    widget.classList.toggle('done', remaining===0);
+    startBtn.innerHTML = running
+      ? '<svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="5" width="4" height="14"/><rect x="14" y="5" width="4" height="14"/></svg>'
+      : '<svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>';
+  }
+  function tick(){
+    if(!running) return;
+    remaining -= 1;
+    if(remaining<=0){
+      remaining=0; running=false; clearInterval(tId); tId=null;
+      paint();
+      try{
+        const ctx = new (window.AudioContext||window.webkitAudioContext)();
+        const o=ctx.createOscillator(), g=ctx.createGain();
+        o.frequency.value=880; o.connect(g); g.connect(ctx.destination);
+        g.gain.setValueAtTime(.001,ctx.currentTime);
+        g.gain.exponentialRampToValueAtTime(.3,ctx.currentTime+.02);
+        g.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+.6);
+        o.start(); o.stop(ctx.currentTime+.65);
+      }catch(_){}
+      return;
+    }
+    paint();
+  }
+  startBtn.addEventListener('click', ()=>{
+    if(remaining<=0){ remaining=total; }
+    running = !running;
+    if(running){ tId = setInterval(tick,1000); } else { clearInterval(tId); tId=null; }
+    paint();
+  });
+  resetBtn.addEventListener('click', ()=>{
+    running=false; clearInterval(tId); tId=null; remaining=total; paint();
+  });
+  setBtn.addEventListener('click', e=>{
+    e.stopPropagation();
+    pop.classList.toggle('show');
+    $('#timerMin').value = (total/60|0);
+    $('#timerSec').value = total%60;
+  });
+  document.addEventListener('click', e=>{
+    if(!pop.contains(e.target) && e.target!==setBtn){ pop.classList.remove('show'); }
+  });
+  $('#timerPopClose').addEventListener('click', ()=>pop.classList.remove('show'));
+  pop.querySelectorAll('.presets button').forEach(b=>{
+    b.addEventListener('click', ()=>{
+      total = parseInt(b.dataset.sec,10);
+      remaining = total; running=false; clearInterval(tId); tId=null;
+      paint(); pop.classList.remove('show');
+    });
+  });
+  $('#timerApply').addEventListener('click', ()=>{
+    const m = Math.max(0, parseInt($('#timerMin').value||'0',10));
+    const s = Math.max(0, Math.min(59, parseInt($('#timerSec').value||'0',10)));
+    total = m*60 + s;
+    remaining = total; running=false; clearInterval(tId); tId=null;
+    paint(); pop.classList.remove('show');
+  });
+  paint();
+})();
+
+// ============ Right-click Context Menu ============
+(function(){
+  const menu = $('#ctxMenu');
+  let ctxPt = null;
+  const STICKY_HEX = ['#fff9b1','#ffd6e0','#cfe4ff','#d4f5c8','#ffe0b8','#e6d6ff'];
+  const sw = $('#ctxSwatches');
+  STICKY_HEX.forEach(hex=>{
+    const b=document.createElement('button');
+    b.style.background=hex; b.title='Sticky '+hex;
+    b.addEventListener('click', ()=>{
+      addCardAt('sticky', hex);
+      hide();
+    });
+    sw.appendChild(b);
+  });
+  function show(x,y){
+    menu.style.left = Math.min(x, window.innerWidth-240)+'px';
+    menu.style.top  = Math.min(y, window.innerHeight-380)+'px';
+    menu.classList.add('show');
+    const has = !!(window.__lastPrompt);
+    $('#ctxPastePrompt').style.display = has?'flex':'none';
+  }
+  function hide(){ menu.classList.remove('show'); ctxPt=null; }
+  function addCardAt(type, color){
+    const p = ctxPt ? clientToWorld(ctxPt.x, ctxPt.y) : viewportCenterWorld();
+    const w = (type==='sticky')?180:200, h=(type==='sticky')?120:80;
+    addCard({type, x:p.x - w/2, y:p.y - h/2, text:'New '+type, color});
+  }
+  viewport.addEventListener('contextmenu', e=>{
+    e.preventDefault();
+    if(e.target.closest('.card')) { hide(); return; }
+    ctxPt = {x:e.clientX, y:e.clientY};
+    show(e.clientX, e.clientY);
+  });
+  document.addEventListener('click', e=>{
+    if(!menu.contains(e.target)) hide();
+  });
+  document.addEventListener('keydown', e=>{ if(e.key==='Escape') hide(); });
+  menu.querySelectorAll('button[data-ctx]').forEach(b=>{
+    b.addEventListener('click', ()=>{
+      const k = b.dataset.ctx;
+      if(k==='fit'){ $('#btnFit').click(); }
+      else if(k==='reset'){ $('#btnReset').click(); }
+      else if(k==='paste-prompt' && window.__lastPrompt){
+        const p = ctxPt ? clientToWorld(ctxPt.x, ctxPt.y) : viewportCenterWorld();
+        addCard({type:'prompt', text:window.__lastPrompt.text, category:window.__lastPrompt.category||'', x:p.x-160, y:p.y-90});
+      } else {
+        addCardAt(k);
+      }
+      hide();
+    });
+  });
+})();
+
+
 if(!load()){
   loadSample();
 }else{
