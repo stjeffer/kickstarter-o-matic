@@ -2545,10 +2545,12 @@ function renderAll(){
     });
     sw.appendChild(b);
   });
+  let shownAt = 0;
   function show(x,y){
     menu.style.left = Math.min(x, window.innerWidth-240)+'px';
     menu.style.top  = Math.min(y, window.innerHeight-380)+'px';
     menu.classList.add('show');
+    shownAt = Date.now();
     const has = !!(window.__lastPrompt);
     $('#ctxPastePrompt').style.display = has?'flex':'none';
   }
@@ -2560,13 +2562,18 @@ function renderAll(){
   }
   viewport.addEventListener('contextmenu', e=>{
     e.preventDefault();
+    e.stopPropagation();
     if(e.target.closest('.card')) { hide(); return; }
     ctxPt = {x:e.clientX, y:e.clientY};
     show(e.clientX, e.clientY);
   });
-  document.addEventListener('click', e=>{
-    if(!menu.contains(e.target)) hide();
-  });
+  const outsideClose = e=>{
+    if(!menu.classList.contains('show')) return;
+    if(Date.now() - shownAt < 250) return;
+    if(menu.contains(e.target)) return;
+    hide();
+  };
+  document.addEventListener('mousedown', outsideClose, true);
   document.addEventListener('keydown', e=>{ if(e.key==='Escape') hide(); });
   menu.querySelectorAll('button[data-ctx]').forEach(b=>{
     b.addEventListener('click', ()=>{
