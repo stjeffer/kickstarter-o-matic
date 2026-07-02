@@ -32,7 +32,7 @@
   html,body{height:100%}
   body{
     margin:0;
-    font-family:'Inter',-apple-system,BlinkMacSystemFont,'Helvetica Neue',Arial,sans-serif;
+    font-family:var(--font-ui);
     font-feature-settings:'ss01','cv11';
     background:var(--bg);
     color:var(--ink);
@@ -40,12 +40,12 @@
     -moz-osx-font-smoothing:grayscale;
     text-rendering:optimizeLegibility;
     font-size:13.5px;
-    letter-spacing:-.005em;
+    letter-spacing:0;
     overflow:hidden;
   }
-  h1,h2,h3,h4,.display{font-family:'Space Grotesk','Inter',sans-serif;letter-spacing:-.02em;font-weight:600}
-  code, pre, .mono, textarea{font-family:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace}
-  .serif{font-family:'Space Grotesk','Inter',sans-serif;font-weight:500;letter-spacing:-.02em}
+  h1,h2,h3,h4,.display{font-family:var(--font-heading);letter-spacing:-.005em;font-weight:600}
+  code, pre, .mono, textarea.mono{font-family:var(--font-mono)}
+  .serif{font-family:var(--font-heading);font-weight:600;letter-spacing:-.005em}
   button, input, select, textarea{font-family:inherit;color:inherit}
 
   /* ===== Layout ===== */
