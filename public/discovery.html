@@ -1298,6 +1298,21 @@ function renderPalette(){
           'application/x-card-text': p.label,
         },
       }))));
+    } else if(t.name==='Flow Shapes'){
+      const titleItems = groups[t.name].filter(([type])=>type==='title');
+      const otherItems = groups[t.name].filter(([type])=>type!=='title');
+      if(titleItems.length){
+        const l0 = document.createElement('div'); l0.className='palette-section-label'; l0.textContent='Canvas Header'; panel.appendChild(l0);
+        panel.appendChild(buildGrid(titleItems.map(([type,def])=> ()=> makePaletteItem({
+          label: def.label, iconHTML: def.icon(),
+          dataMap: {'application/x-card-type': type},
+        }))));
+      }
+      const l1 = document.createElement('div'); l1.className='palette-section-label'; l1.textContent='Process'; panel.appendChild(l1);
+      panel.appendChild(buildGrid(otherItems.map(([type,def])=> ()=> makePaletteItem({
+        label: def.label, iconHTML: def.icon(),
+        dataMap: {'application/x-card-type': type},
+      }))));
     } else {
       panel.appendChild(buildGrid(coreItems));
     }
