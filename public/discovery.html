@@ -1906,11 +1906,13 @@ function openSpotlight(prompt){
   } else capWrap.style.display='none';
 
   spotEl.classList.add('open');
+  document.getElementById('spotlightBackdrop').classList.add('open');
 }
-function closeSpotlight(){ spotEl.classList.remove('open'); currentSpotPrompt=null; }
+function closeSpotlight(){ spotEl.classList.remove('open'); document.getElementById('spotlightBackdrop').classList.remove('open'); currentSpotPrompt=null; }
 
 $('#spotClose').addEventListener('click', closeSpotlight);
 $('#spotDone').addEventListener('click', closeSpotlight);
+document.getElementById('spotlightBackdrop').addEventListener('click', closeSpotlight);
 $('#spotDrop').addEventListener('click', ()=>{
   if(!currentSpotPrompt) return;
   const a = currentSpotPrompt.activity || {};
