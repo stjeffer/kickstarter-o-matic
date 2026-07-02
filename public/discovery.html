@@ -2429,8 +2429,8 @@ function renderAll(){
   const left = $('#leftPanel'), right = $('#rightPanel'), scrim = $('#flyoutScrim');
   const tL = $('#btnTogglePalette'), tR = $('#btnTogglePrompts');
   function sync(){
-    const anyOpen = left.classList.contains('open') || right.classList.contains('open');
-    scrim.classList.toggle('show', anyOpen);
+    // Non-modal: never show the scrim so the canvas stays interactive (drag-drop, right-click, panning)
+    scrim.classList.remove('show');
     tL.classList.toggle('active', left.classList.contains('open'));
     tR.classList.toggle('active', right.classList.contains('open'));
   }
