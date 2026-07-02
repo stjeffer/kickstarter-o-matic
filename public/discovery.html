@@ -762,10 +762,24 @@
         <button class="btn ico-btn" id="btnImport" title="Import JSON" aria-label="Import">
           <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
         </button>
-        <button class="btn ico-btn" id="btnExport" title="Export JSON" aria-label="Export">
-          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-        </button>
+        <div class="export-wrap" style="position:relative;display:inline-flex">
+          <button class="btn ico-btn" id="btnExport" title="Export…" aria-label="Export" aria-haspopup="true" aria-expanded="false">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          </button>
+          <div class="ctxmenu" id="exportMenu" style="right:0;left:auto;top:calc(100% + 6px);min-width:240px">
+            <div class="ctx-label" id="exportSmartLabel">Suggested</div>
+            <button data-export="smart" id="exportSmartBtn"><span class="ico">★</span><span>Smart export</span></button>
+            <div class="ctx-sep"></div>
+            <div class="ctx-label">All formats</div>
+            <button data-export="png"><span class="ico">🖼</span><span>PNG snapshot (entire canvas)</span></button>
+            <button data-export="pdf"><span class="ico">📄</span><span>PDF structured report</span></button>
+            <button data-export="docx"><span class="ico">📝</span><span>Word (.docx) report</span></button>
+            <div class="ctx-sep"></div>
+            <button data-export="json"><span class="ico">{}</span><span>JSON (session data)</span></button>
+          </div>
+        </div>
       </div>
+
 
       <div class="select-wrap" title="Load template pack">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
