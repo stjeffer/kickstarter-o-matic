@@ -1903,13 +1903,221 @@ $('#btnClear').addEventListener('click', ()=>{
   renderAll();
   save();
 });
-$('#btnExport').addEventListener('click', ()=>{
+// ============ Export system ============
+const SMART_EXPORT = {
+  whiteboard:'png', mindmap:'png', matrix2x2:'png', journey:'pdf', empathy:'pdf',
+  hswimlanes:'pdf', vswimlanes:'pdf', raci:'docx', strategy:'docx',
+};
+const EXPORT_LABELS = { png:'PNG snapshot', pdf:'PDF structured report', docx:'Word (.docx) report', json:'JSON session data' };
+
+function updateSmartExportLabel(){
+  const ct = state.canvasType || 'whiteboard';
+  const kind = SMART_EXPORT[ct] || 'png';
+  const btn = $('#exportSmartBtn'); const lbl = $('#exportSmartLabel');
+  if(btn) btn.querySelector('span:last-child').textContent = 'Smart export — ' + EXPORT_LABELS[kind];
+  if(lbl) lbl.textContent = 'Suggested for ' + (CANVAS_META[ct]?.label || ct);
+}
+function downloadBlob(blob, name){
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name;
+  document.body.appendChild(a); a.click(); setTimeout(()=>{URL.revokeObjectURL(a.href); a.remove();}, 100);
+}
+function safeFilename(){
+  const t = (state.session?.title || 'discovery-canvas').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'') || 'discovery-canvas';
+  return t;
+}
+function collectStages(){
+  if(state.session){ persistCurrentStage(); return state.session.stages; }
+  return [{
+    name: 'Canvas', description: '', canvasType: state.canvasType,
+    lanes: state.lanes, prompts: state.prompts, cards: state.cards, connections: state.connections,
+  }];
+}
+function cardsByLane(stage){
+  const groups = new Map();
+  const laneOf = c => {
+    if(c.lane){ const l = stage.lanes.find(x=>x.id===c.lane); if(l) return l.name; }
+    return 'Unassigned';
+  };
+  (stage.cards||[]).forEach(c=>{
+    const k = laneOf(c);
+    if(!groups.has(k)) groups.set(k, []);
+    groups.get(k).push(c);
+  });
+  // preserve lane order
+  const ordered = [];
+  (stage.lanes||[]).forEach(l=>{ if(groups.has(l.name)) ordered.push([l.name, groups.get(l.name)]); });
+  if(groups.has('Unassigned')) ordered.push(['Unassigned', groups.get('Unassigned')]);
+  return ordered;
+}
+
+async function exportPNG(){
+  if(typeof persistCurrentStage==='function') persistCurrentStage();
+  // Snapshot the whole world at 1:1 by cloning it off-screen so viewport transform is ignored.
+  const src = document.getElementById('world');
+  const clone = src.cloneNode(true);
+  clone.style.transform = 'none';
+  clone.style.position = 'absolute';
+  clone.style.left = '-99999px';
+  clone.style.top = '0';
+  clone.style.width = src.style.width || '2400px';
+  clone.style.height = src.style.height || '1600px';
+  document.body.appendChild(clone);
+  try{
+    const canvas = await html2canvas(clone, { backgroundColor:'#ffffff', scale: 1.5, useCORS:true, logging:false });
+    canvas.toBlob(b=> downloadBlob(b, safeFilename()+'.png'), 'image/png');
+  } finally { clone.remove(); }
+}
+
+async function exportPDF(){
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ unit:'pt', format:'a4' });
+  const M = 48; const W = doc.internal.pageSize.getWidth(); const H = doc.internal.pageSize.getHeight();
+  let y = M;
+  const line = (h=14)=>{ y += h; if(y > H - M){ doc.addPage(); y = M; } };
+  const text = (s, opts={})=>{
+    const size = opts.size||11, style = opts.style||'normal', color = opts.color||[30,30,32];
+    doc.setFont('helvetica', style); doc.setFontSize(size); doc.setTextColor(...color);
+    const lines = doc.splitTextToSize(String(s||''), W - M*2);
+    lines.forEach(ln=>{
+      if(y > H - M){ doc.addPage(); y = M; }
+      doc.text(ln, M, y); y += size * 1.35;
+    });
+  };
+  const rule = ()=>{ if(y > H - M - 8){ doc.addPage(); y = M; } doc.setDrawColor(220); doc.line(M, y, W-M, y); y += 10; };
+
+  const s = state.session || {};
+  text(s.title || 'Discovery Canvas', { size:22, style:'bold' });
+  const meta = [s.customer, s.sessionType, s.date].filter(Boolean).join(' · ');
+  if(meta) text(meta, { size:11, color:[110,110,120] });
+  if(s.description) { line(4); text(s.description, { size:11 }); }
+  line(6); rule();
+
+  collectStages().forEach((stage, i)=>{
+    text(`Stage ${i+1}: ${stage.name}`, { size:16, style:'bold', color:[10,80,170] });
+    text(`Layout: ${CANVAS_META[stage.canvasType]?.label || stage.canvasType}`, { size:9, color:[120,120,130] });
+    if(stage.description) text(stage.description, { size:10 });
+    if(stage.prompts?.length){
+      line(4); text('Prompts', { size:12, style:'bold' });
+      stage.prompts.forEach(p=>{
+        text('• ' + (p.text || ''), { size:10.5 });
+        if(p.category) text('   ' + p.category, { size:9, color:[130,130,140] });
+        if(p.activity?.facilitatorNotes) text('   Facilitator: ' + p.activity.facilitatorNotes, { size:9, color:[130,130,140] });
+      });
+    }
+    line(6);
+    const grouped = cardsByLane(stage);
+    if(grouped.length){
+      text('Contributions', { size:12, style:'bold' });
+      grouped.forEach(([laneName, cards])=>{
+        line(2);
+        text(laneName, { size:11, style:'bold', color:[70,70,80] });
+        cards.forEach(c=>{
+          const label = (c.type && c.type!=='sticky' && c.type!=='note') ? ` [${c.type}]` : '';
+          text('  – ' + (c.text || '(empty)') + label, { size:10.5 });
+        });
+      });
+    } else {
+      text('(No cards added yet.)', { size:10, color:[150,150,160] });
+    }
+    if(i < collectStages().length - 1){ line(8); rule(); }
+  });
+
+  doc.save(safeFilename()+'.pdf');
+}
+
+async function exportDOCX(){
+  const D = window.docx;
+  if(!D){ alert('Word export library failed to load.'); return; }
+  const { Document, Packer, Paragraph, TextRun, HeadingLevel, Table, TableRow, TableCell, WidthType, BorderStyle, AlignmentType } = D;
+
+  const s = state.session || {};
+  const children = [];
+  children.push(new Paragraph({ text: s.title || 'Discovery Canvas', heading: HeadingLevel.TITLE }));
+  const meta = [s.customer && `Customer: ${s.customer}`, s.sessionType && `Type: ${s.sessionType}`, s.date && `Date: ${s.date}`].filter(Boolean).join('   •   ');
+  if(meta) children.push(new Paragraph({ children:[new TextRun({ text: meta, italics:true, color:'666666' })] }));
+  if(s.description) children.push(new Paragraph({ text: s.description }));
+  children.push(new Paragraph({ text: '' }));
+
+  const border = { style: BorderStyle.SINGLE, size: 4, color: 'CCCCCC' };
+  const cellBorders = { top:border, bottom:border, left:border, right:border };
+
+  collectStages().forEach((stage, i)=>{
+    children.push(new Paragraph({ text: `Stage ${i+1}: ${stage.name}`, heading: HeadingLevel.HEADING_1 }));
+    children.push(new Paragraph({ children:[new TextRun({ text: `Layout: ${CANVAS_META[stage.canvasType]?.label || stage.canvasType}`, color:'888888', italics:true })] }));
+    if(stage.description) children.push(new Paragraph({ text: stage.description }));
+
+    if(stage.prompts?.length){
+      children.push(new Paragraph({ text:'Prompts', heading: HeadingLevel.HEADING_2 }));
+      stage.prompts.forEach(p=>{
+        children.push(new Paragraph({ children:[
+          new TextRun({ text: '• ', bold:true }),
+          new TextRun({ text: p.text || '' }),
+        ]}));
+        if(p.category) children.push(new Paragraph({ children:[new TextRun({ text:'    '+p.category, italics:true, color:'888888', size:18 })] }));
+        if(p.activity?.facilitatorNotes) children.push(new Paragraph({ children:[new TextRun({ text:'    Facilitator: '+p.activity.facilitatorNotes, italics:true, color:'888888', size:18 })] }));
+      });
+    }
+
+    const grouped = cardsByLane(stage);
+    if(grouped.length){
+      children.push(new Paragraph({ text:'Contributions', heading: HeadingLevel.HEADING_2 }));
+      const rows = [ new TableRow({ tableHeader:true, children:[
+        new TableCell({ borders:cellBorders, width:{size:30,type:WidthType.PERCENTAGE}, children:[new Paragraph({ children:[new TextRun({text:'Grouping', bold:true})] })] }),
+        new TableCell({ borders:cellBorders, width:{size:15,type:WidthType.PERCENTAGE}, children:[new Paragraph({ children:[new TextRun({text:'Type', bold:true})] })] }),
+        new TableCell({ borders:cellBorders, width:{size:55,type:WidthType.PERCENTAGE}, children:[new Paragraph({ children:[new TextRun({text:'Content', bold:true})] })] }),
+      ]})];
+      grouped.forEach(([laneName, cards])=>{
+        cards.forEach((c, idx)=>{
+          rows.push(new TableRow({ children:[
+            new TableCell({ borders:cellBorders, children:[new Paragraph(idx===0?laneName:'')] }),
+            new TableCell({ borders:cellBorders, children:[new Paragraph(c.type || 'sticky')] }),
+            new TableCell({ borders:cellBorders, children:[new Paragraph(c.text || '')] }),
+          ]}));
+        });
+      });
+      children.push(new Table({ width:{size:100,type:WidthType.PERCENTAGE}, rows }));
+    } else {
+      children.push(new Paragraph({ children:[new TextRun({ text:'(No cards added yet.)', italics:true, color:'999999' })] }));
+    }
+    children.push(new Paragraph({ text:'' }));
+  });
+
+  const doc = new Document({ sections:[{ children }] });
+  const blob = await Packer.toBlob(doc);
+  downloadBlob(blob, safeFilename()+'.docx');
+}
+
+function exportJSON(){
   if(typeof persistCurrentStage==='function') persistCurrentStage();
   const {canvasType,lanes,prompts,cards,connections,session} = state;
   const payload = session ? { ...session, canvasType, lanes, prompts, cards, connections } : { canvasType, lanes, prompts, cards, connections };
-  const blob = new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
-  const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='discovery-canvas.json'; a.click();
+  downloadBlob(new Blob([JSON.stringify(payload,null,2)],{type:'application/json'}), safeFilename()+'.json');
+}
+
+async function runExport(kind){
+  if(kind==='smart') kind = SMART_EXPORT[state.canvasType] || 'png';
+  try{
+    if(kind==='png') await exportPNG();
+    else if(kind==='pdf') await exportPDF();
+    else if(kind==='docx') await exportDOCX();
+    else if(kind==='json') exportJSON();
+  }catch(err){ console.error(err); alert('Export failed: '+err.message); }
+}
+
+const exportMenu = $('#exportMenu');
+$('#btnExport').addEventListener('click', e=>{
+  e.stopPropagation();
+  updateSmartExportLabel();
+  exportMenu.classList.toggle('show');
 });
+document.addEventListener('click', e=>{
+  if(!exportMenu.contains(e.target) && e.target.id!=='btnExport') exportMenu.classList.remove('show');
+});
+exportMenu.querySelectorAll('button[data-export]').forEach(b=>{
+  b.addEventListener('click', ()=>{ exportMenu.classList.remove('show'); runExport(b.dataset.export); });
+});
+$('#canvasType').addEventListener('change', updateSmartExportLabel);
+
 $('#btnImport').addEventListener('click', ()=>{$('#importText').value=''; $('#importModal').classList.add('open')});
 $('#importCancel').addEventListener('click', ()=>$('#importModal').classList.remove('open'));
 $('#importConfirm').addEventListener('click', ()=>{
