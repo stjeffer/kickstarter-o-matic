@@ -490,6 +490,18 @@
     background-size:auto,auto,auto,24px 24px;
     background-color:#fbfaff;
   }
+  .world.backcast{
+    background-image:
+      linear-gradient(90deg, rgba(10,132,255,.02), rgba(255,45,85,.14)),
+      linear-gradient(90deg,
+        transparent calc(20% - 1px), rgba(0,0,0,.10) calc(20% - 1px) 20%, transparent 20%,
+        transparent calc(40% - 1px), rgba(0,0,0,.10) calc(40% - 1px) 40%, transparent 40%,
+        transparent calc(60% - 1px), rgba(0,0,0,.10) calc(60% - 1px) 60%, transparent 60%,
+        transparent calc(80% - 1px), rgba(0,0,0,.14) calc(80% - 1px) 80%, transparent 80%),
+      radial-gradient(circle, #d9d9de 1px, transparent 1px);
+    background-size:auto,auto,24px 24px;
+    background-color:#fbf8fb;
+  }
   .world.whiteboard{
     background-color:#fafafa;
   }
@@ -502,6 +514,7 @@
   main.stage[data-canvas="strategy"]{ --ct-accent:#5856d6; --ct-tint:#efeeff; }
   main.stage[data-canvas="journey"]{ --ct-accent:#ff2d55; --ct-tint:#ffeef2; }
   main.stage[data-canvas="empathy"]{ --ct-accent:#ffcc00; --ct-tint:#fff8dc; }
+  main.stage[data-canvas="backcast"]{ --ct-accent:#ff2d55; --ct-tint:#ffeef2; }
   main.stage[data-canvas="whiteboard"]{ --ct-accent:#0a84ff; --ct-tint:#eef4ff; }
   main.stage[data-canvas] .canvas-toolbar{
     border-color: color-mix(in oklab, var(--ct-accent) 30%, var(--line));
@@ -882,6 +895,7 @@
         <option value="raci">RACI Matrix</option>
         <option value="strategy">Strategy on a Page</option>
         <option value="hswimlanes">Swimlanes (Process Mapping)</option>
+        <option value="backcast">Future-State Backcast</option>
       </select>
     </div>
 
@@ -1422,6 +1436,22 @@ function computeLaneBands(){
     lanes.slice(0,4).forEach((l,i)=>{bands[i].name=l.name; if(l.color) bands[i].color=l.color});
     return bands;
   }
+  if(ct==='backcast'){
+    const headerH = 140;
+    const cols = 5;
+    const colW = WORLD_W/cols;
+    const bodyY = headerH, bodyH = WORLD_H - headerH;
+    const bands = [
+      {name:'Future State Vision (12–24 months)', x:0, y:0, w:WORLD_W, h:headerH, color:'#ff2d55'},
+      {name:'Today (Starting Point)',    x:0*colW, y:bodyY, w:colW, h:bodyH, color:'#8e8e93'},
+      {name:'Enablers & Guardrails',     x:1*colW, y:bodyY, w:colW, h:bodyH, color:'#5856d6'},
+      {name:'Signals & Evidence',        x:2*colW, y:bodyY, w:colW, h:bodyH, color:'#0a84ff'},
+      {name:'What Had To Be True',       x:3*colW, y:bodyY, w:colW, h:bodyH, color:'#ff9500'},
+      {name:'Future Outcome',            x:4*colW, y:bodyY, w:colW, h:bodyH, color:'#ff2d55'},
+    ];
+    lanes.slice(0,6).forEach((l,i)=>{bands[i].name=l.name; if(l.color) bands[i].color=l.color});
+    return bands;
+  }
   if(!lanes.length) return [];
   if(ct==='hswimlanes' || ct==='journey'){
     const bandH = WORLD_H / lanes.length;
@@ -1936,6 +1966,7 @@ const CANVAS_META = {
   journey:     { label:'Journey Map',           addLabel:'+ Add Step'    },
   empathy:     { label:'Empathy Map',           addLabel:'+ Observation' },
   mindmap:     { label:'Mind Map',              addLabel:'+ Add Branch'  },
+  backcast:    { label:'Future-State Backcast', addLabel:'+ Add Insight' },
 };
 function applyCanvasTheme(){
   const ct = state.canvasType || 'whiteboard';
@@ -1991,7 +2022,7 @@ $('#btnClear').addEventListener('click', ()=>{
 // ============ Export system ============
 const SMART_EXPORT = {
   whiteboard:'png', mindmap:'png', matrix2x2:'png', journey:'pdf', empathy:'pdf',
-  hswimlanes:'pdf', vswimlanes:'pdf', raci:'docx', strategy:'docx',
+  hswimlanes:'pdf', vswimlanes:'pdf', raci:'docx', strategy:'docx', backcast:'docx',
 };
 const EXPORT_LABELS = { png:'PNG snapshot', pdf:'PDF structured report', docx:'Word (.docx) report', json:'JSON session data' };
 
@@ -2234,6 +2265,9 @@ const CANVAS_TYPE_ALIASES = {
   'raci-matrix':'raci',
   'strategy-on-a-page':'strategy','strategy_page':'strategy','sop':'strategy',
   'mind-map':'mindmap','mind_map':'mindmap','mindmapping':'mindmap',
+  'back-cast':'backcast','backcasting':'backcast','future-back':'backcast','futureback':'backcast',
+  'future-state':'backcast','future-state-back':'backcast','pre-mortem':'backcast','premortem':'backcast',
+  'reverse-planning':'backcast','working-backwards':'backcast',
 };
 function normalizeCanvasType(t){
   if(!t) return 'whiteboard';
