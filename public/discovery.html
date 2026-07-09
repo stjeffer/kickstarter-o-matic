@@ -862,6 +862,7 @@
           <option value="experience">Experience Mapping</option>
           <option value="empathy">Empathy Map</option>
           <option value="retro">Retrospective</option>
+          <option value="backcast">Future-State Backcast</option>
         </select>
         <svg class="chev" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
       </div>
@@ -2793,6 +2794,72 @@ const TEMPLATE_PACKS = {
     connections: [],
     view:{x:40,y:40,scale:.9},
   }),
+
+  backcast: () => ({
+    canvasType:'backcast',
+    lanes: [
+      {id:'bc_h',  name:'Future State Vision (12–24 months)', color:'#ff2d55'},
+      {id:'bc_l1', name:'Today (Starting Point)',             color:'#8e8e93'},
+      {id:'bc_l2', name:'Enablers & Guardrails',              color:'#5856d6'},
+      {id:'bc_l3', name:'Signals & Evidence',                 color:'#0a84ff'},
+      {id:'bc_l4', name:'What Had To Be True',                color:'#ff9500'},
+      {id:'bc_l5', name:'Future Outcome',                     color:'#ff2d55'},
+    ],
+    prompts: [
+      {category:'Future Outcome', text:'Describe the future headline: what does “good” look like 12–24 months from now?', notes:'Anchor on the outcome we want to stand behind — specific, dated, defensible.'},
+      {category:'What Had To Be True', text:'For that outcome to be real, what had to be true across people, product, policy and partners?', notes:'Work rightward-to-leftward. Force a small set of load-bearing conditions, not a wish list.'},
+      {category:'Signals & Evidence', text:'What early signals would prove — or disprove — that each condition is holding?', notes:'Separate evidence you could gather now from evidence you would need to build.'},
+      {category:'Enablers & Guardrails', text:'What capabilities, decisions and guardrails make those conditions safe to pursue?', notes:'Name the responsible-AI guardrails, governance, and enabling investments explicitly.'},
+      {category:'Today', text:'Where are we honestly today against each condition — and what is the first responsible move?', notes:'Force a truthful baseline. Small, credible next moves beat grand plans.'},
+    ],
+    cards: [
+      // Header title block
+      {id:'bc_title', type:'title', x:220, y:24,
+        text:'Future-State Backcast',
+        subtitle:'Working backwards from the outcome we want to stand behind'},
+
+      // Future Outcome (col 5) — the anchor
+      {id:'bc_out1', type:'sticky', x:3260, y:220, text:'Headline outcome we want to be true in 18 months', color:SC.pink},
+      {id:'bc_out2', type:'sticky', x:3260, y:440, text:'Who benefits, and how we would know', color:SC.pink},
+      {id:'bc_out3', type:'sticky', x:3260, y:660, text:'What we are willing to publicly commit to', color:SC.pink},
+
+      // What Had To Be True (col 4)
+      {id:'bc_wht1', type:'sticky', x:2460, y:220, text:'Condition 1 — people & skills', color:SC.orange},
+      {id:'bc_wht2', type:'sticky', x:2460, y:440, text:'Condition 2 — product & data', color:SC.orange},
+      {id:'bc_wht3', type:'sticky', x:2460, y:660, text:'Condition 3 — policy & trust', color:SC.orange},
+      {id:'bc_wht4', type:'sticky', x:2460, y:880, text:'Condition 4 — partners & channels', color:SC.orange},
+
+      // Signals & Evidence (col 3)
+      {id:'bc_sig1', type:'sticky', x:1660, y:220, text:'Leading signal we can measure now', color:SC.blue},
+      {id:'bc_sig2', type:'sticky', x:1660, y:440, text:'Evidence we would need to build', color:SC.blue},
+      {id:'bc_sig3', type:'sticky', x:1660, y:660, text:'What would make us stop or pivot', color:SC.blue},
+
+      // Enablers & Guardrails (col 2)
+      {id:'bc_en1', type:'sticky',  x:860,  y:220, text:'Capability / investment enabler', color:SC.purple},
+      {id:'bc_en2', type:'sticky',  x:860,  y:440, text:'Responsible-AI guardrail', color:SC.purple},
+      {id:'bc_en3', type:'decision',x:860,  y:660, text:'Key decision or approval'},
+
+      // Today (col 1)
+      {id:'bc_td1', type:'sticky',  x:80,   y:220, text:'Where we honestly are today', color:SC.yellow},
+      {id:'bc_td2', type:'sticky',  x:80,   y:440, text:'First responsible move (this quarter)', color:SC.yellow},
+      {id:'bc_td3', type:'terminator', x:80, y:660, text:'Start'},
+    ],
+    connections: [
+      // Rightward flow: today → enablers → signals → conditions → outcome
+      {id:'bcc1', from:'bc_td1',  to:'bc_en1',  fromAnchor:'right', toAnchor:'left'},
+      {id:'bcc2', from:'bc_td2',  to:'bc_en2',  fromAnchor:'right', toAnchor:'left'},
+      {id:'bcc3', from:'bc_en1',  to:'bc_sig1', fromAnchor:'right', toAnchor:'left'},
+      {id:'bcc4', from:'bc_en2',  to:'bc_sig2', fromAnchor:'right', toAnchor:'left'},
+      {id:'bcc5', from:'bc_sig1', to:'bc_wht1', fromAnchor:'right', toAnchor:'left'},
+      {id:'bcc6', from:'bc_sig2', to:'bc_wht2', fromAnchor:'right', toAnchor:'left'},
+      {id:'bcc7', from:'bc_sig3', to:'bc_wht3', fromAnchor:'right', toAnchor:'left'},
+      {id:'bcc8', from:'bc_wht1', to:'bc_out1', fromAnchor:'right', toAnchor:'left'},
+      {id:'bcc9', from:'bc_wht2', to:'bc_out2', fromAnchor:'right', toAnchor:'left'},
+      {id:'bcc10',from:'bc_wht3', to:'bc_out3', fromAnchor:'right', toAnchor:'left'},
+    ],
+    view:{x:20,y:20,scale:.45},
+  }),
+
 };
 
 function applyTemplate(key){
