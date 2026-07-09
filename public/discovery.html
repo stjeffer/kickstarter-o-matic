@@ -82,7 +82,7 @@
    .select-wrap .chev{position:absolute;right:8px;pointer-events:none;opacity:.55}
    .btn.primary.cta{padding:0 14px;height:34px;border-radius:10px;font-weight:600;box-shadow:0 1px 2px rgba(0,113,227,.35),0 4px 12px rgba(0,113,227,.18)}
 
-  /* Session / stage bar (only when a multi-stage session is loaded) */
+  /* Session / stage bar */
   .stage-bar{
     grid-column:1 / -1;display:none;align-items:center;gap:14px;
     padding:10px 16px;background:linear-gradient(180deg,#fbfbfd,#f4f5f8);
@@ -92,10 +92,10 @@
   .session-meta{display:flex;flex-direction:column;gap:1px;min-width:0;max-width:34%}
   .session-title{font-family:var(--font-heading);font-size:16px;font-weight:500;color:var(--ink);letter-spacing:-.015em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
   .session-sub{font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .stage-tabs{display:flex;gap:4px;padding:3px;background:#eef0f3;border:1px solid var(--line);border-radius:9px;flex:1;min-width:0;overflow-x:auto}
+  .stage-tabs{display:flex;gap:4px;padding:3px;background:#eef0f3;border:1px solid var(--line);border-radius:9px;flex:1;min-width:0;overflow-x:auto;align-items:center}
   .stage-tab{
     font:inherit;font-size:12px;font-weight:600;color:var(--ink-2);
-    background:transparent;border:0;border-radius:7px;padding:6px 12px;cursor:pointer;
+    background:transparent;border:0;border-radius:7px;padding:6px 8px 6px 12px;cursor:pointer;
     transition:all .18s cubic-bezier(.2,.8,.2,1);white-space:nowrap;display:flex;align-items:center;gap:6px;
   }
   .stage-tab .stage-num{
@@ -106,6 +106,19 @@
   .stage-tab:hover:not(.active){color:var(--ink)}
   .stage-tab.active{background:#fff;color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.06),0 0 0 .5px rgba(0,0,0,.04)}
   .stage-tab.active .stage-num{background:var(--accent);color:#fff}
+  .stage-tab .tab-close{
+    display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;
+    border-radius:50%;border:0;background:transparent;color:var(--muted);cursor:pointer;
+    font-size:14px;line-height:1;padding:0;margin-left:2px;opacity:.55;
+  }
+  .stage-tab:hover .tab-close{opacity:1}
+  .stage-tab .tab-close:hover{background:rgba(0,0,0,.08);color:var(--danger)}
+  .stage-tab-add{
+    font:inherit;font-size:16px;font-weight:500;color:var(--ink-2);
+    background:transparent;border:0;border-radius:7px;padding:2px 10px;cursor:pointer;
+    line-height:1;flex-shrink:0;
+  }
+  .stage-tab-add:hover{background:rgba(0,0,0,.05);color:var(--accent)}
   .btn.icon-only{padding:6px;width:28px;height:28px;justify-content:center}
 
 
@@ -2341,59 +2354,133 @@ function switchStage(idx){
   loadStage(idx);
 }
 
+function ensureSession(){
+  if(state.session) return;
+  persistCurrentStage();
+  state.session = {
+    title:'', customer:'', date:'', sessionType:'', description:'',
+    stages: [{
+      name:'Canvas 1', description:'',
+      canvasType: state.canvasType,
+      lanes: state.lanes, prompts: state.prompts,
+      cards: state.cards, connections: state.connections,
+      view: state.view,
+    }],
+    activeIndex: 0,
+  };
+}
+function addBlankCanvas(canvasType){
+  ensureSession();
+  persistCurrentStage();
+  const s = state.session;
+  s.stages.push({
+    name:'Canvas ' + (s.stages.length + 1),
+    description:'',
+    canvasType: canvasType || 'whiteboard',
+    lanes: [], prompts: [], cards: [], connections: [],
+    view: {x:40, y:40, scale:1},
+  });
+  s.activeIndex = -1;
+  loadStage(s.stages.length - 1);
+}
+function closeStage(idx){
+  if(!state.session) return;
+  const s = state.session;
+  if(!s.stages[idx]) return;
+  if(s.stages.length <= 1){
+    if(!confirm('This is the only canvas. Clear it?')) return;
+    s.stages[idx] = { name:'Canvas 1', description:'', canvasType:'whiteboard',
+      lanes:[], prompts:[], cards:[], connections:[], view:{x:40,y:40,scale:1} };
+    s.activeIndex = -1;
+    loadStage(0); return;
+  }
+  if(!confirm(`Close "${s.stages[idx].name}"? Its contents will be lost.`)) return;
+  s.stages.splice(idx, 1);
+  let next = s.activeIndex;
+  if(idx < s.activeIndex) next = s.activeIndex - 1;
+  else if(idx === s.activeIndex) next = Math.min(idx, s.stages.length - 1);
+  s.activeIndex = -1;
+  loadStage(Math.max(0,next));
+}
+function renameStage(idx){
+  if(!state.session) return;
+  const st = state.session.stages[idx]; if(!st) return;
+  const name = prompt('Rename canvas', st.name || '');
+  if(name==null) return;
+  st.name = name.trim().slice(0,60) || st.name;
+  renderStageBar(); save();
+}
+
 function renderStageBar(){
   const bar = $('#stageBar');
-  if(!state.session){ bar.classList.remove('open'); bar.innerHTML=''; return; }
   bar.classList.add('open');
-  const s = state.session;
   bar.innerHTML = '';
+  const s = state.session;
 
-  const meta = document.createElement('div');
-  meta.className = 'session-meta';
-  meta.style.cursor = 'pointer';
-  meta.title = 'Click to edit session details';
-  const subBits = [s.customer, s.sessionType, s.date].filter(Boolean).join(' · ');
-  meta.innerHTML = `<div class="session-title">${escapeHtml(s.title||'Untitled session')}</div>
-    <div class="session-sub">${escapeHtml(subBits)}</div>`;
-  meta.addEventListener('click', openSessionModal);
-  bar.appendChild(meta);
-
-  if(Array.isArray(s.stages) && s.stages.length){
-    const tabs = document.createElement('div');
-    tabs.className = 'stage-tabs';
-    s.stages.forEach((st, i)=>{
-      const b = document.createElement('button');
-      b.type='button';
-      b.className = 'stage-tab'+(i===s.activeIndex?' active':'');
-      b.innerHTML = `<span class="stage-num">${i+1}</span>${escapeHtml(st.name)}`;
-      if(st.description) b.title = st.description;
-      b.addEventListener('click', ()=> switchStage(i));
-      tabs.appendChild(b);
-    });
-    bar.appendChild(tabs);
-  } else {
-    const spacer = document.createElement('div');
-    spacer.style.flex = '1';
-    bar.appendChild(spacer);
+  if(s){
+    const meta = document.createElement('div');
+    meta.className = 'session-meta';
+    meta.style.cursor = 'pointer';
+    meta.title = 'Click to edit session details';
+    const subBits = [s.customer, s.sessionType, s.date].filter(Boolean).join(' · ');
+    meta.innerHTML = `<div class="session-title">${escapeHtml(s.title||'Untitled session')}</div>
+      <div class="session-sub">${escapeHtml(subBits)}</div>`;
+    meta.addEventListener('click', openSessionModal);
+    bar.appendChild(meta);
   }
 
-  const edit = document.createElement('button');
-  edit.className = 'btn ghost sm';
-  edit.textContent = 'Edit details';
-  edit.addEventListener('click', openSessionModal);
-  bar.appendChild(edit);
+  const tabs = document.createElement('div');
+  tabs.className = 'stage-tabs';
+  const stages = s ? s.stages : [{ name:'Canvas 1' }];
+  const activeIndex = s ? s.activeIndex : 0;
 
-  const exit = document.createElement('button');
-  exit.className = 'btn ghost sm';
-  exit.textContent = 'End session';
-  exit.title = 'Clear session metadata (keeps current canvas)';
-  exit.addEventListener('click', ()=>{
-    if(!confirm('End the session? Metadata and stages are cleared; the current canvas stays.')) return;
-    persistCurrentStage();
-    state.session = null;
-    renderAll(); save();
+  stages.forEach((st, i)=>{
+    const b = document.createElement('button');
+    b.type='button';
+    b.className = 'stage-tab'+(i===activeIndex?' active':'');
+    b.innerHTML = `<span class="stage-num">${i+1}</span><span>${escapeHtml(st.name)}</span>`;
+    b.title = (st.description ? st.description + ' — ' : '') + 'Double-click to rename';
+    b.addEventListener('click', ()=>{ if(s) switchStage(i); });
+    b.addEventListener('dblclick', (e)=>{ e.preventDefault(); ensureSession(); renameStage(i); });
+    if(stages.length > 1){
+      const x = document.createElement('span');
+      x.className = 'tab-close';
+      x.textContent = '×';
+      x.title = 'Close canvas';
+      x.addEventListener('click', (e)=>{ e.stopPropagation(); closeStage(i); });
+      b.appendChild(x);
+    }
+    tabs.appendChild(b);
   });
-  bar.appendChild(exit);
+
+  const add = document.createElement('button');
+  add.type='button';
+  add.className = 'stage-tab-add';
+  add.textContent = '+';
+  add.title = 'New blank canvas tab';
+  add.addEventListener('click', ()=> addBlankCanvas());
+  tabs.appendChild(add);
+  bar.appendChild(tabs);
+
+  if(s){
+    const edit = document.createElement('button');
+    edit.className = 'btn ghost sm';
+    edit.textContent = 'Edit details';
+    edit.addEventListener('click', openSessionModal);
+    bar.appendChild(edit);
+
+    const exit = document.createElement('button');
+    exit.className = 'btn ghost sm';
+    exit.textContent = 'End session';
+    exit.title = 'Clear session metadata and extra tabs (keeps current canvas)';
+    exit.addEventListener('click', ()=>{
+      if(!confirm('End the session? Metadata and other tabs are cleared; the current canvas stays.')) return;
+      persistCurrentStage();
+      state.session = null;
+      renderAll(); save();
+    });
+    bar.appendChild(exit);
+  }
 }
 
 // ============ Session details modal ============
