@@ -77,14 +77,18 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Lovable App" },
-      { name: "description", content: "Lovable Generated Project" },
+      { title: "Discovery canvas" },
+      { name: "description", content: "Idea Canvas Spark is a client-side HTML/JavaScript application for collaborative idea generation and discovery." },
       { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Lovable App" },
-      { property: "og:description", content: "Lovable Generated Project" },
+      { property: "og:title", content: "Discovery canvas" },
+      { property: "og:description", content: "Idea Canvas Spark is a client-side HTML/JavaScript application for collaborative idea generation and discovery." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:site", content: "@Lovable" },
+      { name: "twitter:title", content: "Discovery canvas" },
+      { name: "twitter:description", content: "Idea Canvas Spark is a client-side HTML/JavaScript application for collaborative idea generation and discovery." },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/da4cb8f8-c5d7-4409-a004-0881193a7514/id-preview-f3c7288d--fa3d4bbd-f18d-4fe6-9cac-5ee27e7a3c91.lovable.app-1783603443435.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/da4cb8f8-c5d7-4409-a004-0881193a7514/id-preview-f3c7288d--fa3d4bbd-f18d-4fe6-9cac-5ee27e7a3c91.lovable.app-1783603443435.png" },
     ],
     links: [
       {
