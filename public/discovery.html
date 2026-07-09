@@ -1436,6 +1436,22 @@ function computeLaneBands(){
     lanes.slice(0,4).forEach((l,i)=>{bands[i].name=l.name; if(l.color) bands[i].color=l.color});
     return bands;
   }
+  if(ct==='backcast'){
+    const headerH = 140;
+    const cols = 5;
+    const colW = WORLD_W/cols;
+    const bodyY = headerH, bodyH = WORLD_H - headerH;
+    const bands = [
+      {name:'Future State Vision (12–24 months)', x:0, y:0, w:WORLD_W, h:headerH, color:'#ff2d55'},
+      {name:'Today (Starting Point)',    x:0*colW, y:bodyY, w:colW, h:bodyH, color:'#8e8e93'},
+      {name:'Enablers & Guardrails',     x:1*colW, y:bodyY, w:colW, h:bodyH, color:'#5856d6'},
+      {name:'Signals & Evidence',        x:2*colW, y:bodyY, w:colW, h:bodyH, color:'#0a84ff'},
+      {name:'What Had To Be True',       x:3*colW, y:bodyY, w:colW, h:bodyH, color:'#ff9500'},
+      {name:'Future Outcome',            x:4*colW, y:bodyY, w:colW, h:bodyH, color:'#ff2d55'},
+    ];
+    lanes.slice(0,6).forEach((l,i)=>{bands[i].name=l.name; if(l.color) bands[i].color=l.color});
+    return bands;
+  }
   if(!lanes.length) return [];
   if(ct==='hswimlanes' || ct==='journey'){
     const bandH = WORLD_H / lanes.length;
