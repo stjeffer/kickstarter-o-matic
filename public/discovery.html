@@ -1046,7 +1046,7 @@
     <div class="spotlight-prompt" id="spotPrompt"></div>
     <p class="spotlight-context" id="spotContext" style="display:none"></p>
     <div id="spotNotesWrap" style="display:none">
-      <p class="spotlight-section-label">Facilitator notes</p>
+      <p class="spotlight-section-label">Collaborative guidance</p>
       <p class="spotlight-notes" id="spotNotes"></p>
     </div>
     <div id="spotCaptureWrap" style="display:none">
@@ -2118,7 +2118,7 @@ async function exportPDF(){
       stage.prompts.forEach(p=>{
         text('• ' + (p.text || ''), { size:10.5 });
         if(p.category) text('   ' + p.category, { size:9, color:[130,130,140] });
-        if(p.activity?.facilitatorNotes) text('   Facilitator: ' + p.activity.facilitatorNotes, { size:9, color:[130,130,140] });
+        if(p.activity?.facilitatorNotes) text('   Collaborative guidance: ' + p.activity.facilitatorNotes, { size:9, color:[130,130,140] });
       });
     }
     line(6);
@@ -2171,7 +2171,7 @@ async function exportDOCX(){
           new TextRun({ text: p.text || '' }),
         ]}));
         if(p.category) children.push(new Paragraph({ children:[new TextRun({ text:'    '+p.category, italics:true, color:'888888', size:18 })] }));
-        if(p.activity?.facilitatorNotes) children.push(new Paragraph({ children:[new TextRun({ text:'    Facilitator: '+p.activity.facilitatorNotes, italics:true, color:'888888', size:18 })] }));
+        if(p.activity?.facilitatorNotes) children.push(new Paragraph({ children:[new TextRun({ text:'    Collaborative guidance: '+p.activity.facilitatorNotes, italics:true, color:'888888', size:18 })] }));
       });
     }
 
@@ -2437,7 +2437,7 @@ function openBrief(prompt){
   const parts = [];
   if(a.context)               parts.push(`<p style="margin:0 0 10px;color:var(--ink-2)"><em>${escapeHtml(a.context)}</em></p>`);
   if(a.prompt)                parts.push(`<div style="padding:12px 14px;background:#f4f7fb;border-left:3px solid var(--accent);border-radius:6px;margin:0 0 12px;font-size:13.5px">${escapeHtml(a.prompt)}</div>`);
-  if(a.activityInstructions)  parts.push(`<p style="margin:0 0 6px;font-weight:600">Facilitator notes</p><p style="margin:0 0 12px">${escapeHtml(a.activityInstructions)}</p>`);
+  if(a.activityInstructions)  parts.push(`<p style="margin:0 0 6px;font-weight:600">Collaborative guidance</p><p style="margin:0 0 12px">${escapeHtml(a.activityInstructions)}</p>`);
   if(Array.isArray(a.captureAreas) && a.captureAreas.length){
     parts.push(`<p style="margin:0 0 6px;font-weight:600">Capture</p><div style="display:flex;flex-wrap:wrap;gap:6px">${
       a.captureAreas.map(c=>`<span style="font-size:11px;padding:3px 9px;border-radius:999px;background:#eef0f3;color:var(--ink-2)">${escapeHtml(c)}</span>`).join('')
