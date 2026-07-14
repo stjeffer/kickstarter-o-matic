@@ -2575,15 +2575,50 @@ function closeSpotlight(){ spotEl.classList.remove('open'); document.getElementB
 $('#spotClose').addEventListener('click', closeSpotlight);
 $('#spotDone').addEventListener('click', closeSpotlight);
 document.getElementById('spotlightBackdrop').addEventListener('click', closeSpotlight);
+function inferCanvasTypeFromPrompt(p){
+  if(!p) return null;
+  const a = p.activity || {};
+  const explicit = p.canvasType || a.canvasType || a.layout || a.canvas;
+  if(explicit) return normalizeCanvasType(explicit);
+  const hay = [a.activityType, a.title, p.category, p.text, a.prompt].filter(Boolean).join(' ').toLowerCase();
+  if(!hay) return null;
+  const rules = [
+    [/back[- ]?cast|future[- ]?back|future[- ]?state|pre[- ]?mortem|working[- ]?backwards|what had to be true/, 'backcast'],
+    [/empathy/, 'empathy'],
+    [/journey|experience map/, 'journey'],
+    [/raci/, 'raci'],
+    [/strategy on a page|strategy page|vision|3\/6\/12|okrs?/, 'strategy'],
+    [/mind ?map|mindmap/, 'mindmap'],
+    [/2 ?x ?2|matrix|prioriti[sz]ation|impact.*effort|effort.*impact/, 'matrix2x2'],
+    [/swimlane|process map|process mapping|workflow|hand[- ]?off/, 'hswimlanes'],
+    [/retro(spective)?/, 'vswimlanes'],
+  ];
+  for(const [re,val] of rules){ if(re.test(hay)) return val; }
+  return null;
+}
+
+function switchCanvasType(ct){
+  if(!ct || ct===state.canvasType) return false;
+  state.canvasType = ct;
+  const sel = $('#canvasType'); if(sel) sel.value = ct;
+  applyCanvasTheme();
+  renderLanesLayer();
+  if(typeof updateSmartExportLabel==='function') updateSmartExportLabel();
+  return true;
+}
+
 $('#spotDrop').addEventListener('click', ()=>{
   if(!currentSpotPrompt) return;
   const a = currentSpotPrompt.activity || {};
   const text = a.prompt || currentSpotPrompt.text;
+  const inferred = inferCanvasTypeFromPrompt(currentSpotPrompt);
+  if(inferred) switchCanvasType(inferred);
   const r = viewport.getBoundingClientRect();
   const cx = (r.width/2 - state.view.x)/state.view.scale;
   const cy = (r.height/2 - state.view.y)/state.view.scale;
   const cat = currentSpotPrompt.category || (a.activityType) || '';
   addCard({ type:'prompt', text, category: cat, x: cx-160, y: cy-90 });
+  save();
 });
 
 // Drag spotlight by header
