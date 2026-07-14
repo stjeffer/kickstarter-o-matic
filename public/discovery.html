@@ -889,10 +889,6 @@
         </button>
       </div>
 
-      <button class="btn primary cta" id="btnAddIdea" title="Add sticky note">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-        Sticky
-      </button>
     </div>
   </header>
 
@@ -1971,16 +1967,16 @@ function hexA(hex,a){const h=hex.replace('#','');const n=parseInt(h,16);const r=
 
 // ============ Top toolbar wiring ============
 const CANVAS_META = {
-  whiteboard:  { label:'Freestyle',             addLabel:'+ Sticky Note' },
-  hswimlanes:  { label:'Swimlanes',              addLabel:'+ Add Card'    },
-  vswimlanes:  { label:'Vertical Swimlanes',    addLabel:'+ Add Card'    },
-  matrix2x2:   { label:'2×2 Matrix',            addLabel:'+ Add Item'    },
-  raci:        { label:'RACI Matrix',           addLabel:'+ Add Task'    },
-  strategy:    { label:'Strategy on a Page',    addLabel:'+ Add Objective'},
-  journey:     { label:'Journey Map',           addLabel:'+ Add Step'    },
-  empathy:     { label:'Empathy Map',           addLabel:'+ Observation' },
-  mindmap:     { label:'Mind Map',              addLabel:'+ Add Branch'  },
-  backcast:    { label:'Future-State Backcast', addLabel:'+ Add Insight' },
+  whiteboard:  { label:'Freestyle'             },
+  hswimlanes:  { label:'Swimlanes'             },
+  vswimlanes:  { label:'Vertical Swimlanes'    },
+  matrix2x2:   { label:'2×2 Matrix'            },
+  raci:        { label:'RACI Matrix'           },
+  strategy:    { label:'Strategy on a Page'    },
+  journey:     { label:'Journey Map'           },
+  empathy:     { label:'Empathy Map'           },
+  mindmap:     { label:'Mind Map'              },
+  backcast:    { label:'Future-State Backcast' },
 };
 function applyCanvasTheme(){
   const ct = state.canvasType || 'whiteboard';
@@ -1988,9 +1984,6 @@ function applyCanvasTheme(){
   const stage = $('#stage'); if(stage) stage.setAttribute('data-canvas', ct);
   world.className = 'world ' + ct;
   const badge = $('#canvasBadgeText'); if(badge) badge.textContent = meta.label;
-  const addBtn = $('#btnAddIdea'); if(addBtn){
-    addBtn.textContent = (ct==='mindmap' && state.selection && state.selection.cardId) ? '+ Add Child' : meta.addLabel;
-  }
 }
 function viewportCenterWorld(){
   const rect = viewport.getBoundingClientRect();
@@ -2008,16 +2001,6 @@ $('#btnAddLane').addEventListener('click', ()=>{
   const id='l'+Date.now();
   state.lanes.push({id, name:'Lane '+(state.lanes.length+1), color:LANE_COLORS[state.lanes.length%LANE_COLORS.length]});
   renderLanes(); save();
-});
-$('#btnAddIdea').addEventListener('click', ()=>{
-  if(state.canvasType==='mindmap' && state.selection.cardId){
-    addMindmapChild(state.selection.cardId); return;
-  }
-  const c = viewportCenterWorld();
-  const type = state.canvasType==='journey' ? 'process'
-             : state.canvasType==='empathy' ? 'note'
-             : 'sticky';
-  addCard({type, x:c.x - 90 + (Math.random()*40-20), y:c.y - 65 + (Math.random()*40-20), text:'New idea'});
 });
 $('#btnClear').addEventListener('click', ()=>{
   if(!confirm('Clear all swimlanes, prompts, questions, cards and connections?')) return;
