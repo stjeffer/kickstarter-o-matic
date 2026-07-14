@@ -2299,6 +2299,7 @@ function loadSessionFromSchema(data){
       category: [a.activityType, a.timebox].filter(Boolean).join(' · '),
       text: a.title || a.prompt || 'Untitled',
       activity: a,
+      stageCanvasType: canvasType,
     }));
     return {
       name: s.name || ('Stage '+(i+1)),
