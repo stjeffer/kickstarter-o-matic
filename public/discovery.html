@@ -2575,23 +2575,56 @@ function closeSpotlight(){ spotEl.classList.remove('open'); document.getElementB
 $('#spotClose').addEventListener('click', closeSpotlight);
 $('#spotDone').addEventListener('click', closeSpotlight);
 document.getElementById('spotlightBackdrop').addEventListener('click', closeSpotlight);
+// Deterministic map from activityType (as authored in session JSON) to canvas.
+// This is the primary contract — regex is only a last-resort fallback.
+const ACTIVITY_TYPE_CANVAS = {
+  // Ideation
+  'divergent-ideation':'whiteboard','brainstorm':'whiteboard','brainstorming':'whiteboard','sticky-storm':'whiteboard',
+  'affinity':'mindmap','affinity-mapping':'mindmap','clustering':'mindmap',
+  'mindmap':'mindmap','mind-map':'mindmap',
+  // Convergence / decision
+  'convergent-ideation':'matrix2x2','prioritisation':'matrix2x2','prioritization':'matrix2x2',
+  '2x2':'matrix2x2','2x2-prioritisation':'matrix2x2','impact-effort':'matrix2x2',
+  'dot-vote':'matrix2x2','decision':'matrix2x2',
+  // Empathy / experience
+  'empathy':'empathy','empathy-map':'empathy',
+  'journey':'journey','journey-map':'journey','experience-map':'journey','service-blueprint':'journey',
+  // Process
+  'process-map':'hswimlanes','process-mapping':'hswimlanes','workflow':'hswimlanes','swimlane':'hswimlanes','swimlanes':'hswimlanes',
+  'raci':'raci',
+  // Reflection
+  'retro':'vswimlanes','retrospective':'vswimlanes','reflection':'vswimlanes',
+  // Strategy / envisioning
+  'strategy-on-a-page':'strategy','strategy':'strategy','okrs':'strategy','okr':'strategy','vision':'strategy',
+  'future-state':'backcast','future-state-vision':'backcast','future-back':'backcast',
+  'backcast':'backcast','backcasting':'backcast','working-backwards':'backcast',
+  'pre-mortem':'backcast','premortem':'backcast','what-had-to-be-true':'backcast','responsible-ai':'backcast',
+};
+
 function inferCanvasTypeFromPrompt(p){
   if(!p) return null;
   const a = p.activity || {};
+  // 1. Explicit override on the activity or prompt wins.
   const explicit = p.canvasType || a.canvasType || a.layout || a.canvas;
   if(explicit) return normalizeCanvasType(explicit);
+  // 2. activityType lookup — the authored contract.
+  const at = String(a.activityType || p.activityType || '').toLowerCase().trim();
+  if(at && ACTIVITY_TYPE_CANVAS[at]) return ACTIVITY_TYPE_CANVAS[at];
+  // 3. Stage-level default carried in from the JSON.
+  if(p.stageCanvasType) return normalizeCanvasType(p.stageCanvasType);
+  // 4. Last-resort keyword fallback across all prompt text.
   const hay = [a.activityType, a.title, p.category, p.text, a.prompt].filter(Boolean).join(' ').toLowerCase();
   if(!hay) return null;
   const rules = [
     [/back[- ]?cast|future[- ]?back|future[- ]?state|pre[- ]?mortem|working[- ]?backwards|what had to be true/, 'backcast'],
     [/empathy/, 'empathy'],
-    [/journey|experience map/, 'journey'],
+    [/journey|experience map|service blueprint/, 'journey'],
     [/raci/, 'raci'],
     [/strategy on a page|strategy page|vision|3\/6\/12|okrs?/, 'strategy'],
-    [/mind ?map|mindmap/, 'mindmap'],
-    [/2 ?x ?2|matrix|prioriti[sz]ation|impact.*effort|effort.*impact/, 'matrix2x2'],
+    [/mind ?map|affinity/, 'mindmap'],
+    [/2 ?x ?2|matrix|prioriti[sz]ation|impact.*effort|effort.*impact|dot ?vote/, 'matrix2x2'],
     [/swimlane|process map|process mapping|workflow|hand[- ]?off/, 'hswimlanes'],
-    [/retro(spective)?/, 'vswimlanes'],
+    [/retro(spective)?|reflection/, 'vswimlanes'],
   ];
   for(const [re,val] of rules){ if(re.test(hay)) return val; }
   return null;
