@@ -1209,6 +1209,8 @@ const CARD_TYPES = {
   persona:    { group:'Experience',   label:'Persona',   icon:personaIcon,   defaults:{ text:'Name — role\nGoals · needs', w:200, h:110 } },
   // Prompt / discussion cards
   prompt:     { group:'Prompt',       label:'Prompt',    icon:promptIcon,     defaults:{ text:'Discussion prompt', w:320, h:180 } },
+  // Attached only via the pain-point toggle — hidden from palette
+  painscore:  { group:'_hidden',      label:'Pain Score', defaults:{ w:230, h:150 } },
 };
 
 function stickyIcon(){return svgTag('<rect x="6" y="4" width="24" height="22" fill="#fff9b1" stroke="#e5c400" transform="rotate(-2 18 15)"/>')}
