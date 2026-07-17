@@ -680,9 +680,12 @@
     background:linear-gradient(180deg,#ff5b4f,#e0392c);
     color:#fff; font-size:10px; font-weight:600; letter-spacing:.02em;
     box-shadow:0 4px 10px -3px rgba(224,57,44,.55), 0 0 0 2px #fff;
-    pointer-events:none; text-transform:uppercase;
+    cursor:pointer; text-transform:uppercase; user-select:none;
+    transition:transform .12s ease;
     animation:painPulse 2.4s ease-in-out infinite;
   }
+  .card .pain-flag:hover{transform:translateY(-1px) scale(1.04)}
+  .card .pain-flag:active{transform:scale(.97)}
   .card .pain-flag svg{width:11px;height:11px;display:block}
   @keyframes painPulse{
     0%,100%{box-shadow:0 4px 10px -3px rgba(224,57,44,.55), 0 0 0 2px #fff, 0 0 0 0 rgba(224,57,44,.55)}
@@ -1575,11 +1578,17 @@ function renderPrompts(){
 
 }
 
+function isCardHidden(c){
+  if(c.type!=='painscore') return false;
+  const parent = state.cards.find(x=>x.id===c.painParentId);
+  return !!(parent && parent.painScoreHidden);
+}
 function renderCards(){
   cardsLayer.innerHTML='';
-  state.cards.forEach(c=> cardsLayer.appendChild(buildCardEl(c)));
+  state.cards.forEach(c=>{ if(!isCardHidden(c)) cardsLayer.appendChild(buildCardEl(c)); });
   renderConnections();
 }
+
 
 function buildCardEl(c){
   const def = CARD_TYPES[c.type] || CARD_TYPES.sticky;
@@ -1604,9 +1613,26 @@ function buildCardEl(c){
   if(c.painPoint && c.type!=='painscore'){
     const flag = document.createElement('div');
     flag.className='pain-flag';
-    flag.innerHTML = '<svg viewBox="0 0 24 24" fill="none"><path d="M12 3 L22 21 L2 21 Z" fill="#fff"/><rect x="11" y="9" width="2" height="6" fill="#e0392c"/><rect x="11" y="16.5" width="2" height="2" fill="#e0392c"/></svg><span>Pain</span>';
+    let totalLabel = '';
+    if(c.painScoreId){
+      const sc = state.cards.find(x=>x.id===c.painScoreId);
+      if(sc && sc.scores){
+        const t = (sc.scores.frequency||0)+(sc.scores.impact||0)+(sc.scores.population||0);
+        if(t>0) totalLabel = ` · ${t}`;
+      }
+    }
+    const hidden = !!c.painScoreHidden;
+    flag.title = hidden ? 'Show pain score' : 'Hide pain score';
+    flag.innerHTML = `<svg viewBox="0 0 24 24" fill="none"><path d="M12 3 L22 21 L2 21 Z" fill="#fff"/><rect x="11" y="9" width="2" height="6" fill="#e0392c"/><rect x="11" y="16.5" width="2" height="2" fill="#e0392c"/></svg><span>Pain${totalLabel}</span>`;
+    flag.addEventListener('mousedown', e=> e.stopPropagation());
+    flag.addEventListener('click', e=>{
+      e.stopPropagation();
+      c.painScoreHidden = !c.painScoreHidden;
+      renderCards(); renderConnections(); save();
+    });
     el.appendChild(flag);
   }
+
 
   const body = document.createElement('div');
   body.className='card-body';
@@ -1700,6 +1726,7 @@ function renderConnections(){
     const from = state.cards.find(c=>c.id===conn.from);
     const to   = state.cards.find(c=>c.id===conn.to);
     if(!from||!to) return;
+    if(isCardHidden(from) || isCardHidden(to)) return;
     const p1 = anchorPoint(from, conn.fromAnchor||'right');
     const p2 = anchorPoint(to,   conn.toAnchor||'left');
     const d = curvePath(p1, p2, conn.fromAnchor, conn.toAnchor);
