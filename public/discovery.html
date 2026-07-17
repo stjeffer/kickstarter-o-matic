@@ -2073,9 +2073,20 @@ function addMindmapChild(parentId){
   renderCards(); renderConnections(); selectCard(child.id); save();
 }
 function deleteCard(id){
-  state.cards = state.cards.filter(c=>c.id!==id);
-  state.connections = state.connections.filter(c=>c.from!==id && c.to!==id);
-  if(state.selection.cardId===id) state.selection.cardId=null;
+  const c = state.cards.find(x=>x.id===id);
+  const cascade = new Set([id]);
+  if(c){
+    // If deleting a card that has a linked pain score, remove the score too
+    if(c.painScoreId) cascade.add(c.painScoreId);
+    // If deleting a pain score, unflag its parent
+    if(c.type==='painscore' && c.painParentId){
+      const parent = state.cards.find(x=>x.id===c.painParentId);
+      if(parent){ parent.painPoint=false; parent.painScoreId=undefined; }
+    }
+  }
+  state.cards = state.cards.filter(c=>!cascade.has(c.id));
+  state.connections = state.connections.filter(cn=>!cascade.has(cn.from) && !cascade.has(cn.to));
+  if(cascade.has(state.selection.cardId)) state.selection.cardId=null;
   renderCards(); save();
 }
 function selectCard(id){
