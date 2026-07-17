@@ -2046,6 +2046,12 @@ function addCard(partial){
     category: partial.category,
     w: partial.w,
     h: partial.h,
+    emoji: partial.emoji,
+    subtitle: partial.subtitle,
+    painPoint: partial.painPoint,
+    painScoreId: partial.painScoreId,
+    painParentId: partial.painParentId,
+    scores: partial.scores,
   };
   state.cards.push(c);
   renderCards();
