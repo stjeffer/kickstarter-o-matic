@@ -1724,6 +1724,7 @@ function renderConnections(){
     const from = state.cards.find(c=>c.id===conn.from);
     const to   = state.cards.find(c=>c.id===conn.to);
     if(!from||!to) return;
+    if(isCardHidden(from) || isCardHidden(to)) return;
     const p1 = anchorPoint(from, conn.fromAnchor||'right');
     const p2 = anchorPoint(to,   conn.toAnchor||'left');
     const d = curvePath(p1, p2, conn.fromAnchor, conn.toAnchor);
