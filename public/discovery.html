@@ -2186,6 +2186,7 @@ const CANVAS_META = {
   empathy:     { label:'Empathy Map'           },
   mindmap:     { label:'Mind Map'              },
   backcast:    { label:'Future-State Backcast' },
+  usecase:     { label:'Use Case Ideation'     },
 };
 function applyCanvasTheme(){
   const ct = state.canvasType || 'whiteboard';
@@ -2228,7 +2229,7 @@ $('#btnClear').addEventListener('click', ()=>{
 // ============ Export system ============
 const SMART_EXPORT = {
   whiteboard:'png', mindmap:'png', matrix2x2:'png', journey:'pdf', empathy:'pdf',
-  hswimlanes:'pdf', vswimlanes:'pdf', raci:'docx', strategy:'docx', backcast:'docx',
+  hswimlanes:'pdf', vswimlanes:'pdf', raci:'docx', strategy:'docx', backcast:'docx', usecase:'docx',
 };
 const EXPORT_LABELS = { png:'PNG snapshot', pdf:'PDF structured report', docx:'Word (.docx) report', json:'JSON session data' };
 
@@ -2474,6 +2475,8 @@ const CANVAS_TYPE_ALIASES = {
   'back-cast':'backcast','backcasting':'backcast','future-back':'backcast','futureback':'backcast',
   'future-state':'backcast','future-state-back':'backcast','pre-mortem':'backcast','premortem':'backcast',
   'reverse-planning':'backcast','working-backwards':'backcast',
+  'use-case':'usecase','usecase':'usecase','use-cases':'usecase','use-case-ideation':'usecase',
+  'usecase-ideation':'usecase','ideation-usecase':'usecase','ai-use-case':'usecase','opportunity':'usecase',
 };
 function normalizeCanvasType(t){
   if(!t) return 'whiteboard';
@@ -2792,6 +2795,8 @@ const ACTIVITY_TYPE_CANVAS = {
   'future-state':'backcast','future-state-vision':'backcast','future-back':'backcast',
   'backcast':'backcast','backcasting':'backcast','working-backwards':'backcast',
   'pre-mortem':'backcast','premortem':'backcast','what-had-to-be-true':'backcast','responsible-ai':'backcast',
+  'use-case':'usecase','usecase':'usecase','use-case-ideation':'usecase','opportunity-canvas':'usecase',
+  'ai-use-case':'usecase','opportunity':'usecase','ideation-use-case':'usecase',
 };
 
 function inferCanvasTypeFromPrompt(p){
@@ -2818,6 +2823,7 @@ function inferCanvasTypeFromPrompt(p){
     [/2 ?x ?2|matrix|prioriti[sz]ation|impact.*effort|effort.*impact|dot ?vote/, 'matrix2x2'],
     [/swimlane|process map|process mapping|workflow|hand[- ]?off/, 'hswimlanes'],
     [/retro(spective)?|reflection/, 'vswimlanes'],
+    [/use[- ]?case|opportunity canvas|job[- ]?to[- ]?be[- ]?done|jtbd/, 'usecase'],
   ];
   for(const [re,val] of rules){ if(re.test(hay)) return val; }
   return null;
