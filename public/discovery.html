@@ -672,6 +672,63 @@
   .card.parallel .card-body::before{top:5px}
   .card.parallel .card-body::after{bottom:5px}
 
+  /* --- Pain point flag on any card --- */
+  .card .pain-flag{
+    position:absolute; top:-10px; left:-10px; z-index:3;
+    display:flex; align-items:center; gap:4px;
+    padding:3px 8px 3px 6px; border-radius:999px;
+    background:linear-gradient(180deg,#ff5b4f,#e0392c);
+    color:#fff; font-size:10px; font-weight:600; letter-spacing:.02em;
+    box-shadow:0 4px 10px -3px rgba(224,57,44,.55), 0 0 0 2px #fff;
+    pointer-events:none; text-transform:uppercase;
+    animation:painPulse 2.4s ease-in-out infinite;
+  }
+  .card .pain-flag svg{width:11px;height:11px;display:block}
+  @keyframes painPulse{
+    0%,100%{box-shadow:0 4px 10px -3px rgba(224,57,44,.55), 0 0 0 2px #fff, 0 0 0 0 rgba(224,57,44,.55)}
+    50%    {box-shadow:0 4px 12px -3px rgba(224,57,44,.7),  0 0 0 2px #fff, 0 0 0 6px rgba(224,57,44,0)}
+  }
+  .card-tools button.pain-toggle.on{background:#ffe5e2;color:#c8261a;border-color:#ffb4ac}
+
+  /* --- Pain Score card --- */
+  .card.painscore .card-body{
+    width:230px; padding:12px 14px 12px;
+    background:linear-gradient(180deg,#fff 0%,#fff5f4 100%);
+    border:1px solid #ffb4ac; border-radius:14px;
+    box-shadow:0 14px 30px -14px rgba(200,38,26,.35), 0 1px 0 rgba(255,255,255,.6) inset;
+    color:#3a1210; text-align:left;
+    display:flex; flex-direction:column; gap:8px;
+  }
+  .card.painscore .ps-head{
+    display:flex; align-items:center; justify-content:space-between; gap:8px;
+    padding-bottom:6px; border-bottom:1px dashed #ffcac3;
+  }
+  .card.painscore .ps-title{
+    font-family:"Segoe UI Semibold","Segoe UI",system-ui,sans-serif;
+    font-weight:600; font-size:12px; letter-spacing:.04em; text-transform:uppercase;
+    color:#c8261a; display:flex; align-items:center; gap:6px;
+  }
+  .card.painscore .ps-total{
+    font-family:"Segoe UI Semibold","Segoe UI",system-ui,sans-serif;
+    font-weight:600; font-size:16px; color:#fff;
+    padding:2px 10px; border-radius:999px; min-width:34px; text-align:center;
+    background:#8e8e93;
+  }
+  .card.painscore .ps-total.sev-1{background:#34c759}
+  .card.painscore .ps-total.sev-2{background:#ff9500}
+  .card.painscore .ps-total.sev-3{background:#e0392c}
+  .card.painscore .ps-row{display:flex;align-items:center;justify-content:space-between;gap:8px}
+  .card.painscore .ps-label{font-size:11.5px;color:#5a1a15;font-weight:500}
+  .card.painscore .ps-label small{display:block;font-size:9.5px;color:#8a4a44;font-weight:400;letter-spacing:.01em}
+  .card.painscore .ps-dots{display:flex;gap:5px}
+  .card.painscore .ps-dot{
+    width:16px;height:16px;border-radius:50%;
+    background:#fff;border:1.5px solid #ffb4ac;cursor:pointer;
+    transition:transform .12s ease, background .12s ease;
+  }
+  .card.painscore .ps-dot:hover{transform:scale(1.15)}
+  .card.painscore .ps-dot.filled{background:#e0392c;border-color:#c8261a;box-shadow:inset 0 -2px 0 rgba(0,0,0,.08)}
+
   /* ===== Experience cards ===== */
   .card.emotion .card-body{
     width:120px;height:120px;border-radius:50%;
@@ -1152,6 +1209,8 @@ const CARD_TYPES = {
   persona:    { group:'Experience',   label:'Persona',   icon:personaIcon,   defaults:{ text:'Name — role\nGoals · needs', w:200, h:110 } },
   // Prompt / discussion cards
   prompt:     { group:'Prompt',       label:'Prompt',    icon:promptIcon,     defaults:{ text:'Discussion prompt', w:320, h:180 } },
+  // Attached only via the pain-point toggle — hidden from palette
+  painscore:  { group:'_hidden',      label:'Pain Score', defaults:{ w:230, h:150 } },
 };
 
 function stickyIcon(){return svgTag('<rect x="6" y="4" width="24" height="22" fill="#fff9b1" stroke="#e5c400" transform="rotate(-2 18 15)"/>')}
@@ -1535,12 +1594,41 @@ function buildCardEl(c){
 
   const tools = document.createElement('div');
   tools.className='card-tools';
-  tools.innerHTML = `<button data-act="edit" title="Edit">✎</button><button data-act="dup" title="Duplicate">⧉</button><button data-act="del" class="danger" title="Delete">✕</button>`;
+  const canBePain = !['prompt','title','painscore'].includes(c.type);
+  const painBtn = canBePain
+    ? `<button data-act="pain" class="pain-toggle${c.painPoint?' on':''}" title="${c.painPoint?'Remove pain point':'Mark as pain point'}">!</button>`
+    : '';
+  tools.innerHTML = `${painBtn}<button data-act="edit" title="Edit">✎</button><button data-act="dup" title="Duplicate">⧉</button><button data-act="del" class="danger" title="Delete">✕</button>`;
   el.appendChild(tools);
+
+  if(c.painPoint && c.type!=='painscore'){
+    const flag = document.createElement('div');
+    flag.className='pain-flag';
+    flag.innerHTML = '<svg viewBox="0 0 24 24" fill="none"><path d="M12 3 L22 21 L2 21 Z" fill="#fff"/><rect x="11" y="9" width="2" height="6" fill="#e0392c"/><rect x="11" y="16.5" width="2" height="2" fill="#e0392c"/></svg><span>Pain</span>';
+    el.appendChild(flag);
+  }
 
   const body = document.createElement('div');
   body.className='card-body';
-  if(c.type==='emotion'){
+  if(c.type==='painscore'){
+    const s = c.scores || {frequency:0, impact:0, population:0};
+    const total = (s.frequency||0)+(s.impact||0)+(s.population||0);
+    const sev = total>=7 ? 3 : total>=4 ? 2 : total>=1 ? 1 : 0;
+    const row = (key,label,hint)=>{
+      const v = s[key]||0;
+      const dots = [1,2,3].map(n=>`<div class="ps-dot${n<=v?' filled':''}" data-ps-key="${key}" data-ps-val="${n}"></div>`).join('');
+      return `<div class="ps-row"><div class="ps-label">${label}<small>${hint}</small></div><div class="ps-dots">${dots}</div></div>`;
+    };
+    body.innerHTML = `
+      <div class="ps-head">
+        <div class="ps-title">⚑ Pain Score</div>
+        <div class="ps-total${sev?' sev-'+sev:''}">${total||'–'}</div>
+      </div>
+      ${row('frequency','Frequency','1 occasional · 3 all the time')}
+      ${row('impact','Impact','1 minimal · 3 team/org/customer')}
+      ${row('population','Population','1 single user · 3 many users')}
+    `;
+  }else if(c.type==='emotion'){
     body.innerHTML = `<div class="emoji">${escapeHtml(c.emoji||'😊')}</div><div class="txt">${escapeHtml(c.text||'')}</div>`;
   }else if(c.type==='title'){
     body.innerHTML = `<div class="title-main">${escapeHtml(c.text||'Untitled')}</div>${c.subtitle?`<div class="title-sub">${escapeHtml(c.subtitle)}</div>`:''}`;
@@ -1755,19 +1843,66 @@ cardsLayer.addEventListener('dblclick', e=>{
 });
 
 cardsLayer.addEventListener('click', e=>{
+  const dot = e.target.closest('.ps-dot');
+  if(dot){
+    const cardEl = e.target.closest('.card');
+    const c = state.cards.find(x=>x.id===cardEl.dataset.id);
+    if(c && c.type==='painscore'){
+      const key = dot.dataset.psKey;
+      const val = parseInt(dot.dataset.psVal,10);
+      c.scores = c.scores || {frequency:0,impact:0,population:0};
+      c.scores[key] = c.scores[key]===val ? val-1 : val;
+      renderCards(); save();
+    }
+    return;
+  }
   const tool = e.target.closest('[data-act]');
   if(!tool) return;
   const cardEl = e.target.closest('.card');
   const id = cardEl.dataset.id;
   const act = tool.dataset.act;
   if(act==='del') deleteCard(id);
+  else if(act==='pain') togglePainPoint(id);
   else if(act==='dup'){
     const c = state.cards.find(c=>c.id===id);
-    addCard({...c, id:undefined, x:c.x+20, y:c.y+20});
+    addCard({...c, id:undefined, x:c.x+20, y:c.y+20, painPoint:false, painScoreId:undefined});
   }else if(act==='edit'){
     cardEl.querySelector('.card-body').dispatchEvent(new MouseEvent('dblclick',{bubbles:true}));
   }
 });
+
+function togglePainPoint(id){
+  const c = state.cards.find(x=>x.id===id);
+  if(!c) return;
+  if(c.painPoint){
+    // Remove pain flag + linked score card
+    const linkedId = c.painScoreId;
+    c.painPoint = false;
+    c.painScoreId = undefined;
+    if(linkedId){
+      state.cards = state.cards.filter(x=>x.id!==linkedId);
+      state.connections = state.connections.filter(cn=>cn.from!==linkedId && cn.to!==linkedId);
+    }
+  }else{
+    c.painPoint = true;
+    const size = getCardSize(c);
+    const scoreId = 'k'+Date.now()+Math.random().toString(36).slice(2,6);
+    const sx = c.x + size.w + 40;
+    const sy = c.y - 10;
+    state.cards.push({
+      id: scoreId, type:'painscore', x:sx, y:sy,
+      painParentId: c.id,
+      scores:{frequency:0,impact:0,population:0},
+    });
+    state.connections.push({
+      id:'c'+Date.now()+Math.random().toString(36).slice(2,6),
+      from:c.id, to:scoreId, fromAnchor:'right', toAnchor:'left'
+    });
+    c.painScoreId = scoreId;
+  }
+  renderCards(); renderConnections(); save();
+}
+
 
 function startDrag(id, e){
   const c = state.cards.find(c=>c.id===id);
@@ -1911,6 +2046,12 @@ function addCard(partial){
     category: partial.category,
     w: partial.w,
     h: partial.h,
+    emoji: partial.emoji,
+    subtitle: partial.subtitle,
+    painPoint: partial.painPoint,
+    painScoreId: partial.painScoreId,
+    painParentId: partial.painParentId,
+    scores: partial.scores,
   };
   state.cards.push(c);
   renderCards();
@@ -1938,9 +2079,20 @@ function addMindmapChild(parentId){
   renderCards(); renderConnections(); selectCard(child.id); save();
 }
 function deleteCard(id){
-  state.cards = state.cards.filter(c=>c.id!==id);
-  state.connections = state.connections.filter(c=>c.from!==id && c.to!==id);
-  if(state.selection.cardId===id) state.selection.cardId=null;
+  const c = state.cards.find(x=>x.id===id);
+  const cascade = new Set([id]);
+  if(c){
+    // If deleting a card that has a linked pain score, remove the score too
+    if(c.painScoreId) cascade.add(c.painScoreId);
+    // If deleting a pain score, unflag its parent
+    if(c.type==='painscore' && c.painParentId){
+      const parent = state.cards.find(x=>x.id===c.painParentId);
+      if(parent){ parent.painPoint=false; parent.painScoreId=undefined; }
+    }
+  }
+  state.cards = state.cards.filter(c=>!cascade.has(c.id));
+  state.connections = state.connections.filter(cn=>!cascade.has(cn.from) && !cascade.has(cn.to));
+  if(cascade.has(state.selection.cardId)) state.selection.cardId=null;
   renderCards(); save();
 }
 function selectCard(id){
