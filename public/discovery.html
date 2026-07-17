@@ -1594,12 +1594,41 @@ function buildCardEl(c){
 
   const tools = document.createElement('div');
   tools.className='card-tools';
-  tools.innerHTML = `<button data-act="edit" title="Edit">✎</button><button data-act="dup" title="Duplicate">⧉</button><button data-act="del" class="danger" title="Delete">✕</button>`;
+  const canBePain = !['prompt','title','painscore'].includes(c.type);
+  const painBtn = canBePain
+    ? `<button data-act="pain" class="pain-toggle${c.painPoint?' on':''}" title="${c.painPoint?'Remove pain point':'Mark as pain point'}">!</button>`
+    : '';
+  tools.innerHTML = `${painBtn}<button data-act="edit" title="Edit">✎</button><button data-act="dup" title="Duplicate">⧉</button><button data-act="del" class="danger" title="Delete">✕</button>`;
   el.appendChild(tools);
+
+  if(c.painPoint && c.type!=='painscore'){
+    const flag = document.createElement('div');
+    flag.className='pain-flag';
+    flag.innerHTML = '<svg viewBox="0 0 24 24" fill="none"><path d="M12 3 L22 21 L2 21 Z" fill="#fff"/><rect x="11" y="9" width="2" height="6" fill="#e0392c"/><rect x="11" y="16.5" width="2" height="2" fill="#e0392c"/></svg><span>Pain</span>';
+    el.appendChild(flag);
+  }
 
   const body = document.createElement('div');
   body.className='card-body';
-  if(c.type==='emotion'){
+  if(c.type==='painscore'){
+    const s = c.scores || {frequency:0, impact:0, population:0};
+    const total = (s.frequency||0)+(s.impact||0)+(s.population||0);
+    const sev = total>=7 ? 3 : total>=4 ? 2 : total>=1 ? 1 : 0;
+    const row = (key,label,hint)=>{
+      const v = s[key]||0;
+      const dots = [1,2,3].map(n=>`<div class="ps-dot${n<=v?' filled':''}" data-ps-key="${key}" data-ps-val="${n}"></div>`).join('');
+      return `<div class="ps-row"><div class="ps-label">${label}<small>${hint}</small></div><div class="ps-dots">${dots}</div></div>`;
+    };
+    body.innerHTML = `
+      <div class="ps-head">
+        <div class="ps-title">⚑ Pain Score</div>
+        <div class="ps-total${sev?' sev-'+sev:''}">${total||'–'}</div>
+      </div>
+      ${row('frequency','Frequency','1 occasional · 3 all the time')}
+      ${row('impact','Impact','1 minimal · 3 team/org/customer')}
+      ${row('population','Population','1 single user · 3 many users')}
+    `;
+  }else if(c.type==='emotion'){
     body.innerHTML = `<div class="emoji">${escapeHtml(c.emoji||'😊')}</div><div class="txt">${escapeHtml(c.text||'')}</div>`;
   }else if(c.type==='title'){
     body.innerHTML = `<div class="title-main">${escapeHtml(c.text||'Untitled')}</div>${c.subtitle?`<div class="title-sub">${escapeHtml(c.subtitle)}</div>`:''}`;
