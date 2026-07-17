@@ -1843,19 +1843,66 @@ cardsLayer.addEventListener('dblclick', e=>{
 });
 
 cardsLayer.addEventListener('click', e=>{
+  const dot = e.target.closest('.ps-dot');
+  if(dot){
+    const cardEl = e.target.closest('.card');
+    const c = state.cards.find(x=>x.id===cardEl.dataset.id);
+    if(c && c.type==='painscore'){
+      const key = dot.dataset.psKey;
+      const val = parseInt(dot.dataset.psVal,10);
+      c.scores = c.scores || {frequency:0,impact:0,population:0};
+      c.scores[key] = c.scores[key]===val ? val-1 : val;
+      renderCards(); save();
+    }
+    return;
+  }
   const tool = e.target.closest('[data-act]');
   if(!tool) return;
   const cardEl = e.target.closest('.card');
   const id = cardEl.dataset.id;
   const act = tool.dataset.act;
   if(act==='del') deleteCard(id);
+  else if(act==='pain') togglePainPoint(id);
   else if(act==='dup'){
     const c = state.cards.find(c=>c.id===id);
-    addCard({...c, id:undefined, x:c.x+20, y:c.y+20});
+    addCard({...c, id:undefined, x:c.x+20, y:c.y+20, painPoint:false, painScoreId:undefined});
   }else if(act==='edit'){
     cardEl.querySelector('.card-body').dispatchEvent(new MouseEvent('dblclick',{bubbles:true}));
   }
 });
+
+function togglePainPoint(id){
+  const c = state.cards.find(x=>x.id===id);
+  if(!c) return;
+  if(c.painPoint){
+    // Remove pain flag + linked score card
+    const linkedId = c.painScoreId;
+    c.painPoint = false;
+    c.painScoreId = undefined;
+    if(linkedId){
+      state.cards = state.cards.filter(x=>x.id!==linkedId);
+      state.connections = state.connections.filter(cn=>cn.from!==linkedId && cn.to!==linkedId);
+    }
+  }else{
+    c.painPoint = true;
+    const size = getCardSize(c);
+    const scoreId = 'k'+Date.now()+Math.random().toString(36).slice(2,6);
+    const sx = c.x + size.w + 40;
+    const sy = c.y - 10;
+    state.cards.push({
+      id: scoreId, type:'painscore', x:sx, y:sy,
+      painParentId: c.id,
+      scores:{frequency:0,impact:0,population:0},
+    });
+    state.connections.push({
+      id:'c'+Date.now()+Math.random().toString(36).slice(2,6),
+      from:c.id, to:scoreId, fromAnchor:'right', toAnchor:'left'
+    });
+    c.painScoreId = scoreId;
+  }
+  renderCards(); renderConnections(); save();
+}
+
 
 function startDrag(id, e){
   const c = state.cards.find(c=>c.id===id);
