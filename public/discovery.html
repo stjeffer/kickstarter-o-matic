@@ -515,6 +515,18 @@
     background-size:auto,auto,24px 24px;
     background-color:#fbf8fb;
   }
+  .world.usecase{
+    background-image:
+      linear-gradient(90deg, rgba(255,149,0,.03), rgba(88,86,214,.10)),
+      linear-gradient(90deg,
+        transparent calc(20% - 1px), rgba(0,0,0,.10) calc(20% - 1px) 20%, transparent 20%,
+        transparent calc(40% - 1px), rgba(0,0,0,.10) calc(40% - 1px) 40%, transparent 40%,
+        transparent calc(60% - 1px), rgba(0,0,0,.10) calc(60% - 1px) 60%, transparent 60%,
+        transparent calc(80% - 1px), rgba(0,0,0,.10) calc(80% - 1px) 80%, transparent 80%),
+      radial-gradient(circle, #dfdce3 1px, transparent 1px);
+    background-size:auto,auto,24px 24px;
+    background-color:#fffaf3;
+  }
   .world.whiteboard{
     background-color:#fafafa;
   }
@@ -528,6 +540,7 @@
   main.stage[data-canvas="journey"]{ --ct-accent:#ff2d55; --ct-tint:#ffeef2; }
   main.stage[data-canvas="empathy"]{ --ct-accent:#ffcc00; --ct-tint:#fff8dc; }
   main.stage[data-canvas="backcast"]{ --ct-accent:#ff2d55; --ct-tint:#ffeef2; }
+  main.stage[data-canvas="usecase"]{ --ct-accent:#ff9500; --ct-tint:#fff4e5; }
   main.stage[data-canvas="whiteboard"]{ --ct-accent:#0a84ff; --ct-tint:#eef4ff; }
   main.stage[data-canvas] .canvas-toolbar{
     border-color: color-mix(in oklab, var(--ct-accent) 30%, var(--line));
@@ -966,6 +979,7 @@
         <option value="strategy">Strategy on a Page</option>
         <option value="hswimlanes">Swimlanes (Process Mapping)</option>
         <option value="backcast">Future-State Backcast</option>
+        <option value="usecase">Use Case Ideation</option>
       </select>
     </div>
 
@@ -1520,6 +1534,22 @@ function computeLaneBands(){
       {name:'Signals & Evidence',        x:2*colW, y:bodyY, w:colW, h:bodyH, color:'#0a84ff'},
       {name:'What Had To Be True',       x:3*colW, y:bodyY, w:colW, h:bodyH, color:'#ff9500'},
       {name:'Future Outcome',            x:4*colW, y:bodyY, w:colW, h:bodyH, color:'#ff2d55'},
+    ];
+    lanes.slice(0,6).forEach((l,i)=>{bands[i].name=l.name; if(l.color) bands[i].color=l.color});
+    return bands;
+  }
+  if(ct==='usecase'){
+    const headerH = 150;
+    const cols = 5;
+    const colW = WORLD_W/cols;
+    const bodyY = headerH, bodyH = WORLD_H - headerH;
+    const bands = [
+      {name:'Actor / Persona — Who benefits', x:0, y:0, w:WORLD_W, h:headerH, color:'#5856d6'},
+      {name:'Trigger / Situation',   x:0*colW, y:bodyY, w:colW, h:bodyH, color:'#0a84ff'},
+      {name:'Job to Be Done',        x:1*colW, y:bodyY, w:colW, h:bodyH, color:'#34c759'},
+      {name:'Use Case Idea',         x:2*colW, y:bodyY, w:colW, h:bodyH, color:'#ff9500'},
+      {name:'Value & Outcome',       x:3*colW, y:bodyY, w:colW, h:bodyH, color:'#ff2d55'},
+      {name:'Feasibility & Risk',    x:4*colW, y:bodyY, w:colW, h:bodyH, color:'#8e8e93'},
     ];
     lanes.slice(0,6).forEach((l,i)=>{bands[i].name=l.name; if(l.color) bands[i].color=l.color});
     return bands;
@@ -2156,6 +2186,7 @@ const CANVAS_META = {
   empathy:     { label:'Empathy Map'           },
   mindmap:     { label:'Mind Map'              },
   backcast:    { label:'Future-State Backcast' },
+  usecase:     { label:'Use Case Ideation'     },
 };
 function applyCanvasTheme(){
   const ct = state.canvasType || 'whiteboard';
@@ -2198,7 +2229,7 @@ $('#btnClear').addEventListener('click', ()=>{
 // ============ Export system ============
 const SMART_EXPORT = {
   whiteboard:'png', mindmap:'png', matrix2x2:'png', journey:'pdf', empathy:'pdf',
-  hswimlanes:'pdf', vswimlanes:'pdf', raci:'docx', strategy:'docx', backcast:'docx',
+  hswimlanes:'pdf', vswimlanes:'pdf', raci:'docx', strategy:'docx', backcast:'docx', usecase:'docx',
 };
 const EXPORT_LABELS = { png:'PNG snapshot', pdf:'PDF structured report', docx:'Word (.docx) report', json:'JSON session data' };
 
@@ -2444,6 +2475,8 @@ const CANVAS_TYPE_ALIASES = {
   'back-cast':'backcast','backcasting':'backcast','future-back':'backcast','futureback':'backcast',
   'future-state':'backcast','future-state-back':'backcast','pre-mortem':'backcast','premortem':'backcast',
   'reverse-planning':'backcast','working-backwards':'backcast',
+  'use-case':'usecase','usecase':'usecase','use-cases':'usecase','use-case-ideation':'usecase',
+  'usecase-ideation':'usecase','ideation-usecase':'usecase','ai-use-case':'usecase','opportunity':'usecase',
 };
 function normalizeCanvasType(t){
   if(!t) return 'whiteboard';
@@ -2762,6 +2795,8 @@ const ACTIVITY_TYPE_CANVAS = {
   'future-state':'backcast','future-state-vision':'backcast','future-back':'backcast',
   'backcast':'backcast','backcasting':'backcast','working-backwards':'backcast',
   'pre-mortem':'backcast','premortem':'backcast','what-had-to-be-true':'backcast','responsible-ai':'backcast',
+  'use-case':'usecase','usecase':'usecase','use-case-ideation':'usecase','opportunity-canvas':'usecase',
+  'ai-use-case':'usecase','opportunity':'usecase','ideation-use-case':'usecase',
 };
 
 function inferCanvasTypeFromPrompt(p){
@@ -2788,6 +2823,7 @@ function inferCanvasTypeFromPrompt(p){
     [/2 ?x ?2|matrix|prioriti[sz]ation|impact.*effort|effort.*impact|dot ?vote/, 'matrix2x2'],
     [/swimlane|process map|process mapping|workflow|hand[- ]?off/, 'hswimlanes'],
     [/retro(spective)?|reflection/, 'vswimlanes'],
+    [/use[- ]?case|opportunity canvas|job[- ]?to[- ]?be[- ]?done|jtbd/, 'usecase'],
   ];
   for(const [re,val] of rules){ if(re.test(hay)) return val; }
   return null;
