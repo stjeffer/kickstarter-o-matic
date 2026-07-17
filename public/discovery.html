@@ -1576,11 +1576,17 @@ function renderPrompts(){
 
 }
 
+function isCardHidden(c){
+  if(c.type!=='painscore') return false;
+  const parent = state.cards.find(x=>x.id===c.painParentId);
+  return !!(parent && parent.painScoreHidden);
+}
 function renderCards(){
   cardsLayer.innerHTML='';
-  state.cards.forEach(c=> cardsLayer.appendChild(buildCardEl(c)));
+  state.cards.forEach(c=>{ if(!isCardHidden(c)) cardsLayer.appendChild(buildCardEl(c)); });
   renderConnections();
 }
+
 
 function buildCardEl(c){
   const def = CARD_TYPES[c.type] || CARD_TYPES.sticky;
