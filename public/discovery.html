@@ -236,11 +236,18 @@
   textarea{resize:vertical;min-height:60px;font-family:inherit}
 
   /* Lanes list */
-  .lane-item{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:8px;margin-bottom:4px}
+  .lane-item{display:flex;align-items:center;gap:6px;padding:6px 8px;border-radius:8px;margin-bottom:4px;flex-wrap:wrap}
   .lane-item:hover{background:#f5f5f7}
   .lane-swatch{width:12px;height:12px;border-radius:4px;flex-shrink:0;border:1px solid rgba(0,0,0,.06)}
-  .lane-name{flex:1;font-size:13px;background:transparent;border:none;padding:2px 4px;border-radius:4px}
+  .lane-name{flex:1;min-width:80px;font-size:13px;background:transparent;border:none;padding:2px 4px;border-radius:4px}
   .lane-name:hover, .lane-name:focus{background:#fff;outline:1px solid var(--line-2)}
+  .lane-orient{display:inline-flex;background:#eef0f3;border-radius:6px;padding:2px;border:1px solid var(--line)}
+  .lane-orient button{border:none;background:transparent;font-size:11px;font-weight:600;padding:2px 7px;border-radius:4px;cursor:pointer;color:var(--muted)}
+  .lane-orient button.active{background:#fff;color:#0a84ff;box-shadow:0 1px 2px rgba(0,0,0,.08)}
+  .lane-resize{position:absolute;pointer-events:auto;background:transparent;z-index:2}
+  .lane-resize.h{left:0;right:0;bottom:-4px;height:10px;cursor:ns-resize}
+  .lane-resize.v{top:0;bottom:0;right:-4px;width:10px;cursor:ew-resize}
+  .lane-resize:hover{background:rgba(10,132,255,.18);border-radius:3px}
 
   /* Palette (card types) — segmented tabs */
   .palette-tabs{
@@ -1423,6 +1430,15 @@ function renderPalette(){
 
 
 
+function laneDefaultSize(orient){
+  return orient==='v' ? Math.round(WORLD_W/4) : Math.round(WORLD_H/4);
+}
+function ensureLaneDefaults(l){
+  if(!l.orientation) l.orientation = (state.canvasType==='vswimlanes' ? 'v' : 'h');
+  if(!l.size || typeof l.size !== 'number') l.size = laneDefaultSize(l.orientation);
+  return l;
+}
+
 function renderLanes(){
   const list = $('#lanes');
   list.innerHTML='';
@@ -1430,15 +1446,29 @@ function renderLanes(){
     list.innerHTML = '<div class="empty" style="padding:8px 0">No lanes yet.</div>';
   }
   state.lanes.forEach(lane=>{
+    ensureLaneDefaults(lane);
     const row = document.createElement('div');
     row.className='lane-item';
     row.innerHTML = `
       <span class="lane-swatch" style="background:${lane.color}"></span>
       <input class="lane-name" value="${escapeHtml(lane.name)}" />
+      <span class="lane-orient" title="Orientation">
+        <button data-o="h" class="${lane.orientation==='h'?'active':''}">H</button>
+        <button data-o="v" class="${lane.orientation==='v'?'active':''}">V</button>
+      </span>
       <button class="btn ghost sm" data-del="${lane.id}" title="Remove">✕</button>
     `;
-    const input = row.querySelector('input');
+    const input = row.querySelector('input.lane-name');
     input.addEventListener('input', e=>{lane.name = e.target.value; renderLanesLayer(); save()});
+    row.querySelectorAll('.lane-orient button').forEach(b=>{
+      b.addEventListener('click', ()=>{
+        const o = b.dataset.o;
+        if(lane.orientation===o) return;
+        lane.orientation = o;
+        lane.size = laneDefaultSize(o);
+        renderLanes(); renderLanesLayer(); save();
+      });
+    });
     row.querySelector('[data-del]').addEventListener('click', ()=>{
       state.lanes = state.lanes.filter(l=>l.id!==lane.id);
       renderLanes(); renderLanesLayer(); save();
@@ -1459,7 +1489,6 @@ function renderLanesLayer(){
     lanesLayer.appendChild(hub);
     return;
   }
-  if(ct==='whiteboard') return;
   const bands = computeLaneBands();
   bands.forEach(b=>{
     const el = document.createElement('div');
@@ -1467,6 +1496,12 @@ function renderLanesLayer(){
     el.style.left=b.x+'px'; el.style.top=b.y+'px';
     el.style.width=b.w+'px'; el.style.height=b.h+'px';
     if(b.color) el.style.borderColor = hexA(b.color,.3);
+    if(b.laneId){
+      const rz = document.createElement('div');
+      rz.className = 'lane-resize ' + (b.orientation==='v' ? 'v' : 'h');
+      rz.addEventListener('pointerdown', e=>startLaneResize(e, b.laneId, b.orientation));
+      el.appendChild(rz);
+    }
     lanesLayer.appendChild(el);
     const lbl = document.createElement('div');
     lbl.className='lane-label';
@@ -1476,6 +1511,30 @@ function renderLanesLayer(){
     lanesLayer.appendChild(lbl);
   });
 }
+
+function startLaneResize(e, laneId, orient){
+  e.preventDefault(); e.stopPropagation();
+  const lane = state.lanes.find(l=>l.id===laneId);
+  if(!lane) return;
+  const scale = state.view.scale || 1;
+  const startX = e.clientX, startY = e.clientY;
+  const startSize = lane.size;
+  function onMove(ev){
+    const dx = (ev.clientX - startX)/scale;
+    const dy = (ev.clientY - startY)/scale;
+    const delta = orient==='v' ? dx : dy;
+    lane.size = Math.max(80, Math.round(startSize + delta));
+    renderLanesLayer();
+  }
+  function onUp(){
+    window.removeEventListener('pointermove', onMove);
+    window.removeEventListener('pointerup', onUp);
+    save();
+  }
+  window.addEventListener('pointermove', onMove);
+  window.addEventListener('pointerup', onUp);
+}
+
 
 function computeLaneBands(){
   const ct = state.canvasType;
@@ -1555,15 +1614,22 @@ function computeLaneBands(){
     return bands;
   }
   if(!lanes.length) return [];
-  if(ct==='hswimlanes' || ct==='journey'){
-    const bandH = WORLD_H / lanes.length;
-    return lanes.map((l,i)=>({name:l.name, color:l.color, x:0, y:i*bandH, w:WORLD_W, h:bandH}));
-  }
-  if(ct==='vswimlanes'){
-    const bandW = WORLD_W / lanes.length;
-    return lanes.map((l,i)=>({name:l.name, color:l.color, x:i*bandW, y:0, w:bandW, h:WORLD_H}));
-  }
-  return [];
+  // Per-lane orientation + size layout (used for whiteboard/hswimlanes/vswimlanes/journey)
+  lanes.forEach(ensureLaneDefaults);
+  const bands = [];
+  let hCursor = 0, vCursor = 0;
+  lanes.forEach(l=>{
+    if(l.orientation==='v'){
+      bands.push({laneId:l.id, orientation:'v', name:l.name, color:l.color,
+                  x:vCursor, y:0, w:l.size, h:WORLD_H});
+      vCursor += l.size;
+    } else {
+      bands.push({laneId:l.id, orientation:'h', name:l.name, color:l.color,
+                  x:0, y:hCursor, w:WORLD_W, h:l.size});
+      hCursor += l.size;
+    }
+  });
+  return bands;
 }
 
 function renderPrompts(){
@@ -2209,8 +2275,13 @@ $('#canvasType').addEventListener('change', e=>{
 });
 $('#btnAddLane').addEventListener('click', ()=>{
   const id='l'+Date.now();
-  state.lanes.push({id, name:'Lane '+(state.lanes.length+1), color:LANE_COLORS[state.lanes.length%LANE_COLORS.length]});
-  renderLanes(); save();
+  const orient = state.canvasType==='vswimlanes' ? 'v' : 'h';
+  state.lanes.push({
+    id, name:'Lane '+(state.lanes.length+1),
+    color:LANE_COLORS[state.lanes.length%LANE_COLORS.length],
+    orientation: orient, size: laneDefaultSize(orient)
+  });
+  renderLanes(); renderLanesLayer(); save();
 });
 $('#btnClear').addEventListener('click', ()=>{
   if(!confirm('Clear all swimlanes, prompts, questions, cards and connections?')) return;
