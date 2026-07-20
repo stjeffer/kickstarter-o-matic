@@ -1614,15 +1614,22 @@ function computeLaneBands(){
     return bands;
   }
   if(!lanes.length) return [];
-  if(ct==='hswimlanes' || ct==='journey'){
-    const bandH = WORLD_H / lanes.length;
-    return lanes.map((l,i)=>({name:l.name, color:l.color, x:0, y:i*bandH, w:WORLD_W, h:bandH}));
-  }
-  if(ct==='vswimlanes'){
-    const bandW = WORLD_W / lanes.length;
-    return lanes.map((l,i)=>({name:l.name, color:l.color, x:i*bandW, y:0, w:bandW, h:WORLD_H}));
-  }
-  return [];
+  // Per-lane orientation + size layout (used for whiteboard/hswimlanes/vswimlanes/journey)
+  lanes.forEach(ensureLaneDefaults);
+  const bands = [];
+  let hCursor = 0, vCursor = 0;
+  lanes.forEach(l=>{
+    if(l.orientation==='v'){
+      bands.push({laneId:l.id, orientation:'v', name:l.name, color:l.color,
+                  x:vCursor, y:0, w:l.size, h:WORLD_H});
+      vCursor += l.size;
+    } else {
+      bands.push({laneId:l.id, orientation:'h', name:l.name, color:l.color,
+                  x:0, y:hCursor, w:WORLD_W, h:l.size});
+      hCursor += l.size;
+    }
+  });
+  return bands;
 }
 
 function renderPrompts(){
