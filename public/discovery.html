@@ -2275,8 +2275,13 @@ $('#canvasType').addEventListener('change', e=>{
 });
 $('#btnAddLane').addEventListener('click', ()=>{
   const id='l'+Date.now();
-  state.lanes.push({id, name:'Lane '+(state.lanes.length+1), color:LANE_COLORS[state.lanes.length%LANE_COLORS.length]});
-  renderLanes(); save();
+  const orient = state.canvasType==='vswimlanes' ? 'v' : 'h';
+  state.lanes.push({
+    id, name:'Lane '+(state.lanes.length+1),
+    color:LANE_COLORS[state.lanes.length%LANE_COLORS.length],
+    orientation: orient, size: laneDefaultSize(orient)
+  });
+  renderLanes(); renderLanesLayer(); save();
 });
 $('#btnClear').addEventListener('click', ()=>{
   if(!confirm('Clear all swimlanes, prompts, questions, cards and connections?')) return;
