@@ -1078,6 +1078,12 @@
   .ls-err{color:#c0392b;font-size:12px;margin-top:8px;min-height:14px}
   .ls-foot{display:flex;justify-content:space-between;align-items:center;margin-top:28px;color:#7683a0;font-size:12px}
   .ls-foot a{color:#0a84ff;text-decoration:none;cursor:pointer}
+  .ls-step{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:50%;background:linear-gradient(135deg,#0a84ff,#5e5ce6);color:#fff;font-size:11px;font-weight:700;margin-right:8px;vertical-align:1px}
+  .ls-optional{font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#8a95ad;margin-left:6px}
+  .ls-mode.selected{border-color:#0a84ff;box-shadow:0 0 0 3px rgba(10,132,255,.18),0 12px 32px -14px rgba(10,132,255,.45)}
+  .ls-mode.selected::after{content:'✓';position:absolute;top:12px;right:12px;width:22px;height:22px;border-radius:50%;background:#0a84ff;color:#fff;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center}
+  .ls-mode.selected .tag{display:none}
+  .ls-btn:disabled{opacity:.5;cursor:not-allowed;transform:none;box-shadow:none}
 </style>
 <section id="launchScreen" aria-hidden="true">
   <div class="ls-wrap">
