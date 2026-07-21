@@ -2207,8 +2207,12 @@ function buildCardEl(c){
   }else if(c.type==='decision'){
     body.innerHTML = `<div class="txt">${escapeHtml(c.text)}</div>`;
   }else if(c.type==='prompt'){
+    const ps = promptCategoryStyle(c.category);
+    body.parentElement && body.parentElement.style.setProperty('--pc', ps.color);
+    body.style.setProperty('--pc', ps.color);
     body.innerHTML = `${c.category?`<div class="prompt-tag">${escapeHtml(c.category)}</div>`:''}<div class="prompt-text">${escapeHtml(c.text)}</div>`;
     if(c.w) body.style.width = c.w+'px';
+    if(c.h) body.style.minHeight = c.h+'px';
     if(c.h) body.style.minHeight = c.h+'px';
   }else if(c.type==='group'){
     const color = c.color || '#0a84ff';
