@@ -2091,6 +2091,54 @@ function endResize(){
   save();
 }
 
+// Group frame resize (for c.type==='group')
+let groupResizeState=null;
+function startGroupResize(id, e){
+  const c = state.cards.find(x=>x.id===id);
+  if(!c) return;
+  const start = clientToWorld(e.clientX, e.clientY);
+  groupResizeState = {id, startX:start.x, startY:start.y, startW:c.w||340, startH:c.h||220};
+  window.addEventListener('mousemove', onGroupResizeMove);
+  window.addEventListener('mouseup', endGroupResize);
+}
+function onGroupResizeMove(e){
+  if(!groupResizeState) return;
+  const p = clientToWorld(e.clientX, e.clientY);
+  const c = state.cards.find(x=>x.id===groupResizeState.id);
+  if(!c) return;
+  c.w = Math.max(200, Math.round(groupResizeState.startW + (p.x - groupResizeState.startX)));
+  c.h = Math.max(140, Math.round(groupResizeState.startH + (p.y - groupResizeState.startY)));
+  const el = getCardEl(c.id); const body = el && el.querySelector('.card-body');
+  if(body){ body.style.width = c.w+'px'; body.style.height = c.h+'px'; }
+}
+function endGroupResize(){
+  groupResizeState=null;
+  window.removeEventListener('mousemove', onGroupResizeMove);
+  window.removeEventListener('mouseup', endGroupResize);
+  // Recompute membership for all cards after a group resize
+  state.cards.forEach(c=>{ if(c.type!=='group') c.groupId = hitTestGroup(c); });
+  renderCards(); save();
+}
+
+// Return the group id whose frame contains the centre of card c, or null.
+function hitTestGroup(c){
+  const size = getCardSize(c);
+  const cx = c.x + (size.w||160)/2;
+  const cy = c.y + (size.h||80)/2;
+  const groups = state.cards.filter(g=> g.type==='group');
+  // Prefer the smallest containing group (most specific)
+  let best=null, bestArea=Infinity;
+  for(const g of groups){
+    const gw = g.w||340, gh = g.h||220;
+    if(cx>=g.x && cx<=g.x+gw && cy>=g.y && cy<=g.y+gh){
+      const area = gw*gh;
+      if(area < bestArea){ best = g.id; bestArea = area; }
+    }
+  }
+  return best;
+}
+
+
 // ============ Interaction ============
 let dragState=null, panState=null, connectState=null, toolMode='select';
 
