@@ -338,41 +338,90 @@
   .palette-label{font-size:11px;color:var(--ink-2);font-weight:500;letter-spacing:.01em}
 
 
-  /* Prompts — Helvetica Light editorial cards */
+  /* ── Prompt cards (right flyout) — editorial + premium ─────── */
+  .prompts-list{display:flex;flex-direction:column;gap:10px}
   .prompt-card{
-    padding:16px 18px;margin-bottom:10px;border-radius:6px;
-    background:#fff;border:1px solid #e2e5ea;
-    cursor:grab;transition:border-color .15s, box-shadow .15s, transform .15s;
+    --pc:#7a5dff;
     position:relative;
+    padding:14px 16px 15px 18px;border-radius:14px;
+    background:
+      linear-gradient(180deg,#ffffff 0%,#fbfbfe 100%);
+    border:.5px solid rgba(60,60,67,.14);
+    box-shadow:
+      0 1px 0 rgba(255,255,255,.9) inset,
+      0 1px 2px rgba(30,20,60,.04),
+      0 6px 18px -10px rgba(30,20,60,.10);
+    cursor:grab;transition:transform .18s cubic-bezier(.2,.7,.2,1), box-shadow .18s, border-color .18s;
     font-family:var(--font-ui);
-    font-weight:400;
-    box-shadow:0 1px 0 rgba(15,23,42,.03);
+    overflow:hidden;
   }
   .prompt-card::before{
-    content:''; position:absolute; left:0; top:12px; bottom:12px; width:3px;
-    background:var(--accent); border-radius:0 2px 2px 0;
-    opacity:.85;
+    content:''; position:absolute; left:0; top:10px; bottom:10px; width:3px;
+    background:linear-gradient(180deg,var(--pc), color-mix(in oklab,var(--pc) 55%, transparent));
+    border-radius:0 3px 3px 0;
   }
-  .prompt-card:hover{border-color:#c9cfd8; box-shadow:0 4px 14px -6px rgba(15,23,42,.14); transform:translateY(-1px)}
-  .prompt-card:active{cursor:grabbing}
+  .prompt-card::after{
+    /* subtle tinted glow from category color */
+    content:'';position:absolute;inset:0;pointer-events:none;border-radius:inherit;
+    background:radial-gradient(180px 80px at 100% 0%, color-mix(in oklab,var(--pc) 12%, transparent), transparent 70%);
+    opacity:.6;
+  }
+  .prompt-card:hover{
+    border-color:rgba(60,60,67,.22);
+    transform:translateY(-1px);
+    box-shadow:
+      0 1px 0 rgba(255,255,255,.9) inset,
+      0 2px 4px rgba(30,20,60,.06),
+      0 12px 28px -10px rgba(30,20,60,.18);
+  }
+  .prompt-card:active{cursor:grabbing;transform:translateY(0) scale(.995)}
+
+  .prompt-head{display:flex;align-items:center;gap:8px;margin-bottom:8px;position:relative;z-index:1}
   .prompt-cat{
-    font-family:var(--font-ui);
-    font-size:10px;font-weight:400;text-transform:uppercase;
-    letter-spacing:.18em;color:var(--accent);margin-bottom:8px;
+    display:inline-flex;align-items:center;gap:6px;
+    padding:3px 9px 3px 8px;border-radius:999px;
+    background:color-mix(in oklab,var(--pc) 12%, #fff);
+    border:.5px solid color-mix(in oklab,var(--pc) 30%, transparent);
+    font-size:10.5px;font-weight:600;letter-spacing:.04em;
+    color:color-mix(in oklab,var(--pc) 70%, #1c1c1e);
+    text-transform:none;
+  }
+  .prompt-cat .dot{width:6px;height:6px;border-radius:50%;background:var(--pc);box-shadow:0 0 0 2px color-mix(in oklab,var(--pc) 20%, transparent)}
+  .prompt-num{
+    margin-left:auto;font-size:10.5px;font-weight:600;color:#8e8e93;font-variant-numeric:tabular-nums;letter-spacing:.02em;
   }
   .prompt-text{
+    position:relative;z-index:1;
     font-family:var(--font-ui);
-    font-weight:400; font-size:14px; line-height:1.45;
-    color:#1c1f24; padding-right:26px; letter-spacing:-.005em;
+    font-weight:450; font-size:13.5px; line-height:1.5;
+    color:#1c1c1e; letter-spacing:-.005em;
+    padding-right:2px;
   }
+  .prompt-foot{
+    display:flex;align-items:center;justify-content:space-between;gap:8px;
+    margin-top:11px;padding-top:10px;border-top:.5px dashed rgba(60,60,67,.14);
+    position:relative;z-index:1;
+  }
+  .prompt-grip{display:inline-flex;align-items:center;gap:6px;color:#8e8e93;font-size:11px;font-weight:500;letter-spacing:-.005em}
+  .prompt-grip svg{opacity:.6}
   .prompt-info{
-    position:absolute;top:12px;right:12px;width:22px;height:22px;border-radius:50%;
-    border:1px solid #d8dce3;background:#fff;color:#6b7280;
-    font:400 13px/1 var(--font-ui);
-    cursor:pointer;display:flex;align-items:center;justify-content:center;
-    transition:all .15s;
+    display:inline-flex;align-items:center;gap:5px;
+    height:24px;padding:0 10px;border-radius:999px;
+    border:.5px solid rgba(60,60,67,.16);background:#fff;color:#3b3560;
+    font:600 11px/1 var(--font-ui);letter-spacing:-.005em;
+    cursor:pointer;transition:all .15s;
   }
-  .prompt-info:hover{background:var(--accent);color:#fff;border-color:transparent}
+  .prompt-info:hover{background:var(--pc);color:#fff;border-color:transparent;box-shadow:0 4px 10px -4px color-mix(in oklab,var(--pc) 60%, transparent)}
+  .prompt-info svg{opacity:.9}
+
+  .prompts-empty{
+    padding:22px 16px;border-radius:12px;text-align:center;
+    background:linear-gradient(180deg,#fbfbff,#f4f4fb);
+    border:.5px dashed rgba(60,60,67,.18);
+    color:#8e8e93;font-size:12.5px;line-height:1.5;
+  }
+  .prompts-empty strong{display:block;color:#1c1c1e;font-weight:600;margin-bottom:4px}
+
 
   /* ===== Prompt Spotlight — standard centered modal, Helvetica Light ===== */
   .spotlight-backdrop{
@@ -871,24 +920,38 @@
     font-size:9px;font-weight:700;letter-spacing:.1em;background:var(--ink);color:#fff;padding:2px 6px;border-radius:4px;
   }
 
-  /* Prompt / discussion card — large, readable, premium */
+  /* Prompt / discussion card — editorial, premium, category-aware */
+  .card.prompt{--pc:#7a5dff}
   .card.prompt .card-body{
-    width:320px;min-height:160px;padding:20px 22px 24px;
-    background:linear-gradient(180deg,#ffffff,#f8fbff);
-    border:1px solid #d6e3f8;border-radius:18px;
-    box-shadow:0 10px 28px -12px rgba(10,132,255,.25), var(--shadow-2);
+    width:340px;min-height:160px;padding:22px 24px 24px;
+    background:
+      radial-gradient(240px 120px at 100% 0%, color-mix(in oklab,var(--pc) 12%, transparent), transparent 70%),
+      linear-gradient(180deg,#ffffff,#fbfbff);
+    border:.5px solid rgba(60,60,67,.14);border-radius:18px;
+    box-shadow:
+      0 1px 0 rgba(255,255,255,.9) inset,
+      0 14px 32px -14px color-mix(in oklab,var(--pc) 40%, rgba(30,20,60,.25)),
+      0 2px 6px rgba(30,20,60,.05);
     font-size:15px;line-height:1.55;color:var(--ink);
     position:relative;
   }
   .card.prompt .card-body::before{
-    content:'PROMPT';position:absolute;top:-9px;left:18px;
-    font-size:9px;font-weight:700;letter-spacing:.12em;background:var(--accent);color:#fff;padding:2px 8px;border-radius:4px;
+    content:''; position:absolute; left:0; top:14px; bottom:14px; width:3px;
+    background:linear-gradient(180deg,var(--pc), color-mix(in oklab,var(--pc) 50%, transparent));
+    border-radius:0 3px 3px 0;
   }
   .card.prompt .prompt-tag{
-    font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--accent);margin:2px 0 10px;
+    display:inline-flex;align-items:center;gap:6px;
+    padding:3px 10px 3px 9px;border-radius:999px;margin:0 0 12px;
+    background:color-mix(in oklab,var(--pc) 12%, #fff);
+    border:.5px solid color-mix(in oklab,var(--pc) 30%, transparent);
+    font-size:10.5px;font-weight:600;letter-spacing:.03em;
+    color:color-mix(in oklab,var(--pc) 70%, #1c1c1e);
+    text-transform:none;
   }
-  .card.prompt .prompt-text{font-family:var(--font-ui);font-size:19px;line-height:1.45;letter-spacing:-.005em;color:#111827;font-weight:400}
-  .card.prompt .prompt-text[contenteditable="true"]{font-family:var(--font-ui);font-size:19px;font-weight:400;outline:none}
+  .card.prompt .prompt-tag::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--pc);box-shadow:0 0 0 2px color-mix(in oklab,var(--pc) 22%, transparent)}
+  .card.prompt .prompt-text{font-family:var(--font-ui);font-size:19px;line-height:1.42;letter-spacing:-.01em;color:#1c1c1e;font-weight:450}
+  .card.prompt .prompt-text[contenteditable="true"]{font-family:var(--font-ui);font-size:19px;font-weight:450;outline:none}
 
   /* Resize handle */
   .resize-handle{
@@ -1986,32 +2049,67 @@ function computeLaneBands(){
   return bands;
 }
 
+// Map category / activity types to a signature color + glyph
+const PROMPT_PALETTE = [
+  {kw:['future','outcome','vision','north star','ambition'], color:'#7a5dff', icon:'✦'},
+  {kw:['discover','research','interview','explore','listen'], color:'#0a84ff', icon:'◎'},
+  {kw:['ideat','brainstorm','divergent','generate','idea'],  color:'#ff9f0a', icon:'✷'},
+  {kw:['strategy','strategic','plan','roadmap','initiative'], color:'#5b3fe0', icon:'△'},
+  {kw:['pain','risk','block','issue','problem'],              color:'#ff3b30', icon:'!'},
+  {kw:['empathy','user','persona','customer','emotion','experience'], color:'#ff6482', icon:'♡'},
+  {kw:['process','workflow','flow','operations','journey'],   color:'#30b0c7', icon:'→'},
+  {kw:['converge','cluster','group','synthes','theme'],       color:'#34c759', icon:'◈'},
+  {kw:['objective','goal','okr'],                              color:'#af52de', icon:'●'},
+  {kw:['decision','choose','select','prioriti'],               color:'#ffb020', icon:'◆'},
+  {kw:['signal','evidence','data','metric','measure'],         color:'#64d2ff', icon:'∿'},
+];
+function promptCategoryStyle(cat){
+  const s = String(cat||'').toLowerCase();
+  for(const p of PROMPT_PALETTE){ if(p.kw.some(k=>s.includes(k))) return p; }
+  return {color:'#7a5dff', icon:'✦'};
+}
+
 function renderPrompts(){
   const el = $('#prompts');
   el.innerHTML='';
   if(!state.prompts.length){
-    el.innerHTML = '<div class="empty" style="padding:0">No prompts loaded. Import JSON or load the sample.</div>';
+    el.innerHTML = '<div class="prompts-empty"><strong>No prompts loaded</strong>Import a session JSON or load the sample to see prompts here.</div>';
     return;
   }
-  state.prompts.forEach(p=>{
+  const list = document.createElement('div');
+  list.className = 'prompts-list';
+  el.appendChild(list);
+  state.prompts.forEach((p,i)=>{
+    const style = promptCategoryStyle(p.category || (p.activity && p.activity.activityType));
     const c = document.createElement('div');
     c.className='prompt-card';
+    c.style.setProperty('--pc', style.color);
     c.draggable=true;
-    const hasBrief = !!p.activity;
+    const cat = p.category || (p.activity && p.activity.activityType) || '';
     c.innerHTML = `
-      ${p.category?`<div class="prompt-cat">${escapeHtml(p.category)}</div>`:''}
+      <div class="prompt-head">
+        ${cat?`<span class="prompt-cat"><span class="dot"></span>${escapeHtml(cat)}</span>`:`<span class="prompt-cat"><span class="dot"></span>Prompt</span>`}
+        <span class="prompt-num">${String(i+1).padStart(2,'0')}</span>
+      </div>
       <div class="prompt-text">${escapeHtml(p.text)}</div>
-      <button class="prompt-info" title="Open in spotlight" aria-label="Open in spotlight">↗</button>
+      <div class="prompt-foot">
+        <span class="prompt-grip" title="Drag onto canvas">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><circle cx="8" cy="6" r="1.6"/><circle cx="8" cy="12" r="1.6"/><circle cx="8" cy="18" r="1.6"/><circle cx="16" cy="6" r="1.6"/><circle cx="16" cy="12" r="1.6"/><circle cx="16" cy="18" r="1.6"/></svg>
+          Drag to canvas
+        </span>
+        <button class="prompt-info" title="Open in spotlight" aria-label="Open in spotlight">
+          Open
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7"/><path d="M8 7h9v9"/></svg>
+        </button>
+      </div>
     `;
     c.addEventListener('dragstart', e=>{
       const dragText = (p.activity && p.activity.prompt) ? p.activity.prompt : p.text;
-      const cat = p.category || (p.activity && p.activity.activityType) || '';
       e.dataTransfer.setData('application/x-prompt', dragText);
       e.dataTransfer.setData('application/x-card-type', 'prompt');
       if(cat) e.dataTransfer.setData('application/x-prompt-category', cat);
       e.dataTransfer.effectAllowed='copy';
     });
-    // Single click → open spotlight for discussion
     c.addEventListener('click', ev=>{
       if(ev.target.closest('.prompt-info')) return;
       openSpotlight(p);
@@ -2022,10 +2120,8 @@ function renderPrompts(){
       info.addEventListener('mousedown', ev=> ev.stopPropagation());
     }
     c.addEventListener('dblclick', ()=> openSpotlight(p));
-
-    el.appendChild(c);
+    list.appendChild(c);
   });
-
 }
 
 function isCardHidden(c){
@@ -2111,6 +2207,9 @@ function buildCardEl(c){
   }else if(c.type==='decision'){
     body.innerHTML = `<div class="txt">${escapeHtml(c.text)}</div>`;
   }else if(c.type==='prompt'){
+    const ps = promptCategoryStyle(c.category);
+    body.parentElement && body.parentElement.style.setProperty('--pc', ps.color);
+    body.style.setProperty('--pc', ps.color);
     body.innerHTML = `${c.category?`<div class="prompt-tag">${escapeHtml(c.category)}</div>`:''}<div class="prompt-text">${escapeHtml(c.text)}</div>`;
     if(c.w) body.style.width = c.w+'px';
     if(c.h) body.style.minHeight = c.h+'px';
