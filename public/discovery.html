@@ -50,41 +50,82 @@
 
   /* ===== Layout ===== */
    .app{display:grid;grid-template-columns:1fr;grid-template-rows:60px min-content min-content minmax(0,1fr);height:100vh;background:var(--bg)}
-   header.topbar{
-     grid-column:1 / -1;display:flex;align-items:center;gap:12px;padding:0 20px;
-     background:
-       linear-gradient(180deg,rgba(255,255,255,.86),rgba(251,250,255,.82)),
-       radial-gradient(700px 200px at 0% 0%,#efe8ff 0%,transparent 60%),
-       radial-gradient(700px 200px at 100% 0%,#ffe6f0 0%,transparent 60%);
-     backdrop-filter:saturate(180%) blur(22px);
-     -webkit-backdrop-filter:saturate(180%) blur(22px);
-     border-bottom:1px solid rgba(90,70,150,.10);z-index:20;
-     box-shadow:0 1px 0 rgba(255,255,255,.7) inset;
-   }
-   .brand{display:flex;align-items:center;gap:11px;font-family:'Segoe UI Semibold','Segoe UI',var(--font-heading);font-weight:600;font-size:15px;letter-spacing:-.005em;color:#2a2540;}
-   .brand .logo{box-shadow:0 4px 12px -4px rgba(120,90,200,.4), inset 0 0 0 1px rgba(255,255,255,.5)}
-   .logo{width:26px;height:26px;border-radius:9px;background:conic-gradient(from 210deg,#c7b8ff,#ffc9df,#bfe4ff,#c7f5da,#c7b8ff)}
-   .top-actions{margin-left:auto;display:flex;gap:8px;align-items:center}
-   .btn-group{display:inline-flex;align-items:center;background:rgba(255,255,255,.72);border:1px solid rgba(90,70,150,.12);border-radius:11px;padding:3px;gap:2px;box-shadow:0 4px 14px -8px rgba(90,70,150,.2);backdrop-filter:blur(10px)}
-   .btn-group .btn{border:0;box-shadow:none;background:transparent;border-radius:8px;padding:6px 11px;font-weight:500;color:#3b3560}
-   .btn-group .btn:hover{background:rgba(165,140,255,.14);color:#2a2540}
-   .btn-group .btn svg{opacity:.85}
-   .btn-group .sep{width:1px;height:20px;background:rgba(90,70,150,.15);margin:0 2px}
-   /* Icon-only pill button */
-   .btn.ico-btn{width:32px;height:32px;padding:0;justify-content:center;color:#3b3560;border-radius:9px;border:0;background:transparent;box-shadow:none;position:relative;transition:background .15s ease,color .15s ease}
-   .btn.ico-btn:hover{background:rgba(165,140,255,.16);color:#2a2540}
-   .btn.ico-btn.active{background:linear-gradient(135deg,#7a5dff,#a58cff);color:#fff;box-shadow:0 6px 14px -6px rgba(122,93,255,.55)}
-   .btn.ico-btn.active:hover{background:linear-gradient(135deg,#6a4dff,#957aff);color:#fff}
-   .btn.ico-btn.danger{color:#c04033}
-   .btn.ico-btn.danger:hover{background:#fdecec;color:var(--danger)}
-   .btn-group.icons{padding:2px;gap:0}
-   /* Native select styled as pill */
-   .select-wrap{position:relative;display:inline-flex;align-items:center;gap:6px;padding:0 10px 0 12px;height:34px;background:rgba(255,255,255,.72);border:1px solid rgba(90,70,150,.12);border-radius:11px;box-shadow:0 4px 14px -8px rgba(90,70,150,.2);color:#3b3560;transition:background .15s;backdrop-filter:blur(10px)}
-   .select-wrap:hover{background:#fff;color:#2a2540}
-   .select-wrap > svg:first-child{opacity:.7}
-   .select-wrap select{appearance:none;-webkit-appearance:none;border:0;background:transparent;padding:0 16px 0 4px;height:100%;font:inherit;font-weight:500;font-size:12.5px;color:inherit;cursor:pointer;outline:none}
-   .select-wrap .chev{position:absolute;right:8px;pointer-events:none;opacity:.55}
-   .btn.primary.cta{padding:0 14px;height:34px;border-radius:11px;font-weight:600;background:linear-gradient(135deg,#7a5dff,#a58cff);border:0;color:#fff;box-shadow:0 8px 20px -8px rgba(122,93,255,.5)}
+  /* ── Apple-style toolbar ────────────────────────────────────── */
+  header.topbar{
+    grid-column:1 / -1;display:flex;align-items:center;gap:10px;padding:0 18px;
+    background:
+      linear-gradient(180deg,rgba(255,255,255,.78),rgba(248,247,252,.72));
+    backdrop-filter:saturate(180%) blur(28px);
+    -webkit-backdrop-filter:saturate(180%) blur(28px);
+    border-bottom:1px solid rgba(60,60,67,.10);z-index:20;
+    box-shadow:0 1px 0 rgba(255,255,255,.9) inset, 0 1px 2px rgba(30,20,60,.03);
+  }
+  .brand{display:flex;align-items:center;gap:10px;font-family:'Segoe UI Semibold','Segoe UI',var(--font-heading);font-weight:600;font-size:14.5px;letter-spacing:-.01em;color:#1c1c1e;}
+  .brand .logo{box-shadow:0 4px 14px -4px rgba(120,90,200,.45), inset 0 0 0 1px rgba(255,255,255,.6)}
+  .logo{width:24px;height:24px;border-radius:8px;background:conic-gradient(from 210deg,#c7b8ff,#ffc9df,#bfe4ff,#c7f5da,#c7b8ff)}
+  .top-actions{margin-left:auto;display:flex;gap:8px;align-items:center}
+
+  /* Apple-style pill cluster */
+  .btn-group{
+    display:inline-flex;align-items:center;gap:1px;
+    background:linear-gradient(180deg,rgba(255,255,255,.95),rgba(248,247,252,.85));
+    border:.5px solid rgba(60,60,67,.14);
+    border-radius:10px;padding:3px;
+    box-shadow:
+      0 1px 0 rgba(255,255,255,.9) inset,
+      0 1px 2px rgba(30,20,60,.04),
+      0 4px 12px -6px rgba(30,20,60,.10);
+  }
+  .btn-group .btn{border:0;background:transparent;box-shadow:none;border-radius:7px;padding:6px 11px;font-weight:510;color:#1c1c1e;letter-spacing:-.005em}
+  .btn-group .btn:hover{background:rgba(60,60,67,.06);color:#000}
+  .btn-group .btn svg{opacity:.78}
+  .btn-group .sep{width:.5px;height:18px;background:rgba(60,60,67,.15);margin:0 3px}
+
+  /* Icon-only pill button — SF-toolbar feel */
+  .btn.ico-btn{
+    width:30px;height:30px;padding:0;justify-content:center;color:#1c1c1e;
+    border-radius:7px;border:0;background:transparent;box-shadow:none;position:relative;
+    transition:background .16s ease, color .16s ease, transform .12s ease;
+  }
+  .btn.ico-btn:hover{background:rgba(60,60,67,.07);color:#000}
+  .btn.ico-btn:active{transform:scale(.94)}
+  .btn.ico-btn.active{
+    background:linear-gradient(180deg,#fff,#f2eeff);
+    color:#5b3fe0;
+    box-shadow:
+      0 0 0 .5px rgba(122,93,255,.35),
+      0 1px 0 rgba(255,255,255,.9) inset,
+      0 4px 10px -4px rgba(122,93,255,.35);
+  }
+  .btn.ico-btn.danger{color:#8e8e93}
+  .btn.ico-btn.danger:hover{background:#fdecec;color:#d70015}
+  .btn-group.icons{padding:3px;gap:1px}
+
+  /* Native select styled as pill */
+  .select-wrap{
+    position:relative;display:inline-flex;align-items:center;gap:6px;
+    padding:0 10px 0 12px;height:32px;
+    background:linear-gradient(180deg,rgba(255,255,255,.95),rgba(248,247,252,.85));
+    border:.5px solid rgba(60,60,67,.14);
+    border-radius:10px;
+    box-shadow:
+      0 1px 0 rgba(255,255,255,.9) inset,
+      0 1px 2px rgba(30,20,60,.04),
+      0 4px 12px -6px rgba(30,20,60,.10);
+    color:#1c1c1e;transition:background .15s,box-shadow .15s;
+  }
+  .select-wrap:hover{background:#fff}
+  .select-wrap > svg:first-child{opacity:.6;color:#5b3fe0}
+  .select-wrap select{appearance:none;-webkit-appearance:none;border:0;background:transparent;padding:0 18px 0 4px;height:100%;font:inherit;font-weight:520;font-size:12.5px;color:inherit;cursor:pointer;outline:none;letter-spacing:-.005em}
+  .select-wrap .chev{position:absolute;right:8px;pointer-events:none;opacity:.5}
+
+  .btn.primary.cta{
+    padding:0 14px;height:32px;border-radius:10px;font-weight:600;letter-spacing:-.01em;
+    background:linear-gradient(180deg,#8a70ff,#6a4dff);border:.5px solid rgba(80,50,200,.5);color:#fff;
+    box-shadow:
+      0 1px 0 rgba(255,255,255,.35) inset,
+      0 8px 20px -8px rgba(90,60,220,.55);
+  }
 
   /* Session / stage bar */
   .stage-bar{
@@ -176,20 +217,26 @@
 
   /* Timer widget */
   .timer{
-    display:inline-flex;align-items:center;gap:6px;
-    background:rgba(255,255,255,.72);border:1px solid rgba(90,70,150,.12);border-radius:11px;
-    padding:3px 4px 3px 10px;box-shadow:0 4px 14px -8px rgba(90,70,150,.2);
-    font-variant-numeric:tabular-nums;backdrop-filter:blur(10px);
+    display:inline-flex;align-items:center;gap:4px;
+    background:linear-gradient(180deg,rgba(255,255,255,.95),rgba(248,247,252,.85));
+    border:.5px solid rgba(60,60,67,.14);border-radius:10px;
+    padding:3px 4px 3px 10px;
+    box-shadow:
+      0 1px 0 rgba(255,255,255,.9) inset,
+      0 1px 2px rgba(30,20,60,.04),
+      0 4px 12px -6px rgba(30,20,60,.10);
+    font-variant-numeric:tabular-nums;
   }
   .timer.warn{border-color:#ffb020;box-shadow:0 0 0 3px rgba(255,176,32,.15)}
   .timer.done{border-color:var(--danger);box-shadow:0 0 0 3px rgba(255,59,48,.15);animation:tflash 1s infinite}
   @keyframes tflash{50%{background:#fff5f5}}
-  .timer .tval{font-family:var(--font-mono);font-size:13px;font-weight:600;color:#2a2540;min-width:52px;text-align:center;letter-spacing:.02em}
+  .timer .tval{font-family:var(--font-mono);font-size:12.5px;font-weight:600;color:#1c1c1e;min-width:48px;text-align:center;letter-spacing:.02em}
   .timer .tbtn{
-    width:24px;height:24px;border:0;border-radius:7px;background:transparent;cursor:pointer;
-    display:inline-flex;align-items:center;justify-content:center;color:#3b3560;
+    width:22px;height:22px;border:0;border-radius:6px;background:transparent;cursor:pointer;
+    display:inline-flex;align-items:center;justify-content:center;color:#1c1c1e;transition:background .15s,transform .12s;
   }
-  .timer .tbtn:hover{background:rgba(165,140,255,.18);color:#2a2540}
+  .timer .tbtn:hover{background:rgba(60,60,67,.08);color:#000}
+  .timer .tbtn:active{transform:scale(.92)}
   .timer.done .tval{color:var(--danger)}
 
   /* Timer settings popover */
