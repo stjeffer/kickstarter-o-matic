@@ -1019,98 +1019,144 @@
 </head>
 <body>
 <style>
+  /* ===== Launcher (Microsoft Designer inspired, pastel calm) ===== */
   #launchScreen{position:fixed;inset:0;z-index:9999;display:none;overflow:auto;
     background:
-      radial-gradient(1200px 700px at 12% -10%, rgba(10,132,255,.18), transparent 60%),
-      radial-gradient(900px 600px at 100% 10%, rgba(175,82,222,.16), transparent 60%),
-      radial-gradient(900px 700px at 50% 120%, rgba(52,199,89,.12), transparent 60%),
-      linear-gradient(180deg,#fafbff 0%,#eef1f8 100%);
+      radial-gradient(1000px 600px at 8% -8%,  #eae4ff 0%, transparent 55%),
+      radial-gradient(900px 600px at 100% 5%,  #ffe6f0 0%, transparent 55%),
+      radial-gradient(900px 700px at 90% 100%, #e2f3ff 0%, transparent 55%),
+      radial-gradient(900px 700px at 5% 100%,  #e6fbf1 0%, transparent 55%),
+      linear-gradient(180deg,#fbfaff 0%,#f5f6fb 100%);
     font-family:'Segoe UI','Inter',-apple-system,BlinkMacSystemFont,sans-serif;
-    color:#0b1220;
+    color:#2a2540;
     animation: launchIn .5s ease both;
   }
   #launchScreen.open{display:block}
   @keyframes launchIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
-  .ls-wrap{max-width:1180px;margin:0 auto;padding:56px 40px 80px}
-  .ls-hero{display:flex;flex-direction:column;gap:14px;margin-bottom:36px}
-  .ls-eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:12px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:#4b5b7a}
-  .ls-eyebrow .dot{width:8px;height:8px;border-radius:50%;background:linear-gradient(135deg,#0a84ff,#af52de);box-shadow:0 0 0 4px rgba(10,132,255,.15)}
-  .ls-title{font-family:'Segoe UI Semibold','Segoe UI',sans-serif;font-weight:600;font-size:56px;line-height:1.02;letter-spacing:-.02em;margin:0;
-    background:linear-gradient(135deg,#0b1220 0%,#3b4a6b 60%,#0a84ff 120%);-webkit-background-clip:text;background-clip:text;color:transparent}
-  .ls-sub{max-width:640px;color:#4b5b7a;font-size:16px;line-height:1.55;margin:0}
-  .ls-grid{display:grid;grid-template-columns:1.35fr 1fr;gap:28px;align-items:start}
-  @media(max-width:960px){.ls-grid{grid-template-columns:1fr}}
-  .ls-section-h{display:flex;align-items:baseline;justify-content:space-between;margin:0 0 14px}
-  .ls-section-h h3{margin:0;font-size:13px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:#6b7896}
-  .ls-section-h .hint{font-size:12px;color:#8a95ad}
-  .ls-modes{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
-  .ls-mode{position:relative;text-align:left;background:rgba(255,255,255,.72);backdrop-filter:blur(20px) saturate(1.4);
-    border:1px solid rgba(15,25,45,.08);border-radius:18px;padding:18px 18px 16px;cursor:pointer;
-    transition:transform .18s ease, box-shadow .18s ease, border-color .18s ease;
-    box-shadow:0 1px 0 rgba(255,255,255,.9) inset, 0 6px 20px -12px rgba(15,25,45,.18);
-    overflow:hidden}
-  .ls-mode:hover{transform:translateY(-2px);border-color:rgba(10,132,255,.35);box-shadow:0 12px 32px -14px rgba(10,132,255,.35),0 1px 0 rgba(255,255,255,.9) inset}
-  .ls-mode:focus-visible{outline:2px solid #0a84ff;outline-offset:2px}
-  .ls-mode .glow{position:absolute;inset:auto -30% -60% auto;width:220px;height:220px;border-radius:50%;filter:blur(40px);opacity:.35;pointer-events:none}
-  .ls-mode .ico{width:38px;height:38px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:18px;color:#fff;margin-bottom:12px;box-shadow:0 8px 18px -8px rgba(15,25,45,.35)}
-  .ls-mode h4{margin:0 0 4px;font-size:15.5px;font-weight:600;letter-spacing:-.01em;color:#0b1220}
-  .ls-mode p{margin:0;font-size:12.5px;line-height:1.5;color:#5a6784}
-  .ls-mode .tag{position:absolute;top:14px;right:14px;font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#0a84ff;background:rgba(10,132,255,.10);padding:3px 8px;border-radius:999px}
-  .ls-mode.blank{background:rgba(255,255,255,.55);border-style:dashed}
+  .ls-wrap{max-width:1240px;margin:0 auto;padding:44px 40px 80px}
+  .ls-topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:28px}
+  .ls-brand{display:flex;align-items:center;gap:12px;font-weight:600;font-size:15px;color:#3b3560;letter-spacing:.01em}
+  .ls-brand .logo{width:28px;height:28px;border-radius:9px;background:conic-gradient(from 210deg,#c7b8ff,#ffc9df,#bfe4ff,#c7f5da,#c7b8ff);box-shadow:0 4px 12px -4px rgba(120,90,200,.4)}
+  .ls-search{flex:1;max-width:520px;margin:0 24px;position:relative}
+  .ls-search input{width:100%;padding:11px 16px 11px 42px;border-radius:999px;border:1px solid rgba(90,70,150,.14);
+    background:rgba(255,255,255,.72);backdrop-filter:blur(14px);font-size:13.5px;color:#2a2540;
+    box-shadow:0 4px 14px -8px rgba(90,70,150,.2)}
+  .ls-search input:focus{outline:none;border-color:#a58cff;box-shadow:0 0 0 4px rgba(165,140,255,.18)}
+  .ls-search svg{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:#8b7fb8}
+  .ls-topbtn{appearance:none;border:1px solid rgba(90,70,150,.14);background:rgba(255,255,255,.72);backdrop-filter:blur(14px);
+    padding:9px 16px;border-radius:999px;font-family:inherit;font-size:13px;font-weight:500;color:#3b3560;cursor:pointer;
+    transition:all .15s ease}
+  .ls-topbtn:hover{background:#fff;box-shadow:0 6px 18px -10px rgba(90,70,150,.35)}
 
-  .ls-import{background:rgba(255,255,255,.72);backdrop-filter:blur(20px) saturate(1.4);
-    border:1px solid rgba(15,25,45,.08);border-radius:20px;padding:20px;
-    box-shadow:0 1px 0 rgba(255,255,255,.9) inset, 0 10px 30px -18px rgba(15,25,45,.25);
-    position:sticky;top:24px}
-  .ls-import h3{margin:0 0 6px;font-size:15px;font-weight:600;color:#0b1220;letter-spacing:-.01em}
-  .ls-import p{margin:0 0 12px;font-size:12.5px;color:#5a6784;line-height:1.5}
-  .ls-import textarea{width:100%;min-height:220px;resize:vertical;border-radius:12px;border:1px solid rgba(15,25,45,.12);
-    background:#fbfcff;padding:12px;font-family:'JetBrains Mono',ui-monospace,monospace;font-size:12px;line-height:1.5;color:#0b1220;
-    box-shadow:inset 0 1px 2px rgba(15,25,45,.05)}
-  .ls-import textarea:focus{outline:none;border-color:#0a84ff;box-shadow:0 0 0 4px rgba(10,132,255,.15)}
-  .ls-import .row{display:flex;gap:8px;margin-top:12px;align-items:center;justify-content:space-between;flex-wrap:wrap}
-  .ls-btn{appearance:none;border:none;cursor:pointer;font-family:inherit;font-size:13px;font-weight:600;letter-spacing:.01em;
-    padding:10px 16px;border-radius:11px;transition:transform .12s ease, box-shadow .12s ease, background .12s ease;color:#fff;
-    background:linear-gradient(135deg,#0a84ff,#5e5ce6);box-shadow:0 8px 20px -8px rgba(10,132,255,.55)}
-  .ls-btn:hover{transform:translateY(-1px);box-shadow:0 12px 28px -10px rgba(10,132,255,.65)}
-  .ls-btn.ghost{background:transparent;color:#4b5b7a;box-shadow:none;border:1px solid rgba(15,25,45,.1)}
-  .ls-btn.ghost:hover{background:rgba(15,25,45,.04)}
-  .ls-err{color:#c0392b;font-size:12px;margin-top:8px;min-height:14px}
-  .ls-foot{display:flex;justify-content:space-between;align-items:center;margin-top:28px;color:#7683a0;font-size:12px}
-  .ls-foot a{color:#0a84ff;text-decoration:none;cursor:pointer}
-  .ls-step{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:50%;background:linear-gradient(135deg,#0a84ff,#5e5ce6);color:#fff;font-size:11px;font-weight:700;margin-right:8px;vertical-align:1px}
-  .ls-optional{font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#8a95ad;margin-left:6px}
-  .ls-mode.selected{border-color:#0a84ff;box-shadow:0 0 0 3px rgba(10,132,255,.18),0 12px 32px -14px rgba(10,132,255,.45)}
-  .ls-mode.selected::after{content:'✓';position:absolute;top:12px;right:12px;width:22px;height:22px;border-radius:50%;background:#0a84ff;color:#fff;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center}
-  .ls-mode.selected .tag{display:none}
-  .ls-btn:disabled{opacity:.5;cursor:not-allowed;transform:none;box-shadow:none}
+  .ls-hero{margin-bottom:26px}
+  .ls-hero h1{margin:0 0 6px;font-family:'Segoe UI Semibold','Segoe UI',sans-serif;font-weight:600;font-size:38px;letter-spacing:-.02em;color:#2a2540}
+  .ls-hero p{margin:0;color:#6a628f;font-size:14.5px;max-width:640px;line-height:1.55}
+
+  .ls-tabs{display:flex;gap:6px;margin:22px 0 18px;flex-wrap:wrap}
+  .ls-tab{appearance:none;border:none;background:transparent;padding:8px 14px;border-radius:999px;
+    font-family:inherit;font-size:13px;font-weight:500;color:#6a628f;cursor:pointer;transition:all .15s ease}
+  .ls-tab:hover{background:rgba(255,255,255,.6);color:#3b3560}
+  .ls-tab.active{background:#2a2540;color:#fff;box-shadow:0 6px 16px -8px rgba(42,37,64,.5)}
+
+  .ls-section-title{display:flex;align-items:baseline;justify-content:space-between;margin:8px 0 14px}
+  .ls-section-title h3{margin:0;font-size:15px;font-weight:600;color:#2a2540;letter-spacing:-.01em}
+  .ls-section-title .hint{font-size:12.5px;color:#8b83aa}
+
+  .ls-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:18px}
+  .ls-card{position:relative;text-align:left;background:rgba(255,255,255,.85);backdrop-filter:blur(18px);
+    border:1px solid rgba(90,70,150,.10);border-radius:16px;padding:0;cursor:pointer;overflow:hidden;
+    transition:transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+    box-shadow:0 1px 0 rgba(255,255,255,.9) inset, 0 6px 22px -14px rgba(90,70,150,.28)}
+  .ls-card:hover{transform:translateY(-3px);border-color:rgba(165,140,255,.5);
+    box-shadow:0 18px 40px -18px rgba(120,90,200,.4),0 1px 0 rgba(255,255,255,.9) inset}
+  .ls-card:focus-visible{outline:2px solid #a58cff;outline-offset:2px}
+  .ls-card .preview{aspect-ratio:16/10;width:100%;display:block;background:#faf8ff;border-bottom:1px solid rgba(90,70,150,.08)}
+  .ls-card .meta{padding:13px 15px 14px}
+  .ls-card h4{margin:0 0 3px;font-size:14px;font-weight:600;color:#2a2540;letter-spacing:-.005em;display:flex;align-items:center;gap:8px}
+  .ls-card h4 .badge{font-size:9.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+    color:#7a5dff;background:rgba(122,93,255,.12);padding:2px 7px;border-radius:999px}
+  .ls-card p{margin:0;font-size:12px;line-height:1.5;color:#6a628f}
+  .ls-card.selected{border-color:#a58cff;box-shadow:0 0 0 3px rgba(165,140,255,.22),0 18px 40px -18px rgba(120,90,200,.45)}
+  .ls-card.selected::after{content:'✓';position:absolute;top:10px;right:10px;width:24px;height:24px;border-radius:50%;
+    background:#7a5dff;color:#fff;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;
+    box-shadow:0 6px 14px -4px rgba(122,93,255,.55)}
+
+  /* Import drawer */
+  .ls-import-toggle{display:inline-flex;align-items:center;gap:8px;padding:9px 14px;border-radius:999px;
+    background:rgba(255,255,255,.72);border:1px solid rgba(90,70,150,.14);cursor:pointer;
+    font-family:inherit;font-size:13px;font-weight:500;color:#3b3560;transition:all .15s ease}
+  .ls-import-toggle:hover{background:#fff}
+  .ls-import{margin-top:16px;background:rgba(255,255,255,.88);backdrop-filter:blur(18px);
+    border:1px solid rgba(90,70,150,.10);border-radius:16px;padding:18px;display:none;
+    box-shadow:0 10px 30px -18px rgba(90,70,150,.3)}
+  .ls-import.open{display:block}
+  .ls-import p{margin:0 0 10px;font-size:12.5px;color:#6a628f}
+  .ls-import textarea{width:100%;min-height:180px;resize:vertical;border-radius:12px;
+    border:1px solid rgba(90,70,150,.14);background:#fbfaff;padding:12px;
+    font-family:'JetBrains Mono',ui-monospace,monospace;font-size:12px;line-height:1.5;color:#2a2540}
+  .ls-import textarea:focus{outline:none;border-color:#a58cff;box-shadow:0 0 0 4px rgba(165,140,255,.18)}
+  .ls-import .row{display:flex;gap:8px;margin-top:10px;align-items:center;justify-content:flex-end;flex-wrap:wrap}
+  .ls-err{color:#c0392b;font-size:12px;margin-top:6px;min-height:14px}
+
+  /* Launch bar (sticky bottom) */
+  .ls-launchbar{position:sticky;bottom:0;margin:28px -40px -80px;padding:16px 40px;
+    background:linear-gradient(180deg,rgba(251,250,255,0),rgba(251,250,255,.95) 40%);
+    display:flex;justify-content:space-between;align-items:center;gap:16px;z-index:5}
+  .ls-selected-lbl{font-size:13px;color:#6a628f}
+  .ls-selected-lbl strong{color:#2a2540;font-weight:600}
+  .ls-btn{appearance:none;border:none;cursor:pointer;font-family:inherit;font-size:14px;font-weight:600;letter-spacing:.005em;
+    padding:12px 22px;border-radius:12px;color:#fff;
+    background:linear-gradient(135deg,#7a5dff,#a58cff);box-shadow:0 10px 26px -10px rgba(122,93,255,.55);
+    transition:transform .12s ease, box-shadow .12s ease}
+  .ls-btn:hover{transform:translateY(-1px);box-shadow:0 14px 32px -10px rgba(122,93,255,.7)}
+  .ls-btn:disabled{opacity:.4;cursor:not-allowed;transform:none;box-shadow:none;background:#c7c0dc}
+  .ls-btn.ghost{background:transparent;color:#6a628f;box-shadow:none;border:1px solid rgba(90,70,150,.14);font-weight:500}
+  .ls-btn.ghost:hover{background:rgba(255,255,255,.7);color:#3b3560}
+
+  /* Workflow rail dismiss */
+  .workflow-rail .wr-close{margin-left:auto;background:transparent;border:none;color:var(--muted);cursor:pointer;
+    padding:4px 8px;border-radius:6px;font-size:14px;line-height:1}
+  .workflow-rail .wr-close:hover{background:rgba(0,0,0,.05);color:#333}
 </style>
 <section id="launchScreen" aria-hidden="true">
   <div class="ls-wrap">
-    <div class="ls-hero">
-      <span class="ls-eyebrow"><span class="dot"></span>Discovery Canvas</span>
-      <h1 class="ls-title">Start a session your team will remember.</h1>
-      <p class="ls-sub">Choose a facilitated mode to pre-load the right canvas, prompts and lanes — or paste a session JSON to run something bespoke. Everything auto-saves in your browser.</p>
-    </div>
-    <div class="ls-grid">
-      <div>
-        <div class="ls-section-h"><h3><span class="ls-step">1</span> Choose a mode</h3><span class="hint" id="lsPickedHint">Pick one to continue</span></div>
-        <div class="ls-modes" id="lsModes"></div>
+    <div class="ls-topbar">
+      <div class="ls-brand"><div class="logo"></div>Discovery Canvas</div>
+      <div class="ls-search">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+        <input id="lsSearch" type="text" placeholder="Search canvas types, templates, sessions…" />
       </div>
-      <aside class="ls-import">
-        <h3><span class="ls-step">2</span> Import a session <span class="ls-optional">optional</span></h3>
-        <p>Paste a single-canvas config or multi-stage session JSON to overlay on the selected mode. Leave blank to launch the mode as-is.</p>
-        <textarea id="lsImportText" placeholder='{ "title": "Discovery with BBC", "stages": [ ... ] }' spellcheck="false"></textarea>
-        <div class="ls-err" id="lsImportErr"></div>
-        <div class="row">
-          <button class="ls-btn ghost" id="lsPasteSample" type="button">Paste sample</button>
-          <button class="ls-btn" id="lsLaunch" type="button" disabled>Select a mode →</button>
-        </div>
-      </aside>
+      <button class="ls-topbtn" id="lsImportToggle" type="button">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Import JSON
+      </button>
     </div>
-    <div class="ls-foot">
-      <span>Tip: press <kbd>Esc</kbd> or click Home in the toolbar to return here anytime.</span>
-      <a id="lsSkip">Skip — open blank canvas</a>
+
+    <div class="ls-hero">
+      <h1>Start a session your team will remember.</h1>
+      <p>Pick a canvas — each one loads with the right structure, prompts and lanes. Preview the layout before you commit.</p>
+    </div>
+
+    <div class="ls-tabs" id="lsTabs"></div>
+
+    <div class="ls-section-title"><h3 id="lsSectionTitle">All canvases</h3><span class="hint" id="lsCount"></span></div>
+    <div class="ls-grid" id="lsGrid"></div>
+
+    <div class="ls-import" id="lsImport">
+      <p><strong>Optional:</strong> paste a session JSON to overlay onto the selected canvas — supports single-canvas configs and multi-stage sessions.</p>
+      <textarea id="lsImportText" placeholder='{ "title": "Discovery with BBC", "stages": [ ... ] }' spellcheck="false"></textarea>
+      <div class="ls-err" id="lsImportErr"></div>
+      <div class="row">
+        <button class="ls-btn ghost" id="lsPasteSample" type="button">Paste sample</button>
+      </div>
+    </div>
+
+    <div class="ls-launchbar">
+      <div class="ls-selected-lbl" id="lsPickedHint">Pick a canvas to continue</div>
+      <div style="display:flex;gap:10px">
+        <button class="ls-btn ghost" id="lsSkip" type="button">Skip — blank canvas</button>
+        <button class="ls-btn" id="lsLaunch" type="button" disabled>Select a canvas →</button>
+      </div>
     </div>
   </div>
 </section>
@@ -3471,6 +3517,7 @@ function renderWorkflowRail(){
   const nextStageIdx = nextStage ? stages.findIndex(t=>t.stageKind===nextStage.kind) : -1;
   const btnLabel = nextStageIdx>=0 ? `Send forward → ${nextStage.short.replace(/^\d+\.\s*/,'')}` : (activeKind?'End of flow':'');
   parts.push(`<button class="wr-forward" data-send-forward ${nextStageIdx>=0?'':'disabled'}>${escapeHtml(btnLabel)}</button>`);
+  parts.push(`<button class="wr-close" data-wr-close title="Hide workflow rail" aria-label="Hide">×</button>`);
   rail.innerHTML = parts.join('');
 
   rail.querySelectorAll('[data-goto-idx]').forEach(b=>{
@@ -3480,6 +3527,8 @@ function renderWorkflowRail(){
   if(fwd && nextStageIdx>=0){
     fwd.addEventListener('click', ()=> sendForward(activeKind, nextStage.kind));
   }
+  const closeBtn = rail.querySelector('[data-wr-close]');
+  if(closeBtn) closeBtn.addEventListener('click', ()=>{ rail.style.display='none'; });
 }
 
 function sendForward(fromKind, toKind){
@@ -4433,17 +4482,110 @@ function renderAll(){
 })();
 
 
-// ============ Launch Screen ============
+// ============ Launch Screen (Designer-style with previews) ============
+const LS_PREVIEWS = {
+  whiteboard: `<svg viewBox="0 0 200 125" xmlns="http://www.w3.org/2000/svg">
+    <rect width="200" height="125" fill="#fbfaff"/>
+    <g fill="#fff5c2" stroke="#f2e58a" stroke-width=".5"><rect x="24" y="22" width="36" height="30" rx="3"/><rect x="80" y="34" width="36" height="30" rx="3" transform="rotate(-3 98 49)"/><rect x="130" y="20" width="36" height="30" rx="3" transform="rotate(4 148 35)"/></g>
+    <g fill="#d7f0ff" stroke="#a9d7ee" stroke-width=".5"><rect x="40" y="70" width="36" height="30" rx="3"/><rect x="96" y="76" width="36" height="30" rx="3"/></g>
+    <rect x="145" y="70" width="36" height="30" rx="3" fill="#ffd9e6" stroke="#f0aac2" stroke-width=".5"/>
+    </svg>`,
+  matrix2x2: `<svg viewBox="0 0 200 125" xmlns="http://www.w3.org/2000/svg">
+    <rect width="200" height="125" fill="#f8f7ff"/>
+    <line x1="100" y1="10" x2="100" y2="115" stroke="#c8bfe6" stroke-width="1.2"/>
+    <line x1="10" y1="62" x2="190" y2="62" stroke="#c8bfe6" stroke-width="1.2"/>
+    <circle cx="55" cy="35" r="6" fill="#c9b8ff"/><circle cx="150" cy="30" r="7" fill="#a58cff"/>
+    <circle cx="60" cy="90" r="5" fill="#ffc9df"/><circle cx="140" cy="88" r="8" fill="#7a5dff"/>
+    </svg>`,
+  raci: `<svg viewBox="0 0 200 125" xmlns="http://www.w3.org/2000/svg">
+    <rect width="200" height="125" fill="#f6f9ff"/>
+    <g stroke="#c8d5ee" stroke-width=".6" fill="none"><line x1="60" y1="10" x2="60" y2="115"/><line x1="95" y1="10" x2="95" y2="115"/><line x1="130" y1="10" x2="130" y2="115"/><line x1="165" y1="10" x2="165" y2="115"/></g>
+    <rect x="10" y="18" width="180" height="14" fill="#e6ecff"/>
+    <g font-family="Segoe UI" font-size="8" font-weight="600" fill="#5b5187"><text x="72" y="28">R</text><text x="107" y="28">A</text><text x="142" y="28">C</text><text x="177" y="28">I</text></g>
+    <g fill="#a58cff"><circle cx="77" cy="55" r="3"/><circle cx="112" cy="55" r="3"/><circle cx="77" cy="80" r="3"/><circle cx="147" cy="80" r="3"/><circle cx="182" cy="105" r="3"/></g>
+    </svg>`,
+  hswimlanes: `<svg viewBox="0 0 200 125" xmlns="http://www.w3.org/2000/svg">
+    <rect width="200" height="125" fill="#f5fbf7"/>
+    <rect x="0" y="12" width="200" height="30" fill="#e0f5e6"/><rect x="0" y="47" width="200" height="30" fill="#eef6ff"/><rect x="0" y="82" width="200" height="30" fill="#fef4e6"/>
+    <g fill="#fff5c2" stroke="#e5d476" stroke-width=".5"><rect x="20" y="20" width="26" height="14" rx="2"/><rect x="60" y="55" width="26" height="14" rx="2"/><rect x="100" y="20" width="26" height="14" rx="2"/><rect x="140" y="90" width="26" height="14" rx="2"/></g>
+    <path d="M46 27 L60 62 L86 62 L100 27 L126 27 L140 97" stroke="#7a5dff" stroke-width="1" fill="none" stroke-dasharray="2 2"/>
+    </svg>`,
+  vswimlanes: `<svg viewBox="0 0 200 125" xmlns="http://www.w3.org/2000/svg">
+    <rect width="200" height="125" fill="#fdfaf5"/>
+    <rect x="12" y="10" width="42" height="105" fill="#ffefd6"/><rect x="60" y="10" width="42" height="105" fill="#fef1e6"/><rect x="108" y="10" width="42" height="105" fill="#f4eaff"/><rect x="156" y="10" width="42" height="105" fill="#e6f5ff"/>
+    <g fill="#fff5c2" stroke="#e5d476" stroke-width=".5"><rect x="20" y="25" width="26" height="14" rx="2"/><rect x="68" y="55" width="26" height="14" rx="2"/><rect x="116" y="35" width="26" height="14" rx="2"/><rect x="164" y="80" width="26" height="14" rx="2"/></g>
+    </svg>`,
+  journey: `<svg viewBox="0 0 200 125" xmlns="http://www.w3.org/2000/svg">
+    <rect width="200" height="125" fill="#fdf7fa"/>
+    <g stroke="#e6d1de" stroke-width=".6"><line x1="30" y1="10" x2="30" y2="115"/><line x1="70" y1="10" x2="70" y2="115"/><line x1="110" y1="10" x2="110" y2="115"/><line x1="150" y1="10" x2="150" y2="115"/></g>
+    <path d="M15 90 Q 45 40 85 60 T 155 45 Q 180 55 190 30" stroke="#ff6b9e" stroke-width="1.4" fill="none"/>
+    <g font-size="9"><text x="14" y="24">😐</text><text x="54" y="24">🙂</text><text x="94" y="24">😊</text><text x="134" y="24">😍</text><text x="174" y="24">🤩</text></g>
+    </svg>`,
+  empathy: `<svg viewBox="0 0 200 125" xmlns="http://www.w3.org/2000/svg">
+    <rect width="200" height="125" fill="#fbf9f4"/>
+    <line x1="100" y1="10" x2="100" y2="115" stroke="#d9d0b6"/><line x1="10" y1="62" x2="190" y2="62" stroke="#d9d0b6"/>
+    <circle cx="100" cy="62" r="14" fill="#ffe9b3" stroke="#e5c778"/>
+    <g font-family="Segoe UI" font-size="8" fill="#7a6a3c" font-weight="600"><text x="40" y="35">Says</text><text x="132" y="35">Thinks</text><text x="45" y="95">Does</text><text x="132" y="95">Feels</text></g>
+    </svg>`,
+  mindmap: `<svg viewBox="0 0 200 125" xmlns="http://www.w3.org/2000/svg">
+    <rect width="200" height="125" fill="#f6f9ff"/>
+    <circle cx="100" cy="62" r="42" fill="none" stroke="#c8bfe6" stroke-width=".6" stroke-dasharray="2 2"/>
+    <line x1="100" y1="62" x2="45" y2="30" stroke="#a58cff"/><line x1="100" y1="62" x2="160" y2="28" stroke="#a58cff"/><line x1="100" y1="62" x2="35" y2="95" stroke="#a58cff"/><line x1="100" y1="62" x2="165" y2="98" stroke="#a58cff"/>
+    <circle cx="100" cy="62" r="14" fill="#7a5dff"/>
+    <g fill="#fff" stroke="#a58cff"><circle cx="45" cy="30" r="6"/><circle cx="160" cy="28" r="6"/><circle cx="35" cy="95" r="6"/><circle cx="165" cy="98" r="6"/></g>
+    </svg>`,
+  strategy: `<svg viewBox="0 0 200 125" xmlns="http://www.w3.org/2000/svg">
+    <rect width="200" height="125" fill="#fbfaff"/>
+    <rect x="10" y="10" width="180" height="26" fill="#e8e2ff"/>
+    <text x="16" y="27" font-family="Segoe UI" font-size="8" font-weight="600" fill="#5b4a99">Vision</text>
+    <g><rect x="10" y="42" width="58" height="70" fill="#f0eaff" stroke="#c8bfe6"/><rect x="72" y="42" width="58" height="70" fill="#f5f0ff" stroke="#c8bfe6"/><rect x="134" y="42" width="56" height="70" fill="#faf6ff" stroke="#c8bfe6"/></g>
+    <g font-family="Segoe UI" font-size="6.5" fill="#8b7fb8"><text x="14" y="52">Now</text><text x="76" y="52">Next</text><text x="138" y="52">Later</text></g>
+    <g fill="#a58cff"><rect x="14" y="60" width="50" height="8" rx="1.5"/><rect x="76" y="60" width="50" height="8" rx="1.5"/><rect x="138" y="60" width="48" height="8" rx="1.5"/></g>
+    </svg>`,
+  backcast: `<svg viewBox="0 0 200 125" xmlns="http://www.w3.org/2000/svg">
+    <defs><linearGradient id="bcg" x1="0" x2="1"><stop offset="0" stop-color="#e6f5ff"/><stop offset="1" stop-color="#ffe4f0"/></linearGradient><marker id="ah" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><path d="M0 0 L6 3 L0 6 Z" fill="#c785d9"/></marker></defs>
+    <rect width="200" height="125" fill="url(#bcg)"/>
+    <g stroke="#d9c9dc" stroke-width=".5"><line x1="45" y1="10" x2="45" y2="115"/><line x1="85" y1="10" x2="85" y2="115"/><line x1="125" y1="10" x2="125" y2="115"/><line x1="160" y1="10" x2="160" y2="115"/></g>
+    <path d="M180 62 L18 62" stroke="#c785d9" stroke-width="1.2" marker-end="url(#ah)"/>
+    <g fill="#fff5c2" stroke="#e5d476" stroke-width=".5"><rect x="165" y="40" width="26" height="14" rx="2"/><rect x="130" y="65" width="26" height="14" rx="2"/><rect x="90" y="40" width="26" height="14" rx="2"/><rect x="50" y="80" width="26" height="14" rx="2"/><rect x="15" y="40" width="26" height="14" rx="2"/></g>
+    </svg>`,
+  usecase: `<svg viewBox="0 0 200 125" xmlns="http://www.w3.org/2000/svg">
+    <rect width="200" height="125" fill="#fffaf3"/>
+    <g stroke="#f0dcbf" stroke-width=".6"><line x1="40" y1="10" x2="40" y2="115"/><line x1="80" y1="10" x2="80" y2="115"/><line x1="120" y1="10" x2="120" y2="115"/><line x1="160" y1="10" x2="160" y2="115"/></g>
+    <g fill="#ffe9b3" stroke="#e5c778" stroke-width=".5"><rect x="8" y="30" width="28" height="14" rx="2"/><rect x="48" y="55" width="28" height="14" rx="2"/><rect x="88" y="30" width="28" height="14" rx="2"/><rect x="128" y="75" width="28" height="14" rx="2"/><rect x="168" y="45" width="28" height="14" rx="2"/></g>
+    <g font-family="Segoe UI" font-size="6" fill="#8b7358"><text x="10" y="22">Trigger</text><text x="50" y="22">JTBD</text><text x="90" y="22">Idea</text><text x="130" y="22">Value</text><text x="170" y="22">Risk</text></g>
+    </svg>`,
+};
+function previewFor(key, ct){ return LS_PREVIEWS[ct] || LS_PREVIEWS[key] || LS_PREVIEWS.whiteboard; }
+
 const LS_MODES = [
-  {key:'frontier', title:'Frontier Action Plan', desc:'5-stage arc — future state, cluster, objectives, initiatives, plan.', icon:'🧭', grad:'linear-gradient(135deg,#0a84ff,#5e5ce6)', tag:'Multi-stage'},
-  {key:'backcast', title:'Future-State Backcast', desc:'Right-to-left "what had to be true" — perfect for responsible AI.', icon:'🌌', grad:'linear-gradient(135deg,#af52de,#ff375f)'},
-  {key:'ideation', title:'Ideation / Brainstorm', desc:'Diverge fast with colour-coded stickies and rich prompts.', icon:'💡', grad:'linear-gradient(135deg,#ffb703,#fb5607)'},
-  {key:'process',  title:'Process Mapping',      desc:'Swimlanes, decisions, delays and handoffs — end-to-end flow.', icon:'🔀', grad:'linear-gradient(135deg,#0091ad,#34c759)'},
-  {key:'experience', title:'Experience Mapping', desc:'Journey stages with emotions, pains and gains along the way.', icon:'🎭', grad:'linear-gradient(135deg,#ff6b6b,#ff9500)'},
-  {key:'empathy',  title:'Empathy Map',          desc:'Says / thinks / does / feels — build shared user understanding.', icon:'🫶', grad:'linear-gradient(135deg,#ff375f,#af52de)'},
-  {key:'retro',    title:'Retrospective',        desc:'What went well, what didn\'t, actions — for team rituals.', icon:'🔁', grad:'linear-gradient(135deg,#34c759,#0a84ff)'},
-  {key:'sample',   title:'Discovery Sample',     desc:'A fully-populated example to explore the canvas capabilities.', icon:'✨', grad:'linear-gradient(135deg,#5e5ce6,#0a84ff)'},
-  {key:'__blank',  title:'Blank canvas',         desc:'Start from an empty freestyle canvas and build it up yourself.', icon:'＋', grad:'linear-gradient(135deg,#8a95ad,#4b5b7a)', blank:true},
+  {key:'frontier', cat:'featured', title:'Frontier Action Plan', desc:'5-stage arc — future, cluster, objectives, initiatives, plan.', badge:'Multi-stage', ct:'backcast'},
+  {key:'backcast', cat:'featured', title:'Future-State Backcast', desc:'Right-to-left "what had to be true" for responsible AI.', ct:'backcast'},
+  {key:'sample',   cat:'featured', title:'Discovery Sample', desc:'A populated example showcasing the full canvas.', ct:'whiteboard'},
+  {key:'__blank',  cat:'featured', title:'Blank canvas', desc:'Freestyle — start with an empty page.', ct:'whiteboard', blank:true},
+
+  {key:'ideation', cat:'ideation', title:'Ideation / Brainstorm', desc:'Diverge fast with colour-coded stickies.', ct:'whiteboard'},
+  {key:'empathy',  cat:'ideation', title:'Empathy Map', desc:'Says / thinks / does / feels.', ct:'empathy'},
+  {key:'experience', cat:'ideation', title:'Experience Mapping', desc:'Journey stages with emotions along the way.', ct:'journey'},
+  {key:'retro',    cat:'ideation', title:'Retrospective', desc:'Went well · didn\'t · actions.', ct:'whiteboard'},
+  {key:'ct:usecase', cat:'ideation', title:'Use Case Ideation', desc:'Trigger · JTBD · Idea · Value · Risk.', ct:'usecase', blank:true},
+
+  {key:'process',  cat:'process', title:'Process Mapping', desc:'Swimlanes, decisions, delays and handoffs.', ct:'hswimlanes'},
+  {key:'ct:hswimlanes', cat:'process', title:'Horizontal Swimlanes', desc:'Blank horizontal lanes by role or system.', ct:'hswimlanes', blank:true},
+  {key:'ct:vswimlanes', cat:'process', title:'Vertical Swimlanes', desc:'Blank vertical columns for phased work.', ct:'vswimlanes', blank:true},
+  {key:'ct:journey',    cat:'process', title:'Journey Map', desc:'Stages with a customer emotion line.', ct:'journey', blank:true},
+
+  {key:'ct:matrix2x2',  cat:'strategy', title:'2×2 Matrix', desc:'Prioritise on impact vs. effort.', ct:'matrix2x2', blank:true},
+  {key:'ct:raci',       cat:'strategy', title:'RACI Matrix', desc:'Responsible, accountable, consulted, informed.', ct:'raci', blank:true},
+  {key:'ct:strategy',   cat:'strategy', title:'Strategy on a Page', desc:'Vision + Now / Next / Later horizons.', ct:'strategy', blank:true},
+  {key:'ct:mindmap',    cat:'strategy', title:'Mind Map', desc:'Radial exploration around a central idea.', ct:'mindmap', blank:true},
+];
+const LS_CATS = [
+  {key:'all', label:'All canvases'},
+  {key:'featured', label:'Featured'},
+  {key:'ideation', label:'Ideation & research'},
+  {key:'process', label:'Process & flow'},
+  {key:'strategy', label:'Strategy'},
 ];
 const LS_SAMPLE_JSON = {
   title:'Discovery with BBC', customer:'BBC', sessionType:'Strategy Discovery',
@@ -4460,33 +4602,65 @@ const LS_SAMPLE_JSON = {
 };
 (function initLauncher(){
   const scr = $('#launchScreen');
-  const grid = $('#lsModes');
-  grid.innerHTML = LS_MODES.map(m=>`
-    <button class="ls-mode ${m.blank?'blank':''}" data-key="${m.key}" type="button">
-      <span class="glow" style="background:${m.grad}"></span>
-      ${m.tag?`<span class="tag">${m.tag}</span>`:''}
-      <span class="ico" style="background:${m.grad}">${m.icon}</span>
-      <h4>${m.title}</h4>
-      <p>${m.desc}</p>
-    </button>`).join('');
+  const grid = $('#lsGrid');
+  const tabsEl = $('#lsTabs');
+  const sectionTitle = $('#lsSectionTitle');
+  const countEl = $('#lsCount');
+  const searchEl = $('#lsSearch');
+  const importBox = $('#lsImport');
+  const importToggle = $('#lsImportToggle');
+  let currentCat = 'all';
   let lsSelected = null;
   const launchBtn = $('#lsLaunch');
-  const pickedHint = $('#lsPickedHint');
+
+  tabsEl.innerHTML = LS_CATS.map(c=>`<button class="ls-tab ${c.key==='all'?'active':''}" data-cat="${c.key}" type="button">${c.label}</button>`).join('');
+  tabsEl.querySelectorAll('.ls-tab').forEach(b=>b.addEventListener('click', ()=>{
+    tabsEl.querySelectorAll('.ls-tab').forEach(x=>x.classList.remove('active'));
+    b.classList.add('active');
+    currentCat = b.dataset.cat;
+    sectionTitle.textContent = LS_CATS.find(c=>c.key===currentCat).label;
+    renderGrid();
+  }));
+
   function updateLaunchBtn(){
-    if(!lsSelected){ launchBtn.disabled = true; launchBtn.textContent = 'Select a mode →'; return; }
+    if(!lsSelected){ launchBtn.disabled = true; launchBtn.textContent = 'Select a canvas →'; return; }
     launchBtn.disabled = false;
     const hasJson = $('#lsImportText').value.trim().length > 0;
-    launchBtn.textContent = hasJson ? 'Import & launch →' : 'Launch mode →';
+    launchBtn.textContent = hasJson ? 'Import & launch →' : 'Launch →';
   }
-  grid.querySelectorAll('.ls-mode').forEach(b=>{
-    b.addEventListener('click', ()=>{
-      grid.querySelectorAll('.ls-mode').forEach(x=>x.classList.remove('selected'));
-      b.classList.add('selected');
-      lsSelected = b.dataset.key;
-      const mode = LS_MODES.find(m=>m.key===lsSelected);
-      pickedHint.textContent = 'Selected: ' + mode.title;
-      updateLaunchBtn();
+  function renderGrid(){
+    const q = (searchEl.value||'').trim().toLowerCase();
+    const list = LS_MODES.filter(m=>{
+      if(currentCat!=='all' && m.cat!==currentCat) return false;
+      if(q && !(m.title.toLowerCase().includes(q) || m.desc.toLowerCase().includes(q))) return false;
+      return true;
     });
+    countEl.textContent = `${list.length} option${list.length===1?'':'s'}`;
+    grid.innerHTML = list.map(m=>`
+      <button class="ls-card ${m.key===lsSelected?'selected':''}" data-key="${m.key}" type="button">
+        <span class="preview">${previewFor(m.key, m.ct)}</span>
+        <span class="meta">
+          <h4>${m.title}${m.badge?`<span class="badge">${m.badge}</span>`:''}</h4>
+          <p>${m.desc}</p>
+        </span>
+      </button>`).join('');
+    grid.querySelectorAll('.ls-card').forEach(b=>{
+      b.addEventListener('click', ()=>{
+        grid.querySelectorAll('.ls-card').forEach(x=>x.classList.remove('selected'));
+        b.classList.add('selected');
+        lsSelected = b.dataset.key;
+        const mode = LS_MODES.find(m=>m.key===lsSelected);
+        $('#lsPickedHint').innerHTML = `Selected: <strong>${mode.title}</strong>`;
+        updateLaunchBtn();
+      });
+    });
+  }
+  searchEl.addEventListener('input', renderGrid);
+  renderGrid();
+
+  importToggle.addEventListener('click', ()=>{
+    importBox.classList.toggle('open');
+    if(importBox.classList.contains('open')) $('#lsImportText').focus();
   });
   $('#lsImportText').addEventListener('input', ()=>{ $('#lsImportErr').textContent=''; updateLaunchBtn(); });
   $('#lsSkip').addEventListener('click', ()=>{
@@ -4501,16 +4675,15 @@ const LS_SAMPLE_JSON = {
   });
   launchBtn.addEventListener('click', ()=>{
     const err = $('#lsImportErr'); err.textContent='';
-    if(!lsSelected){ err.textContent='Pick a mode first.'; return; }
-    // Step 1: apply the chosen mode
-    if(lsSelected==='__blank'){
-      state.session=null; state.canvasType='whiteboard';
+    if(!lsSelected){ err.textContent='Pick a canvas first.'; return; }
+    const mode = LS_MODES.find(m=>m.key===lsSelected);
+    if(mode.blank){
+      state.session=null; state.canvasType = mode.ct || 'whiteboard';
       state.lanes=[]; state.prompts=[]; state.cards=[]; state.connections=[];
       state.view={x:40,y:40,scale:1};
     } else {
-      applyTemplate(lsSelected);
+      applyTemplate(mode.key);
     }
-    // Step 2: optionally overlay JSON
     const raw = $('#lsImportText').value.trim();
     if(raw){
       try{
