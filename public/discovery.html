@@ -51,36 +51,40 @@
   /* ===== Layout ===== */
    .app{display:grid;grid-template-columns:1fr;grid-template-rows:60px min-content min-content minmax(0,1fr);height:100vh;background:var(--bg)}
    header.topbar{
-     grid-column:1 / -1;display:flex;align-items:center;gap:14px;padding:0 18px;
-     background:linear-gradient(180deg,rgba(255,255,255,.92),rgba(250,250,252,.86));
-     backdrop-filter:saturate(180%) blur(20px);
-     border-bottom:1px solid var(--line);z-index:20;
-     box-shadow:0 1px 0 rgba(255,255,255,.6) inset, 0 1px 2px rgba(0,0,0,.02);
+     grid-column:1 / -1;display:flex;align-items:center;gap:12px;padding:0 20px;
+     background:
+       linear-gradient(180deg,rgba(255,255,255,.86),rgba(251,250,255,.82)),
+       radial-gradient(700px 200px at 0% 0%,#efe8ff 0%,transparent 60%),
+       radial-gradient(700px 200px at 100% 0%,#ffe6f0 0%,transparent 60%);
+     backdrop-filter:saturate(180%) blur(22px);
+     -webkit-backdrop-filter:saturate(180%) blur(22px);
+     border-bottom:1px solid rgba(90,70,150,.10);z-index:20;
+     box-shadow:0 1px 0 rgba(255,255,255,.7) inset;
    }
-   .brand{display:flex;align-items:center;gap:11px;font-family:var(--font-heading);font-weight:600;font-size:16px;letter-spacing:-.01em;color:var(--ink);}
-   .brand .logo{box-shadow:inset 0 0 0 1px rgba(255,255,255,.45),0 2px 8px rgba(10,132,255,.25)}
-   .logo{width:24px;height:24px;border-radius:7px;background:conic-gradient(from 210deg,#0a84ff,#5ac8fa,#af52de,#0a84ff);box-shadow:inset 0 0 0 1px rgba(255,255,255,.4)}
+   .brand{display:flex;align-items:center;gap:11px;font-family:'Segoe UI Semibold','Segoe UI',var(--font-heading);font-weight:600;font-size:15px;letter-spacing:-.005em;color:#2a2540;}
+   .brand .logo{box-shadow:0 4px 12px -4px rgba(120,90,200,.4), inset 0 0 0 1px rgba(255,255,255,.5)}
+   .logo{width:26px;height:26px;border-radius:9px;background:conic-gradient(from 210deg,#c7b8ff,#ffc9df,#bfe4ff,#c7f5da,#c7b8ff)}
    .top-actions{margin-left:auto;display:flex;gap:8px;align-items:center}
-   .btn-group{display:inline-flex;align-items:center;background:#fff;border:1px solid var(--line-2);border-radius:10px;padding:3px;gap:2px;box-shadow:var(--shadow-1)}
-   .btn-group .btn{border:0;box-shadow:none;background:transparent;border-radius:7px;padding:6px 11px;font-weight:600;color:var(--ink-2)}
-   .btn-group .btn:hover{background:#f0f1f4;color:var(--ink)}
+   .btn-group{display:inline-flex;align-items:center;background:rgba(255,255,255,.72);border:1px solid rgba(90,70,150,.12);border-radius:11px;padding:3px;gap:2px;box-shadow:0 4px 14px -8px rgba(90,70,150,.2);backdrop-filter:blur(10px)}
+   .btn-group .btn{border:0;box-shadow:none;background:transparent;border-radius:8px;padding:6px 11px;font-weight:500;color:#3b3560}
+   .btn-group .btn:hover{background:rgba(165,140,255,.14);color:#2a2540}
    .btn-group .btn svg{opacity:.85}
-   .btn-group .sep{width:1px;height:20px;background:var(--line);margin:0 2px}
+   .btn-group .sep{width:1px;height:20px;background:rgba(90,70,150,.15);margin:0 2px}
    /* Icon-only pill button */
-   .btn.ico-btn{width:32px;height:32px;padding:0;justify-content:center;color:var(--ink-2);border-radius:8px;border:0;background:transparent;box-shadow:none;position:relative}
-   .btn.ico-btn:hover{background:#eef0f4;color:var(--ink)}
-   .btn.ico-btn.active{background:var(--accent);color:#fff}
-   .btn.ico-btn.active:hover{background:#0077ed;color:#fff}
+   .btn.ico-btn{width:32px;height:32px;padding:0;justify-content:center;color:#3b3560;border-radius:9px;border:0;background:transparent;box-shadow:none;position:relative;transition:background .15s ease,color .15s ease}
+   .btn.ico-btn:hover{background:rgba(165,140,255,.16);color:#2a2540}
+   .btn.ico-btn.active{background:linear-gradient(135deg,#7a5dff,#a58cff);color:#fff;box-shadow:0 6px 14px -6px rgba(122,93,255,.55)}
+   .btn.ico-btn.active:hover{background:linear-gradient(135deg,#6a4dff,#957aff);color:#fff}
    .btn.ico-btn.danger{color:#c04033}
    .btn.ico-btn.danger:hover{background:#fdecec;color:var(--danger)}
    .btn-group.icons{padding:2px;gap:0}
    /* Native select styled as pill */
-   .select-wrap{position:relative;display:inline-flex;align-items:center;gap:6px;padding:0 10px 0 12px;height:34px;background:#fff;border:1px solid var(--line-2);border-radius:10px;box-shadow:var(--shadow-1);color:var(--ink-2);transition:background .15s}
-   .select-wrap:hover{background:#f7f8fa;color:var(--ink)}
+   .select-wrap{position:relative;display:inline-flex;align-items:center;gap:6px;padding:0 10px 0 12px;height:34px;background:rgba(255,255,255,.72);border:1px solid rgba(90,70,150,.12);border-radius:11px;box-shadow:0 4px 14px -8px rgba(90,70,150,.2);color:#3b3560;transition:background .15s;backdrop-filter:blur(10px)}
+   .select-wrap:hover{background:#fff;color:#2a2540}
    .select-wrap > svg:first-child{opacity:.7}
-   .select-wrap select{appearance:none;-webkit-appearance:none;border:0;background:transparent;padding:0 16px 0 4px;height:100%;font:inherit;font-weight:600;font-size:12.5px;color:inherit;cursor:pointer;outline:none}
+   .select-wrap select{appearance:none;-webkit-appearance:none;border:0;background:transparent;padding:0 16px 0 4px;height:100%;font:inherit;font-weight:500;font-size:12.5px;color:inherit;cursor:pointer;outline:none}
    .select-wrap .chev{position:absolute;right:8px;pointer-events:none;opacity:.55}
-   .btn.primary.cta{padding:0 14px;height:34px;border-radius:10px;font-weight:600;box-shadow:0 1px 2px rgba(0,113,227,.35),0 4px 12px rgba(0,113,227,.18)}
+   .btn.primary.cta{padding:0 14px;height:34px;border-radius:11px;font-weight:600;background:linear-gradient(135deg,#7a5dff,#a58cff);border:0;color:#fff;box-shadow:0 8px 20px -8px rgba(122,93,255,.5)}
 
   /* Session / stage bar */
   .stage-bar{
@@ -173,19 +177,19 @@
   /* Timer widget */
   .timer{
     display:inline-flex;align-items:center;gap:6px;
-    background:#fff;border:1px solid var(--line-2);border-radius:10px;
-    padding:3px 4px 3px 10px;box-shadow:var(--shadow-1);
-    font-variant-numeric:tabular-nums;
+    background:rgba(255,255,255,.72);border:1px solid rgba(90,70,150,.12);border-radius:11px;
+    padding:3px 4px 3px 10px;box-shadow:0 4px 14px -8px rgba(90,70,150,.2);
+    font-variant-numeric:tabular-nums;backdrop-filter:blur(10px);
   }
   .timer.warn{border-color:#ffb020;box-shadow:0 0 0 3px rgba(255,176,32,.15)}
   .timer.done{border-color:var(--danger);box-shadow:0 0 0 3px rgba(255,59,48,.15);animation:tflash 1s infinite}
   @keyframes tflash{50%{background:#fff5f5}}
-  .timer .tval{font-family:var(--font-mono);font-size:13px;font-weight:600;color:var(--ink);min-width:52px;text-align:center;letter-spacing:.02em}
+  .timer .tval{font-family:var(--font-mono);font-size:13px;font-weight:600;color:#2a2540;min-width:52px;text-align:center;letter-spacing:.02em}
   .timer .tbtn{
-    width:24px;height:24px;border:0;border-radius:6px;background:transparent;cursor:pointer;
-    display:inline-flex;align-items:center;justify-content:center;color:var(--ink-2);
+    width:24px;height:24px;border:0;border-radius:7px;background:transparent;cursor:pointer;
+    display:inline-flex;align-items:center;justify-content:center;color:#3b3560;
   }
-  .timer .tbtn:hover{background:#f0f1f4;color:var(--ink)}
+  .timer .tbtn:hover{background:rgba(165,140,255,.18);color:#2a2540}
   .timer.done .tval{color:var(--danger)}
 
   /* Timer settings popover */
@@ -1062,19 +1066,26 @@
   .ls-section-title h3{margin:0;font-size:15px;font-weight:600;color:#2a2540;letter-spacing:-.01em}
   .ls-section-title .hint{font-size:12.5px;color:#8b83aa}
 
-  .ls-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:18px}
-  .ls-card{position:relative;text-align:left;background:rgba(255,255,255,.85);backdrop-filter:blur(18px);
-    border:1px solid rgba(90,70,150,.10);border-radius:16px;padding:0;cursor:pointer;overflow:hidden;
+  .ls-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(268px,1fr));gap:22px}
+  .ls-card{position:relative;text-align:left;background:rgba(255,255,255,.92);backdrop-filter:blur(18px);
+    border:1px solid rgba(90,70,150,.10);border-radius:18px;padding:0;cursor:pointer;overflow:hidden;
     transition:transform .18s ease, box-shadow .18s ease, border-color .18s ease;
-    box-shadow:0 1px 0 rgba(255,255,255,.9) inset, 0 6px 22px -14px rgba(90,70,150,.28)}
-  .ls-card:hover{transform:translateY(-3px);border-color:rgba(165,140,255,.5);
-    box-shadow:0 18px 40px -18px rgba(120,90,200,.4),0 1px 0 rgba(255,255,255,.9) inset}
+    box-shadow:0 1px 0 rgba(255,255,255,.9) inset, 0 10px 28px -18px rgba(90,70,150,.32);
+    display:flex;flex-direction:column;}
+  .ls-card:hover{transform:translateY(-3px);border-color:rgba(165,140,255,.55);
+    box-shadow:0 22px 44px -22px rgba(120,90,200,.42),0 1px 0 rgba(255,255,255,.9) inset}
   .ls-card:focus-visible{outline:2px solid #a58cff;outline-offset:2px}
-  .ls-card .preview{aspect-ratio:16/10;width:100%;display:block;background:#faf8ff;border-bottom:1px solid rgba(90,70,150,.08)}
-  .ls-card .meta{padding:13px 15px 14px}
-  .ls-card h4{margin:0 0 3px;font-size:14px;font-weight:600;color:#2a2540;letter-spacing:-.005em;display:flex;align-items:center;gap:8px}
-  .ls-card h4 .badge{font-size:9.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
-    color:#7a5dff;background:rgba(122,93,255,.12);padding:2px 7px;border-radius:999px}
+  .ls-card .preview{aspect-ratio:16/10;width:100%;display:block;background:#faf8ff;border-bottom:1px solid rgba(90,70,150,.08);padding:14px;box-sizing:border-box}
+  .ls-card .preview svg{width:100%;height:100%;display:block;border-radius:10px;box-shadow:0 2px 8px -4px rgba(90,70,150,.18)}
+  .ls-card .meta{padding:16px 18px 18px;display:flex;flex-direction:column;gap:6px;flex:1}
+  .ls-card .kind-row{display:flex;align-items:center;gap:6px;margin-bottom:2px}
+  .ls-card .badge{font-size:9.5px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;
+    padding:3px 8px;border-radius:999px;line-height:1}
+  .ls-card .badge.template{color:#7a5dff;background:rgba(122,93,255,.13)}
+  .ls-card .badge.canvas{color:#0a84ff;background:rgba(10,132,255,.12)}
+  .ls-card .badge.multi{color:#c04b8a;background:rgba(192,75,138,.12)}
+  .ls-card h4{margin:0;font-size:15px;font-weight:600;color:#2a2540;letter-spacing:-.008em;line-height:1.3}
+  .ls-card p{margin:0;font-size:12.5px;line-height:1.55;color:#6a628f}
   .ls-card p{margin:0;font-size:12px;line-height:1.5;color:#6a628f}
   .ls-card.selected{border-color:#a58cff;box-shadow:0 0 0 3px rgba(165,140,255,.22),0 18px 40px -18px rgba(120,90,200,.45)}
   .ls-card.selected::after{content:'✓';position:absolute;top:10px;right:10px;width:24px;height:24px;border-radius:50%;
@@ -1204,21 +1215,8 @@
       </div>
 
 
-      <div class="select-wrap" title="Load template pack">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
-        <select id="templatePack" aria-label="Template pack">
-          <option value="">Templates</option>
-          <option value="sample">Discovery Sample</option>
-          <option value="ideation">Ideation / Brainstorm</option>
-          <option value="process">Process Mapping</option>
-          <option value="experience">Experience Mapping</option>
-          <option value="empathy">Empathy Map</option>
-          <option value="retro">Retrospective</option>
-          <option value="backcast">Future-State Backcast</option>
-          <option value="frontier">Frontier Action Plan (5 stages)</option>
-        </select>
-        <svg class="chev" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
-      </div>
+      <!-- Templates now live exclusively on the Launcher (Home button) — removed to avoid duplication with Canvas Type. -->
+      <select id="templatePack" aria-label="Template pack" hidden><option value=""></option></select>
 
       <div class="btn-group icons" role="group" aria-label="Session">
         <button class="btn ico-btn" id="btnSession" title="Session info" aria-label="Session info">
@@ -4559,33 +4557,34 @@ const LS_PREVIEWS = {
 function previewFor(key, ct){ return LS_PREVIEWS[ct] || LS_PREVIEWS[key] || LS_PREVIEWS.whiteboard; }
 
 const LS_MODES = [
-  {key:'frontier', cat:'featured', title:'Frontier Action Plan', desc:'5-stage arc — future, cluster, objectives, initiatives, plan.', badge:'Multi-stage', ct:'backcast'},
-  {key:'backcast', cat:'featured', title:'Future-State Backcast', desc:'Right-to-left "what had to be true" for responsible AI.', ct:'backcast'},
-  {key:'sample',   cat:'featured', title:'Discovery Sample', desc:'A populated example showcasing the full canvas.', ct:'whiteboard'},
-  {key:'__blank',  cat:'featured', title:'Blank canvas', desc:'Freestyle — start with an empty page.', ct:'whiteboard', blank:true},
+  // Templates — populated, ready-to-run sessions
+  {key:'frontier',   cat:'templates', kind:'template', title:'Frontier Action Plan', desc:'5-stage arc — future, cluster, objectives, initiatives, plan.', badge:'Multi-stage', badgeKind:'multi', ct:'backcast'},
+  {key:'backcast',   cat:'templates', kind:'template', title:'Future-State Backcast', desc:'Right-to-left "what had to be true" for responsible AI.', ct:'backcast'},
+  {key:'sample',     cat:'templates', kind:'template', title:'Discovery Sample', desc:'A populated example showcasing the full canvas.', ct:'whiteboard'},
+  {key:'ideation',   cat:'templates', kind:'template', title:'Ideation / Brainstorm', desc:'Diverge fast with colour-coded stickies.', ct:'whiteboard'},
+  {key:'empathy',    cat:'templates', kind:'template', title:'Empathy Map', desc:'Says / thinks / does / feels — pre-laid.', ct:'empathy'},
+  {key:'experience', cat:'templates', kind:'template', title:'Experience Mapping', desc:'Journey stages with emotions along the way.', ct:'journey'},
+  {key:'retro',      cat:'templates', kind:'template', title:'Retrospective', desc:'Went well · didn\'t · actions — seeded lanes.', ct:'whiteboard'},
+  {key:'process',    cat:'templates', kind:'template', title:'Process Mapping', desc:'Swimlanes, decisions, delays and handoffs.', ct:'hswimlanes'},
 
-  {key:'ideation', cat:'ideation', title:'Ideation / Brainstorm', desc:'Diverge fast with colour-coded stickies.', ct:'whiteboard'},
-  {key:'empathy',  cat:'ideation', title:'Empathy Map', desc:'Says / thinks / does / feels.', ct:'empathy'},
-  {key:'experience', cat:'ideation', title:'Experience Mapping', desc:'Journey stages with emotions along the way.', ct:'journey'},
-  {key:'retro',    cat:'ideation', title:'Retrospective', desc:'Went well · didn\'t · actions.', ct:'whiteboard'},
-  {key:'ct:usecase', cat:'ideation', title:'Use Case Ideation', desc:'Trigger · JTBD · Idea · Value · Risk.', ct:'usecase', blank:true},
-
-  {key:'process',  cat:'process', title:'Process Mapping', desc:'Swimlanes, decisions, delays and handoffs.', ct:'hswimlanes'},
-  {key:'ct:hswimlanes', cat:'process', title:'Horizontal Swimlanes', desc:'Blank horizontal lanes by role or system.', ct:'hswimlanes', blank:true},
-  {key:'ct:vswimlanes', cat:'process', title:'Vertical Swimlanes', desc:'Blank vertical columns for phased work.', ct:'vswimlanes', blank:true},
-  {key:'ct:journey',    cat:'process', title:'Journey Map', desc:'Stages with a customer emotion line.', ct:'journey', blank:true},
-
-  {key:'ct:matrix2x2',  cat:'strategy', title:'2×2 Matrix', desc:'Prioritise on impact vs. effort.', ct:'matrix2x2', blank:true},
-  {key:'ct:raci',       cat:'strategy', title:'RACI Matrix', desc:'Responsible, accountable, consulted, informed.', ct:'raci', blank:true},
-  {key:'ct:strategy',   cat:'strategy', title:'Strategy on a Page', desc:'Vision + Now / Next / Later horizons.', ct:'strategy', blank:true},
-  {key:'ct:mindmap',    cat:'strategy', title:'Mind Map', desc:'Radial exploration around a central idea.', ct:'mindmap', blank:true},
+  // Canvas types — blank scaffolds
+  {key:'__blank',       cat:'canvases', kind:'canvas', title:'Blank canvas', desc:'Freestyle — start with an empty page.', ct:'whiteboard', blank:true},
+  {key:'ct:matrix2x2',  cat:'canvases', kind:'canvas', title:'2×2 Matrix', desc:'Prioritise on impact vs. effort.', ct:'matrix2x2', blank:true},
+  {key:'ct:raci',       cat:'canvases', kind:'canvas', title:'RACI Matrix', desc:'Responsible, accountable, consulted, informed.', ct:'raci', blank:true},
+  {key:'ct:strategy',   cat:'canvases', kind:'canvas', title:'Strategy on a Page', desc:'Vision + Now / Next / Later horizons.', ct:'strategy', blank:true},
+  {key:'ct:hswimlanes', cat:'canvases', kind:'canvas', title:'Horizontal Swimlanes', desc:'Blank horizontal lanes by role or system.', ct:'hswimlanes', blank:true},
+  {key:'ct:vswimlanes', cat:'canvases', kind:'canvas', title:'Vertical Swimlanes', desc:'Blank vertical columns for phased work.', ct:'vswimlanes', blank:true},
+  {key:'ct:journey',    cat:'canvases', kind:'canvas', title:'Journey Map', desc:'Stages with a customer emotion line.', ct:'journey', blank:true},
+  {key:'ct:mindmap',    cat:'canvases', kind:'canvas', title:'Mind Map', desc:'Radial exploration around a central idea.', ct:'mindmap', blank:true},
+  {key:'ct:usecase',    cat:'canvases', kind:'canvas', title:'Use Case Ideation', desc:'Trigger · JTBD · Idea · Value · Risk.', ct:'usecase', blank:true},
 ];
+// Featured = curated highlights (mix of templates + canvases)
+const LS_FEATURED_KEYS = ['frontier','backcast','ideation','process','ct:matrix2x2','__blank'];
 const LS_CATS = [
-  {key:'all', label:'All canvases'},
   {key:'featured', label:'Featured'},
-  {key:'ideation', label:'Ideation & research'},
-  {key:'process', label:'Process & flow'},
-  {key:'strategy', label:'Strategy'},
+  {key:'templates', label:'Templates'},
+  {key:'canvases', label:'Canvas types'},
+  {key:'all', label:'All'},
 ];
 const LS_SAMPLE_JSON = {
   title:'Discovery with BBC', customer:'BBC', sessionType:'Strategy Discovery',
@@ -4609,11 +4608,11 @@ const LS_SAMPLE_JSON = {
   const searchEl = $('#lsSearch');
   const importBox = $('#lsImport');
   const importToggle = $('#lsImportToggle');
-  let currentCat = 'all';
+  let currentCat = 'featured';
   let lsSelected = null;
   const launchBtn = $('#lsLaunch');
 
-  tabsEl.innerHTML = LS_CATS.map(c=>`<button class="ls-tab ${c.key==='all'?'active':''}" data-cat="${c.key}" type="button">${c.label}</button>`).join('');
+  tabsEl.innerHTML = LS_CATS.map(c=>`<button class="ls-tab ${c.key===currentCat?'active':''}" data-cat="${c.key}" type="button">${c.label}</button>`).join('');
   tabsEl.querySelectorAll('.ls-tab').forEach(b=>b.addEventListener('click', ()=>{
     tabsEl.querySelectorAll('.ls-tab').forEach(x=>x.classList.remove('active'));
     b.classList.add('active');
@@ -4621,6 +4620,7 @@ const LS_SAMPLE_JSON = {
     sectionTitle.textContent = LS_CATS.find(c=>c.key===currentCat).label;
     renderGrid();
   }));
+  sectionTitle.textContent = LS_CATS.find(c=>c.key===currentCat).label;
 
   function updateLaunchBtn(){
     if(!lsSelected){ launchBtn.disabled = true; launchBtn.textContent = 'Select a canvas →'; return; }
@@ -4631,19 +4631,27 @@ const LS_SAMPLE_JSON = {
   function renderGrid(){
     const q = (searchEl.value||'').trim().toLowerCase();
     const list = LS_MODES.filter(m=>{
-      if(currentCat!=='all' && m.cat!==currentCat) return false;
+      if(currentCat==='featured' && !LS_FEATURED_KEYS.includes(m.key)) return false;
+      if(currentCat!=='featured' && currentCat!=='all' && m.cat!==currentCat) return false;
       if(q && !(m.title.toLowerCase().includes(q) || m.desc.toLowerCase().includes(q))) return false;
       return true;
     });
     countEl.textContent = `${list.length} option${list.length===1?'':'s'}`;
-    grid.innerHTML = list.map(m=>`
+    grid.innerHTML = list.map(m=>{
+      const kindBadge = m.kind==='template'
+        ? `<span class="badge template">Template</span>`
+        : `<span class="badge canvas">Canvas type</span>`;
+      const extra = m.badge ? `<span class="badge ${m.badgeKind||''}">${m.badge}</span>` : '';
+      return `
       <button class="ls-card ${m.key===lsSelected?'selected':''}" data-key="${m.key}" type="button">
         <span class="preview">${previewFor(m.key, m.ct)}</span>
         <span class="meta">
-          <h4>${m.title}${m.badge?`<span class="badge">${m.badge}</span>`:''}</h4>
+          <span class="kind-row">${kindBadge}${extra}</span>
+          <h4>${m.title}</h4>
           <p>${m.desc}</p>
         </span>
-      </button>`).join('');
+      </button>`;
+    }).join('');
     grid.querySelectorAll('.ls-card').forEach(b=>{
       b.addEventListener('click', ()=>{
         grid.querySelectorAll('.ls-card').forEach(x=>x.classList.remove('selected'));
