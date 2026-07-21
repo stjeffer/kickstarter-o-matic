@@ -1744,6 +1744,42 @@ function computeLaneBands(){
     lanes.slice(0,6).forEach((l,i)=>{bands[i].name=l.name; if(l.color) bands[i].color=l.color});
     return bands;
   }
+  if(ct==='plan'){
+    const headerH = 140;
+    const colW = WORLD_W/3;
+    const bodyY = headerH, bodyH = WORLD_H - headerH;
+    const bands = [
+      {name:'Plan on a Page — Objectives → Initiatives → Horizons', x:0, y:0, w:WORLD_W, h:headerH, color:'#34c759'},
+      {name:'Now (0–3 months)',   x:0*colW, y:bodyY, w:colW, h:bodyH, color:'#34c759', horizon:'now'},
+      {name:'Next (3–6 months)',  x:1*colW, y:bodyY, w:colW, h:bodyH, color:'#ff9500', horizon:'next'},
+      {name:'Later (6–12 months)',x:2*colW, y:bodyY, w:colW, h:bodyH, color:'#0a84ff', horizon:'later'},
+    ];
+    lanes.slice(0,4).forEach((l,i)=>{bands[i].name=l.name; if(l.color) bands[i].color=l.color});
+    return bands;
+  }
+  if(ct==='cluster' || ct==='objectives' || ct==='initiatives'){
+    // Instructive header band only
+    const headerH = 90;
+    const label = ct==='cluster'
+      ? 'Cluster & Group — drop stickies into group frames'
+      : ct==='objectives'
+        ? 'Objectives — turn each group into a clear outcome statement'
+        : 'Initiatives — under each objective, define what we will actually do';
+    const color = ct==='cluster' ? '#0a84ff' : ct==='objectives' ? '#5856d6' : '#ff9500';
+    const bands = [{name:label, x:0, y:0, w:WORLD_W, h:headerH, color}];
+    if(lanes.length){
+      lanes.forEach(ensureLaneDefaults);
+      let vCursor = 0;
+      lanes.forEach(l=>{
+        if(l.orientation==='v'){
+          bands.push({laneId:l.id, orientation:'v', name:l.name, color:l.color,
+                      x:vCursor, y:headerH, w:l.size, h:WORLD_H-headerH});
+          vCursor += l.size;
+        }
+      });
+    }
+    return bands;
+  }
   if(!lanes.length) return [];
   // Per-lane orientation + size layout (used for whiteboard/hswimlanes/vswimlanes/journey)
   lanes.forEach(ensureLaneDefaults);
