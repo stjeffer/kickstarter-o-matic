@@ -1204,21 +1204,8 @@
       </div>
 
 
-      <div class="select-wrap" title="Load template pack">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
-        <select id="templatePack" aria-label="Template pack">
-          <option value="">Templates</option>
-          <option value="sample">Discovery Sample</option>
-          <option value="ideation">Ideation / Brainstorm</option>
-          <option value="process">Process Mapping</option>
-          <option value="experience">Experience Mapping</option>
-          <option value="empathy">Empathy Map</option>
-          <option value="retro">Retrospective</option>
-          <option value="backcast">Future-State Backcast</option>
-          <option value="frontier">Frontier Action Plan (5 stages)</option>
-        </select>
-        <svg class="chev" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
-      </div>
+      <!-- Templates now live exclusively on the Launcher (Home button) — removed to avoid duplication with Canvas Type. -->
+      <select id="templatePack" aria-label="Template pack" hidden><option value=""></option></select>
 
       <div class="btn-group icons" role="group" aria-label="Session">
         <button class="btn ico-btn" id="btnSession" title="Session info" aria-label="Session info">
