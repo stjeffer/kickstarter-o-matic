@@ -2049,32 +2049,67 @@ function computeLaneBands(){
   return bands;
 }
 
+// Map category / activity types to a signature color + glyph
+const PROMPT_PALETTE = [
+  {kw:['future','outcome','vision','north star','ambition'], color:'#7a5dff', icon:'✦'},
+  {kw:['discover','research','interview','explore','listen'], color:'#0a84ff', icon:'◎'},
+  {kw:['ideat','brainstorm','divergent','generate','idea'],  color:'#ff9f0a', icon:'✷'},
+  {kw:['strategy','strategic','plan','roadmap','initiative'], color:'#5b3fe0', icon:'△'},
+  {kw:['pain','risk','block','issue','problem'],              color:'#ff3b30', icon:'!'},
+  {kw:['empathy','user','persona','customer','emotion','experience'], color:'#ff6482', icon:'♡'},
+  {kw:['process','workflow','flow','operations','journey'],   color:'#30b0c7', icon:'→'},
+  {kw:['converge','cluster','group','synthes','theme'],       color:'#34c759', icon:'◈'},
+  {kw:['objective','goal','okr'],                              color:'#af52de', icon:'●'},
+  {kw:['decision','choose','select','prioriti'],               color:'#ffb020', icon:'◆'},
+  {kw:['signal','evidence','data','metric','measure'],         color:'#64d2ff', icon:'∿'},
+];
+function promptCategoryStyle(cat){
+  const s = String(cat||'').toLowerCase();
+  for(const p of PROMPT_PALETTE){ if(p.kw.some(k=>s.includes(k))) return p; }
+  return {color:'#7a5dff', icon:'✦'};
+}
+
 function renderPrompts(){
   const el = $('#prompts');
   el.innerHTML='';
   if(!state.prompts.length){
-    el.innerHTML = '<div class="empty" style="padding:0">No prompts loaded. Import JSON or load the sample.</div>';
+    el.innerHTML = '<div class="prompts-empty"><strong>No prompts loaded</strong>Import a session JSON or load the sample to see prompts here.</div>';
     return;
   }
-  state.prompts.forEach(p=>{
+  const list = document.createElement('div');
+  list.className = 'prompts-list';
+  el.appendChild(list);
+  state.prompts.forEach((p,i)=>{
+    const style = promptCategoryStyle(p.category || (p.activity && p.activity.activityType));
     const c = document.createElement('div');
     c.className='prompt-card';
+    c.style.setProperty('--pc', style.color);
     c.draggable=true;
-    const hasBrief = !!p.activity;
+    const cat = p.category || (p.activity && p.activity.activityType) || '';
     c.innerHTML = `
-      ${p.category?`<div class="prompt-cat">${escapeHtml(p.category)}</div>`:''}
+      <div class="prompt-head">
+        ${cat?`<span class="prompt-cat"><span class="dot"></span>${escapeHtml(cat)}</span>`:`<span class="prompt-cat"><span class="dot"></span>Prompt</span>`}
+        <span class="prompt-num">${String(i+1).padStart(2,'0')}</span>
+      </div>
       <div class="prompt-text">${escapeHtml(p.text)}</div>
-      <button class="prompt-info" title="Open in spotlight" aria-label="Open in spotlight">↗</button>
+      <div class="prompt-foot">
+        <span class="prompt-grip" title="Drag onto canvas">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><circle cx="8" cy="6" r="1.6"/><circle cx="8" cy="12" r="1.6"/><circle cx="8" cy="18" r="1.6"/><circle cx="16" cy="6" r="1.6"/><circle cx="16" cy="12" r="1.6"/><circle cx="16" cy="18" r="1.6"/></svg>
+          Drag to canvas
+        </span>
+        <button class="prompt-info" title="Open in spotlight" aria-label="Open in spotlight">
+          Open
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7"/><path d="M8 7h9v9"/></svg>
+        </button>
+      </div>
     `;
     c.addEventListener('dragstart', e=>{
       const dragText = (p.activity && p.activity.prompt) ? p.activity.prompt : p.text;
-      const cat = p.category || (p.activity && p.activity.activityType) || '';
       e.dataTransfer.setData('application/x-prompt', dragText);
       e.dataTransfer.setData('application/x-card-type', 'prompt');
       if(cat) e.dataTransfer.setData('application/x-prompt-category', cat);
       e.dataTransfer.effectAllowed='copy';
     });
-    // Single click → open spotlight for discussion
     c.addEventListener('click', ev=>{
       if(ev.target.closest('.prompt-info')) return;
       openSpotlight(p);
@@ -2085,10 +2120,8 @@ function renderPrompts(){
       info.addEventListener('mousedown', ev=> ev.stopPropagation());
     }
     c.addEventListener('dblclick', ()=> openSpotlight(p));
-
-    el.appendChild(c);
+    list.appendChild(c);
   });
-
 }
 
 function isCardHidden(c){
