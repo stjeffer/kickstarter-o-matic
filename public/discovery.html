@@ -49,7 +49,7 @@
   button, input, select, textarea{font-family:inherit;color:inherit}
 
   /* ===== Layout ===== */
-   .app{display:grid;grid-template-columns:1fr;grid-template-rows:60px min-content minmax(0,1fr);height:100vh;background:var(--bg)}
+   .app{display:grid;grid-template-columns:1fr;grid-template-rows:60px min-content min-content minmax(0,1fr);height:100vh;background:var(--bg)}
    header.topbar{
      grid-column:1 / -1;display:flex;align-items:center;gap:14px;padding:0 18px;
      background:linear-gradient(180deg,rgba(255,255,255,.92),rgba(250,250,252,.86));
@@ -895,6 +895,123 @@
   ::-webkit-scrollbar{width:10px;height:10px}
   ::-webkit-scrollbar-thumb{background:#d2d2d7;border-radius:5px;border:2px solid transparent;background-clip:padding-box}
   ::-webkit-scrollbar-thumb:hover{background:#a1a1a6;background-clip:padding-box;border:2px solid transparent}
+
+  /* ===== Workflow (Frontier action plan) ===== */
+  .world.cluster{ background-color:#f6fbff; background-image:radial-gradient(circle, #dfe6ef 1px, transparent 1px); background-size:24px 24px; }
+  .world.objectives{ background-color:#f7f5ff; background-image:radial-gradient(circle, #e2ddef 1px, transparent 1px); background-size:24px 24px; }
+  .world.initiatives{ background-color:#fff9f2; background-image:radial-gradient(circle, #ecdcc4 1px, transparent 1px); background-size:24px 24px; }
+  .world.plan{
+    background-color:#f4fbf6;
+    background-image:
+      linear-gradient(90deg,
+        transparent calc(33.333% - 1px), rgba(0,0,0,.10) calc(33.333% - 1px) 33.333%, transparent 33.333%,
+        transparent calc(66.666% - 1px), rgba(0,0,0,.10) calc(66.666% - 1px) 66.666%, transparent 66.666%),
+      radial-gradient(circle, #d8e6dc 1px, transparent 1px);
+    background-size:auto,24px 24px;
+  }
+  main.stage[data-canvas="cluster"]{ --ct-accent:#0a84ff; --ct-tint:#eaf3ff; }
+  main.stage[data-canvas="objectives"]{ --ct-accent:#5856d6; --ct-tint:#efeeff; }
+  main.stage[data-canvas="initiatives"]{ --ct-accent:#ff9500; --ct-tint:#fff4e5; }
+  main.stage[data-canvas="plan"]{ --ct-accent:#34c759; --ct-tint:#eaf8ee; }
+
+  /* Group frames sit below cards but above lane bands */
+  .card.group{ z-index:1; }
+  .card.group .card-body{
+    background:rgba(255,255,255,.55);
+    border:2px dashed var(--group-color,#0a84ff);
+    border-radius:14px;
+    padding:34px 14px 14px;
+    box-shadow:none;
+    position:relative;
+  }
+  .card.group .group-head{
+    position:absolute; top:-14px; left:14px;
+    display:inline-flex; align-items:center; gap:8px;
+    padding:4px 12px; border-radius:999px;
+    background:var(--group-color,#0a84ff); color:#fff;
+    font-size:12px; font-weight:600; letter-spacing:.01em;
+    box-shadow:0 4px 12px -4px rgba(0,0,0,.25);
+  }
+  .card.group .group-count{
+    background:rgba(255,255,255,.28); padding:1px 7px; border-radius:999px; font-size:11px;
+  }
+  .card.group .group-resize{
+    position:absolute; right:2px; bottom:2px; width:14px; height:14px; cursor:nwse-resize;
+    background:linear-gradient(135deg, transparent 45%, var(--group-color,#0a84ff) 45% 60%, transparent 60% 70%, var(--group-color,#0a84ff) 70% 85%, transparent 85%);
+    opacity:.55; border-radius:3px;
+  }
+
+  /* Objective card */
+  .card.objective .card-body{
+    width:300px; background:#fff;
+    border:1px solid #d3d0eb; border-left:4px solid #5856d6; border-radius:12px;
+    padding:12px 14px; font-size:13px; color:#1d1d1f;
+    box-shadow:0 6px 20px -10px rgba(88,86,214,.35), var(--shadow-1);
+  }
+  .card.objective .obj-title{ font-weight:600; font-size:14.5px; margin-bottom:6px; }
+  .card.objective .obj-row{ display:flex; gap:6px; margin-top:6px; font-size:11.5px; }
+  .card.objective .obj-lbl{ color:#5856d6; font-weight:600; min-width:64px; }
+  .card.objective .obj-val{ color:#3a3a3c; flex:1; white-space:pre-wrap; }
+  .card.objective .obj-promote{
+    margin-top:10px; display:inline-flex; align-items:center; gap:6px;
+    font-size:11px; color:#5856d6; font-weight:600; cursor:pointer;
+    padding:4px 10px; border-radius:6px; background:#f2f1fb; user-select:none;
+    border:1px solid #d3d0eb;
+  }
+  .card.objective .obj-promote.on{ background:#5856d6; color:#fff; border-color:#5856d6; }
+
+  /* Initiative card */
+  .card.initiative .card-body{
+    width:230px; background:#fff;
+    border:1px solid #f0d9b8; border-top:3px solid #ff9500; border-radius:10px;
+    padding:10px 12px; font-size:12.5px;
+    box-shadow:var(--shadow-1);
+  }
+  .card.initiative .ini-name{ font-weight:600; font-size:13px; margin-bottom:4px; color:#1d1d1f; }
+  .card.initiative .ini-hyp{ color:#6b6b70; font-size:11.5px; margin-bottom:8px; white-space:pre-wrap; }
+  .card.initiative .ini-tags{ display:flex; flex-wrap:wrap; gap:5px; }
+  .card.initiative .ini-tag{
+    font-size:10.5px; padding:2px 8px; border-radius:999px;
+    background:#fff4e2; color:#8a4a00; border:1px solid #f0d9b8;
+  }
+  .card.initiative .ini-tag.owner{ background:#eaf3ff; color:#003a75; border-color:#c9def8; }
+  .card.initiative .ini-tag.impact{ background:#eef8ef; color:#0b5e2a; border-color:#c5e9cc; }
+
+  /* Progress rail */
+  .workflow-rail{
+    display:flex; align-items:center; gap:6px;
+    padding:8px 14px; background:#fff;
+    border-bottom:1px solid var(--line);
+    overflow-x:auto; scrollbar-width:none;
+  }
+  .workflow-rail::-webkit-scrollbar{ display:none; }
+  .workflow-rail .wr-label{
+    font-size:11px; font-weight:600; color:var(--muted);
+    text-transform:uppercase; letter-spacing:.06em; margin-right:6px;
+    white-space:nowrap;
+  }
+  .workflow-rail .wr-step{
+    display:inline-flex; align-items:center; gap:6px;
+    padding:4px 10px; border-radius:999px; border:1px solid var(--line);
+    font-size:12px; color:var(--ink-2); background:#fafafa; cursor:pointer;
+    white-space:nowrap; font-weight:500; transition:all .15s;
+  }
+  .workflow-rail .wr-step:hover{ background:#f0f4fa; border-color:#c9def8; }
+  .workflow-rail .wr-step.active{ background:#0a84ff; color:#fff; border-color:transparent; box-shadow:0 3px 10px -3px rgba(10,132,255,.5); }
+  .workflow-rail .wr-step .wr-num{
+    width:18px; height:18px; border-radius:50%; background:rgba(0,0,0,.06);
+    display:inline-flex; align-items:center; justify-content:center; font-size:11px; font-weight:700;
+  }
+  .workflow-rail .wr-step.active .wr-num{ background:rgba(255,255,255,.28); }
+  .workflow-rail .wr-arrow{ color:var(--muted); font-size:14px; user-select:none; }
+  .workflow-rail .wr-forward{
+    margin-left:auto; padding:6px 14px; border-radius:8px;
+    background:#0a84ff; color:#fff; border:none; cursor:pointer;
+    font-size:12px; font-weight:600; box-shadow:0 3px 10px -3px rgba(10,132,255,.5);
+    white-space:nowrap;
+  }
+  .workflow-rail .wr-forward:hover{ transform:translateY(-1px); }
+  .workflow-rail .wr-forward:disabled{ opacity:.4; cursor:not-allowed; transform:none; }
 </style>
 <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
@@ -956,6 +1073,7 @@
           <option value="empathy">Empathy Map</option>
           <option value="retro">Retrospective</option>
           <option value="backcast">Future-State Backcast</option>
+          <option value="frontier">Frontier Action Plan (5 stages)</option>
         </select>
         <svg class="chev" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
       </div>
@@ -973,6 +1091,7 @@
   </header>
 
   <div class="stage-bar" id="stageBar"></div>
+  <div class="workflow-rail" id="workflowRail" style="display:none"></div>
 
 
 
@@ -987,6 +1106,10 @@
         <option value="hswimlanes">Swimlanes (Process Mapping)</option>
         <option value="backcast">Future-State Backcast</option>
         <option value="usecase">Use Case Ideation</option>
+        <option value="cluster">Cluster & Group</option>
+        <option value="objectives">Objectives</option>
+        <option value="initiatives">Initiatives</option>
+        <option value="plan">Action Plan (Now/Next/Later)</option>
       </select>
     </div>
 
@@ -1235,6 +1358,10 @@ const CARD_TYPES = {
   prompt:     { group:'Prompt',       label:'Prompt',    icon:promptIcon,     defaults:{ text:'Discussion prompt', w:320, h:180 } },
   // Attached only via the pain-point toggle — hidden from palette
   painscore:  { group:'_hidden',      label:'Pain Score', defaults:{ w:230, h:150 } },
+  // Workflow primitives (Frontier action plan)
+  group:      { group:'Workflow',     label:'Group',     icon:groupIcon,     defaults:{ text:'Group name', w:340, h:220, color:'#0a84ff' } },
+  objective:  { group:'Workflow',     label:'Objective', icon:objectiveIcon, defaults:{ text:'Objective title', why:'Why this matters', measure:'How we know it worked', w:300, h:170 } },
+  initiative: { group:'Workflow',     label:'Initiative',icon:initiativeIcon,defaults:{ text:'Initiative name', hypothesis:'We believe … so that …', owner:'Owner', effort:'M', impact:3, horizon:'now', w:230, h:130 } },
 };
 
 function stickyIcon(){return svgTag('<rect x="6" y="4" width="24" height="22" fill="#fff9b1" stroke="#e5c400" transform="rotate(-2 18 15)"/>')}
@@ -1256,6 +1383,9 @@ function handoffIcon(){return svgTag('<polygon points="4,7 26,7 32,15 26,23 4,23
 function exceptionIcon(){return svgTag('<polygon points="12,4 24,4 32,12 32,20 24,28 12,28 4,20 4,12" fill="#fff5f4" stroke="#ff3b30" stroke-width="1.5"/>')}
 function parallelIcon(){return svgTag('<rect x="5" y="9" width="26" height="12" rx="2" fill="#f5f0ff" stroke="#af52de" stroke-width="1.5"/><line x1="7" y1="6" x2="29" y2="6" stroke="#af52de" stroke-width="2" stroke-linecap="round"/><line x1="7" y1="24" x2="29" y2="24" stroke="#af52de" stroke-width="2" stroke-linecap="round"/>')}
 function titleIcon(){return svgTag('<rect x="3" y="7" width="30" height="16" rx="3" fill="#f5f8ff" stroke="#0a84ff" stroke-width="1.3"/><rect x="3" y="7" width="3" height="16" fill="#0a84ff"/><line x1="10" y1="13" x2="28" y2="13" stroke="#1d1d1f" stroke-width="2" stroke-linecap="round"/><line x1="10" y1="18" x2="22" y2="18" stroke="#a4b8d4" stroke-width="1.5" stroke-linecap="round"/>')}
+function groupIcon(){return svgTag('<rect x="4" y="6" width="28" height="18" rx="4" fill="none" stroke="#0a84ff" stroke-width="1.5" stroke-dasharray="3 2"/><rect x="8" y="11" width="6" height="6" rx="1" fill="#0a84ff" opacity=".35"/><rect x="16" y="11" width="6" height="6" rx="1" fill="#0a84ff" opacity=".55"/><rect x="24" y="14" width="5" height="5" rx="1" fill="#0a84ff" opacity=".75"/>')}
+function objectiveIcon(){return svgTag('<rect x="4" y="5" width="28" height="20" rx="3" fill="#fff" stroke="#5856d6" stroke-width="1.3"/><rect x="4" y="5" width="3" height="20" fill="#5856d6"/><line x1="10" y1="11" x2="28" y2="11" stroke="#5856d6" stroke-width="1.8" stroke-linecap="round"/><line x1="10" y1="16" x2="24" y2="16" stroke="#c9c6ea" stroke-width="1.4" stroke-linecap="round"/><line x1="10" y1="20" x2="20" y2="20" stroke="#c9c6ea" stroke-width="1.4" stroke-linecap="round"/>')}
+function initiativeIcon(){return svgTag('<rect x="4" y="7" width="28" height="16" rx="2" fill="#fff" stroke="#ff9500" stroke-width="1.3"/><rect x="4" y="7" width="28" height="3" fill="#ff9500"/><circle cx="10" cy="17" r="2" fill="#ff9500"/><line x1="15" y1="17" x2="28" y2="17" stroke="#f0d9b8" stroke-width="1.4" stroke-linecap="round"/>')}
 function svgTag(inner){return `<svg width="36" height="30" viewBox="0 0 36 30">${inner}</svg>`}
 
 
@@ -1344,6 +1474,7 @@ function renderPalette(){
     {name:'Sticky Notes', short:'Stickies'},
     {name:'Flow Shapes',  short:'Shapes'},
     {name:'Experience',   short:'Experience'},
+    {name:'Workflow',     short:'Workflow'},
     {name:'Prompt',       short:'Prompt'},
   ].filter(t=>groups[t.name]);
 
@@ -1613,6 +1744,42 @@ function computeLaneBands(){
     lanes.slice(0,6).forEach((l,i)=>{bands[i].name=l.name; if(l.color) bands[i].color=l.color});
     return bands;
   }
+  if(ct==='plan'){
+    const headerH = 140;
+    const colW = WORLD_W/3;
+    const bodyY = headerH, bodyH = WORLD_H - headerH;
+    const bands = [
+      {name:'Plan on a Page — Objectives → Initiatives → Horizons', x:0, y:0, w:WORLD_W, h:headerH, color:'#34c759'},
+      {name:'Now (0–3 months)',   x:0*colW, y:bodyY, w:colW, h:bodyH, color:'#34c759', horizon:'now'},
+      {name:'Next (3–6 months)',  x:1*colW, y:bodyY, w:colW, h:bodyH, color:'#ff9500', horizon:'next'},
+      {name:'Later (6–12 months)',x:2*colW, y:bodyY, w:colW, h:bodyH, color:'#0a84ff', horizon:'later'},
+    ];
+    lanes.slice(0,4).forEach((l,i)=>{bands[i].name=l.name; if(l.color) bands[i].color=l.color});
+    return bands;
+  }
+  if(ct==='cluster' || ct==='objectives' || ct==='initiatives'){
+    // Instructive header band only
+    const headerH = 90;
+    const label = ct==='cluster'
+      ? 'Cluster & Group — drop stickies into group frames'
+      : ct==='objectives'
+        ? 'Objectives — turn each group into a clear outcome statement'
+        : 'Initiatives — under each objective, define what we will actually do';
+    const color = ct==='cluster' ? '#0a84ff' : ct==='objectives' ? '#5856d6' : '#ff9500';
+    const bands = [{name:label, x:0, y:0, w:WORLD_W, h:headerH, color}];
+    if(lanes.length){
+      lanes.forEach(ensureLaneDefaults);
+      let vCursor = 0;
+      lanes.forEach(l=>{
+        if(l.orientation==='v'){
+          bands.push({laneId:l.id, orientation:'v', name:l.name, color:l.color,
+                      x:vCursor, y:headerH, w:l.size, h:WORLD_H-headerH});
+          vCursor += l.size;
+        }
+      });
+    }
+    return bands;
+  }
   if(!lanes.length) return [];
   // Per-lane orientation + size layout (used for whiteboard/hswimlanes/vswimlanes/journey)
   lanes.forEach(ensureLaneDefaults);
@@ -1699,7 +1866,7 @@ function buildCardEl(c){
 
   const tools = document.createElement('div');
   tools.className='card-tools';
-  const canBePain = !['prompt','title','painscore'].includes(c.type);
+  const canBePain = !['prompt','title','painscore','group','objective','initiative'].includes(c.type);
   const painBtn = canBePain
     ? `<button data-act="pain" class="pain-toggle${c.painPoint?' on':''}" title="${c.painPoint?'Remove pain point':'Mark as pain point'}">!</button>`
     : '';
@@ -1760,6 +1927,34 @@ function buildCardEl(c){
     body.innerHTML = `${c.category?`<div class="prompt-tag">${escapeHtml(c.category)}</div>`:''}<div class="prompt-text">${escapeHtml(c.text)}</div>`;
     if(c.w) body.style.width = c.w+'px';
     if(c.h) body.style.minHeight = c.h+'px';
+  }else if(c.type==='group'){
+    const color = c.color || '#0a84ff';
+    body.style.setProperty('--group-color', color);
+    const w = c.w || 340, h = c.h || 220;
+    body.style.width = w+'px';
+    body.style.height = h+'px';
+    const memberCount = state.cards.filter(x=> x.groupId===c.id).length;
+    body.innerHTML = `<div class="group-head"><span>${escapeHtml(c.text||'Group')}</span><span class="group-count">${memberCount}</span></div><div class="group-resize" data-group-resize></div>`;
+  }else if(c.type==='objective'){
+    const promoted = !!c.promoted;
+    body.innerHTML = `
+      <div class="obj-title">${escapeHtml(c.text||'Objective')}</div>
+      <div class="obj-row"><span class="obj-lbl">Why</span><span class="obj-val">${escapeHtml(c.why||'—')}</span></div>
+      <div class="obj-row"><span class="obj-lbl">Measure</span><span class="obj-val">${escapeHtml(c.measure||'—')}</span></div>
+      <div class="obj-promote${promoted?' on':''}" data-obj-promote>${promoted?'✓ Promoted to plan':'Promote to plan'}</div>
+    `;
+  }else if(c.type==='initiative'){
+    const eff = c.effort || 'M';
+    const imp = c.impact || 3;
+    body.innerHTML = `
+      <div class="ini-name">${escapeHtml(c.text||'Initiative')}</div>
+      <div class="ini-hyp">${escapeHtml(c.hypothesis||'')}</div>
+      <div class="ini-tags">
+        ${c.owner?`<span class="ini-tag owner">👤 ${escapeHtml(c.owner)}</span>`:''}
+        <span class="ini-tag">Effort ${escapeHtml(eff)}</span>
+        <span class="ini-tag impact">Impact ${imp}/5</span>
+      </div>
+    `;
   }else if(isText){
     body.textContent = c.text;
     body.style.whiteSpace = 'pre-wrap';
@@ -1774,6 +1969,15 @@ function buildCardEl(c){
     handle.className = 'resize-handle';
     handle.addEventListener('mousedown', e=>{ e.stopPropagation(); startResize(c.id, e); });
     el.appendChild(handle);
+  }
+  if(c.type==='group'){
+    const gh = body.querySelector('[data-group-resize]');
+    if(gh) gh.addEventListener('mousedown', e=>{ e.stopPropagation(); startGroupResize(c.id, e); });
+  }
+  if(c.type==='objective'){
+    const p = body.querySelector('[data-obj-promote]');
+    if(p) p.addEventListener('click', e=>{ e.stopPropagation(); c.promoted = !c.promoted; renderCards(); save(); });
+    p && p.addEventListener('mousedown', e=> e.stopPropagation());
   }
 
 
@@ -1886,6 +2090,54 @@ function endResize(){
   window.removeEventListener('mouseup', endResize);
   save();
 }
+
+// Group frame resize (for c.type==='group')
+let groupResizeState=null;
+function startGroupResize(id, e){
+  const c = state.cards.find(x=>x.id===id);
+  if(!c) return;
+  const start = clientToWorld(e.clientX, e.clientY);
+  groupResizeState = {id, startX:start.x, startY:start.y, startW:c.w||340, startH:c.h||220};
+  window.addEventListener('mousemove', onGroupResizeMove);
+  window.addEventListener('mouseup', endGroupResize);
+}
+function onGroupResizeMove(e){
+  if(!groupResizeState) return;
+  const p = clientToWorld(e.clientX, e.clientY);
+  const c = state.cards.find(x=>x.id===groupResizeState.id);
+  if(!c) return;
+  c.w = Math.max(200, Math.round(groupResizeState.startW + (p.x - groupResizeState.startX)));
+  c.h = Math.max(140, Math.round(groupResizeState.startH + (p.y - groupResizeState.startY)));
+  const el = getCardEl(c.id); const body = el && el.querySelector('.card-body');
+  if(body){ body.style.width = c.w+'px'; body.style.height = c.h+'px'; }
+}
+function endGroupResize(){
+  groupResizeState=null;
+  window.removeEventListener('mousemove', onGroupResizeMove);
+  window.removeEventListener('mouseup', endGroupResize);
+  // Recompute membership for all cards after a group resize
+  state.cards.forEach(c=>{ if(c.type!=='group') c.groupId = hitTestGroup(c); });
+  renderCards(); save();
+}
+
+// Return the group id whose frame contains the centre of card c, or null.
+function hitTestGroup(c){
+  const size = getCardSize(c);
+  const cx = c.x + (size.w||160)/2;
+  const cy = c.y + (size.h||80)/2;
+  const groups = state.cards.filter(g=> g.type==='group');
+  // Prefer the smallest containing group (most specific)
+  let best=null, bestArea=Infinity;
+  for(const g of groups){
+    const gw = g.w||340, gh = g.h||220;
+    if(cx>=g.x && cx<=g.x+gw && cy>=g.y && cy<=g.y+gh){
+      const area = gw*gh;
+      if(area < bestArea){ best = g.id; bestArea = area; }
+    }
+  }
+  return best;
+}
+
 
 // ============ Interaction ============
 let dragState=null, panState=null, connectState=null, toolMode='select';
@@ -2045,7 +2297,14 @@ function startDrag(id, e){
     document.removeEventListener('mousemove',move);
     document.removeEventListener('mouseup',up);
     const e2 = getCardEl(id); e2 && e2.classList.remove('dragging');
-    dragState=null; save();
+    dragState=null;
+    // Group hit-testing (Cluster canvas): assign this card to a group frame beneath it.
+    if(c.type !== 'group'){
+      const prev = c.groupId;
+      c.groupId = hitTestGroup(c);
+      if(c.groupId !== prev){ renderCards(); }
+    }
+    save();
   };
   document.addEventListener('mousemove',move);
   document.addEventListener('mouseup',up);
@@ -2253,6 +2512,10 @@ const CANVAS_META = {
   mindmap:     { label:'Mind Map'              },
   backcast:    { label:'Future-State Backcast' },
   usecase:     { label:'Use Case Ideation'     },
+  cluster:     { label:'Cluster & Group'       },
+  objectives:  { label:'Objectives'            },
+  initiatives: { label:'Initiatives'           },
+  plan:        { label:'Action Plan'           },
 };
 function applyCanvasTheme(){
   const ct = state.canvasType || 'whiteboard';
@@ -2301,6 +2564,7 @@ $('#btnClear').addEventListener('click', ()=>{
 const SMART_EXPORT = {
   whiteboard:'png', mindmap:'png', matrix2x2:'png', journey:'pdf', empathy:'pdf',
   hswimlanes:'pdf', vswimlanes:'pdf', raci:'docx', strategy:'docx', backcast:'docx', usecase:'docx',
+  cluster:'png', objectives:'docx', initiatives:'docx', plan:'docx',
 };
 const EXPORT_LABELS = { png:'PNG snapshot', pdf:'PDF structured report', docx:'Word (.docx) report', json:'JSON session data' };
 
@@ -2678,7 +2942,121 @@ function renameStage(idx){
   renderStageBar(); save();
 }
 
+const WORKFLOW_STAGES = [
+  {kind:'future',      short:'1. Future',      label:'Envision the future state'},
+  {kind:'cluster',     short:'2. Cluster',     label:'Group related ideas'},
+  {kind:'objectives',  short:'3. Objectives',  label:'Form objectives from groups'},
+  {kind:'initiatives', short:'4. Initiatives', label:'Define initiatives per objective'},
+  {kind:'plan',        short:'5. Plan',        label:'Sequence on a page'},
+];
+function renderWorkflowRail(){
+  const rail = $('#workflowRail');
+  if(!rail) return;
+  const stages = state.session?.stages || [];
+  const hasWorkflow = stages.some(t=>t.stageKind);
+  if(!hasWorkflow){ rail.style.display='none'; rail.innerHTML=''; return; }
+  rail.style.display = 'flex';
+  const activeIdx = state.session.activeIndex;
+  const activeKind = stages[activeIdx]?.stageKind;
+
+  const parts = [`<span class="wr-label">Frontier action plan</span>`];
+  WORKFLOW_STAGES.forEach((st, i)=>{
+    const idx = stages.findIndex(t=>t.stageKind===st.kind);
+    if(idx<0) return;
+    const cls = 'wr-step' + (activeKind===st.kind?' active':'');
+    parts.push(`<button class="${cls}" data-goto-idx="${idx}" title="${escapeHtml(st.label)}"><span class="wr-num">${i+1}</span>${escapeHtml(st.short.replace(/^\d+\.\s*/,''))}</button>`);
+    if(i<WORKFLOW_STAGES.length-1) parts.push(`<span class="wr-arrow">→</span>`);
+  });
+  const nextIdx = WORKFLOW_STAGES.findIndex(s=>s.kind===activeKind);
+  const nextStage = nextIdx>=0 ? WORKFLOW_STAGES[nextIdx+1] : null;
+  const nextStageIdx = nextStage ? stages.findIndex(t=>t.stageKind===nextStage.kind) : -1;
+  const btnLabel = nextStageIdx>=0 ? `Send forward → ${nextStage.short.replace(/^\d+\.\s*/,'')}` : (activeKind?'End of flow':'');
+  parts.push(`<button class="wr-forward" data-send-forward ${nextStageIdx>=0?'':'disabled'}>${escapeHtml(btnLabel)}</button>`);
+  rail.innerHTML = parts.join('');
+
+  rail.querySelectorAll('[data-goto-idx]').forEach(b=>{
+    b.addEventListener('click', ()=>{ switchStage(parseInt(b.dataset.gotoIdx,10)); });
+  });
+  const fwd = rail.querySelector('[data-send-forward]');
+  if(fwd && nextStageIdx>=0){
+    fwd.addEventListener('click', ()=> sendForward(activeKind, nextStage.kind));
+  }
+}
+
+function sendForward(fromKind, toKind){
+  if(!state.session) return;
+  persistCurrentStage();
+  const stages = state.session.stages;
+  const fromIdx = stages.findIndex(t=>t.stageKind===fromKind);
+  const toIdx   = stages.findIndex(t=>t.stageKind===toKind);
+  if(fromIdx<0 || toIdx<0) return;
+  const fromTab = stages[fromIdx];
+  const toTab   = stages[toIdx];
+
+  if(fromKind==='cluster' && toKind==='objectives'){
+    const groups = (fromTab.cards||[]).filter(c=>c.type==='group');
+    const seeds = groups.map((g,i)=>{
+      const members = (fromTab.cards||[]).filter(c=>c.groupId===g.id && c.type!=='group');
+      const summary = members.slice(0,4).map(m=> (m.text||'').replace(/\s+/g,' ').slice(0,60)).filter(Boolean).join(' · ');
+      return {
+        id: uid(), type:'objective',
+        x: 80 + (i%3)*340, y: 160 + Math.floor(i/3)*220,
+        text: g.text || ('Objective '+(i+1)),
+        why: summary || 'Derived from clustered ideas',
+        measure: 'TBD — define a success measure',
+      };
+    });
+    if(!seeds.length){ alert('No group frames with members yet. Drop stickies into a Group frame on the Cluster canvas first.'); return; }
+    toTab.cards = (toTab.cards||[]).concat(seeds);
+    switchStage(toIdx);
+    return;
+  }
+  if(fromKind==='objectives' && toKind==='initiatives'){
+    const objectives = (fromTab.cards||[]).filter(c=>c.type==='objective');
+    if(!objectives.length){ alert('No objectives to send forward.'); return; }
+    const rows = objectives.map((o,i)=>({
+      id: uid(), type:'objective',
+      x: 60, y: 120 + i*220,
+      text: o.text, why:o.why, measure:o.measure, promoted:true,
+    }));
+    const inis = objectives.map((o,i)=>({
+      id: uid(), type:'initiative',
+      x: 420, y: 120 + i*220,
+      text: 'Initiative for: '+ (o.text||''),
+      hypothesis:'We believe … so that …',
+      owner:'', effort:'M', impact:3, horizon:'now',
+      objectiveId: o.id,
+    }));
+    toTab.cards = (toTab.cards||[]).concat(rows, inis);
+    switchStage(toIdx);
+    return;
+  }
+  if(fromKind==='initiatives' && toKind==='plan'){
+    const inis = (fromTab.cards||[]).filter(c=>c.type==='initiative');
+    if(!inis.length){ alert('No initiatives to send forward.'); return; }
+    const colW = 540;
+    const byHorizon = {now:0, next:1, later:2};
+    const counters = {now:0, next:0, later:0};
+    const seeds = inis.map(i=>{
+      const h = ['now','next','later'].includes(i.horizon) ? i.horizon : 'now';
+      const col = byHorizon[h];
+      const row = counters[h]++;
+      return {
+        id: uid(), type:'initiative',
+        x: 60 + col*colW, y: 180 + row*160,
+        text:i.text, hypothesis:i.hypothesis, owner:i.owner,
+        effort:i.effort, impact:i.impact, horizon:h,
+      };
+    });
+    toTab.cards = (toTab.cards||[]).concat(seeds);
+    switchStage(toIdx);
+    return;
+  }
+  switchStage(toIdx);
+}
+
 function renderStageBar(){
+  renderWorkflowRail();
   const bar = $('#stageBar');
   bar.classList.add('open');
   bar.innerHTML = '';
@@ -3285,12 +3663,89 @@ const TEMPLATE_PACKS = {
     view:{x:20,y:20,scale:.45},
   }),
 
+  frontier: () => ({
+    multi:true,
+    session:{
+      title:'Frontier Action Plan',
+      customer:'', date:new Date().toISOString().slice(0,10),
+      sessionType:'Strategy workshop',
+      description:'Diverge on the future, cluster ideas, form objectives, define initiatives, then sequence a plan on a page.',
+    },
+    stages:[
+      {
+        name:'1. Future', stageKind:'future', canvasType:'backcast',
+        description:'Envision the future state and work back to what has to be true.',
+        lanes:[], prompts:[
+          {id:'fp1', category:'Future', text:'A year from now, what does success look like? What is different?', notes:'Encourage bold, specific statements. Multiple ideas welcome — no need to reconcile yet.'},
+          {id:'fp2', category:'Signals',text:'What signals or evidence would prove we\'re there?', notes:'Prompts observable outcomes rather than activity.'},
+        ],
+        cards:[
+          {id:'ft_title', type:'title', x:800, y:60, text:'Frontier Action Plan', subtitle:'Stage 1 — Envision the future state'},
+        ],
+        connections:[], view:{x:20,y:20,scale:.5},
+      },
+      {
+        name:'2. Cluster', stageKind:'cluster', canvasType:'cluster',
+        description:'Group related ideas. Drag stickies into a Group frame to associate them.',
+        lanes:[], prompts:[
+          {id:'cp1', category:'Cluster', text:'What themes emerge across the future-state ideas?', notes:'Aim for 3–6 groups. Name each group in a short verb phrase.'},
+        ],
+        cards:[
+          {id:'cl_g1', type:'group', x:120,  y:160, text:'Theme A', color:'#0a84ff', w:360, h:260},
+          {id:'cl_g2', type:'group', x:520,  y:160, text:'Theme B', color:'#5856d6', w:360, h:260},
+          {id:'cl_g3', type:'group', x:920,  y:160, text:'Theme C', color:'#ff9500', w:360, h:260},
+        ],
+        connections:[], view:{x:20,y:20,scale:.7},
+      },
+      {
+        name:'3. Objectives', stageKind:'objectives', canvasType:'objectives',
+        description:'Turn each group into a clear outcome statement with a measure.',
+        lanes:[], prompts:[
+          {id:'op1', category:'Objectives', text:'For each group, what outcome do we commit to? How will we know?', notes:'Format: verb + outcome + measure. Promote the ones that make the plan.'},
+        ],
+        cards:[], connections:[], view:{x:20,y:20,scale:.7},
+      },
+      {
+        name:'4. Initiatives', stageKind:'initiatives', canvasType:'initiatives',
+        description:'Under each promoted objective, define initiatives that move the needle.',
+        lanes:[], prompts:[
+          {id:'ip1', category:'Initiatives', text:'What are the 2–4 initiatives that most credibly deliver each objective?', notes:'Capture owner, effort (S/M/L), impact (1–5) and horizon (now/next/later).'},
+        ],
+        cards:[], connections:[], view:{x:20,y:20,scale:.7},
+      },
+      {
+        name:'5. Plan', stageKind:'plan', canvasType:'plan',
+        description:'Sequence the initiatives across Now / Next / Later.',
+        lanes:[], prompts:[
+          {id:'pp1', category:'Plan', text:'What must we start now to unlock next and later?', notes:'Highlight dependencies. Anything without an owner is a wish, not a plan.'},
+        ],
+        cards:[
+          {id:'pl_title', type:'title', x:600, y:20, text:'Plan on a Page', subtitle:'Now · Next · Later'},
+        ],
+        connections:[], view:{x:20,y:20,scale:.5},
+      },
+    ],
+  }),
 };
 
 function applyTemplate(key){
   const build = TEMPLATE_PACKS[key];
   if(!build) return;
   const t = build();
+  if(t.multi){
+    // Multi-stage template — build a full session
+    state.session = {
+      title: t.session?.title || 'Session',
+      customer: t.session?.customer || '',
+      date: t.session?.date || '',
+      sessionType: t.session?.sessionType || '',
+      description: t.session?.description || '',
+      stages: t.stages,
+      activeIndex: 0,
+    };
+    loadStage(0);
+    return;
+  }
   state.canvasType = t.canvasType || 'whiteboard';
   state.lanes = t.lanes || [];
   state.prompts = t.prompts || [];
