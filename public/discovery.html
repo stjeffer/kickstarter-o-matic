@@ -4608,11 +4608,11 @@ const LS_SAMPLE_JSON = {
   const searchEl = $('#lsSearch');
   const importBox = $('#lsImport');
   const importToggle = $('#lsImportToggle');
-  let currentCat = 'all';
+  let currentCat = 'featured';
   let lsSelected = null;
   const launchBtn = $('#lsLaunch');
 
-  tabsEl.innerHTML = LS_CATS.map(c=>`<button class="ls-tab ${c.key==='all'?'active':''}" data-cat="${c.key}" type="button">${c.label}</button>`).join('');
+  tabsEl.innerHTML = LS_CATS.map(c=>`<button class="ls-tab ${c.key===currentCat?'active':''}" data-cat="${c.key}" type="button">${c.label}</button>`).join('');
   tabsEl.querySelectorAll('.ls-tab').forEach(b=>b.addEventListener('click', ()=>{
     tabsEl.querySelectorAll('.ls-tab').forEach(x=>x.classList.remove('active'));
     b.classList.add('active');
@@ -4620,6 +4620,7 @@ const LS_SAMPLE_JSON = {
     sectionTitle.textContent = LS_CATS.find(c=>c.key===currentCat).label;
     renderGrid();
   }));
+  sectionTitle.textContent = LS_CATS.find(c=>c.key===currentCat).label;
 
   function updateLaunchBtn(){
     if(!lsSelected){ launchBtn.disabled = true; launchBtn.textContent = 'Select a canvas →'; return; }
@@ -4630,19 +4631,27 @@ const LS_SAMPLE_JSON = {
   function renderGrid(){
     const q = (searchEl.value||'').trim().toLowerCase();
     const list = LS_MODES.filter(m=>{
-      if(currentCat!=='all' && m.cat!==currentCat) return false;
+      if(currentCat==='featured' && !LS_FEATURED_KEYS.includes(m.key)) return false;
+      if(currentCat!=='featured' && currentCat!=='all' && m.cat!==currentCat) return false;
       if(q && !(m.title.toLowerCase().includes(q) || m.desc.toLowerCase().includes(q))) return false;
       return true;
     });
     countEl.textContent = `${list.length} option${list.length===1?'':'s'}`;
-    grid.innerHTML = list.map(m=>`
+    grid.innerHTML = list.map(m=>{
+      const kindBadge = m.kind==='template'
+        ? `<span class="badge template">Template</span>`
+        : `<span class="badge canvas">Canvas type</span>`;
+      const extra = m.badge ? `<span class="badge ${m.badgeKind||''}">${m.badge}</span>` : '';
+      return `
       <button class="ls-card ${m.key===lsSelected?'selected':''}" data-key="${m.key}" type="button">
         <span class="preview">${previewFor(m.key, m.ct)}</span>
         <span class="meta">
-          <h4>${m.title}${m.badge?`<span class="badge">${m.badge}</span>`:''}</h4>
+          <span class="kind-row">${kindBadge}${extra}</span>
+          <h4>${m.title}</h4>
           <p>${m.desc}</p>
         </span>
-      </button>`).join('');
+      </button>`;
+    }).join('');
     grid.querySelectorAll('.ls-card').forEach(b=>{
       b.addEventListener('click', ()=>{
         grid.querySelectorAll('.ls-card').forEach(x=>x.classList.remove('selected'));
