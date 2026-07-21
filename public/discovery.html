@@ -1018,9 +1018,99 @@
 <script src="https://unpkg.com/docx@8.5.0/build/index.umd.js"></script>
 </head>
 <body>
+<style>
+  #launchScreen{position:fixed;inset:0;z-index:9999;display:none;overflow:auto;
+    background:
+      radial-gradient(1200px 700px at 12% -10%, rgba(10,132,255,.18), transparent 60%),
+      radial-gradient(900px 600px at 100% 10%, rgba(175,82,222,.16), transparent 60%),
+      radial-gradient(900px 700px at 50% 120%, rgba(52,199,89,.12), transparent 60%),
+      linear-gradient(180deg,#fafbff 0%,#eef1f8 100%);
+    font-family:'Segoe UI','Inter',-apple-system,BlinkMacSystemFont,sans-serif;
+    color:#0b1220;
+    animation: launchIn .5s ease both;
+  }
+  #launchScreen.open{display:block}
+  @keyframes launchIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  .ls-wrap{max-width:1180px;margin:0 auto;padding:56px 40px 80px}
+  .ls-hero{display:flex;flex-direction:column;gap:14px;margin-bottom:36px}
+  .ls-eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:12px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:#4b5b7a}
+  .ls-eyebrow .dot{width:8px;height:8px;border-radius:50%;background:linear-gradient(135deg,#0a84ff,#af52de);box-shadow:0 0 0 4px rgba(10,132,255,.15)}
+  .ls-title{font-family:'Segoe UI Semibold','Segoe UI',sans-serif;font-weight:600;font-size:56px;line-height:1.02;letter-spacing:-.02em;margin:0;
+    background:linear-gradient(135deg,#0b1220 0%,#3b4a6b 60%,#0a84ff 120%);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .ls-sub{max-width:640px;color:#4b5b7a;font-size:16px;line-height:1.55;margin:0}
+  .ls-grid{display:grid;grid-template-columns:1.35fr 1fr;gap:28px;align-items:start}
+  @media(max-width:960px){.ls-grid{grid-template-columns:1fr}}
+  .ls-section-h{display:flex;align-items:baseline;justify-content:space-between;margin:0 0 14px}
+  .ls-section-h h3{margin:0;font-size:13px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:#6b7896}
+  .ls-section-h .hint{font-size:12px;color:#8a95ad}
+  .ls-modes{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+  .ls-mode{position:relative;text-align:left;background:rgba(255,255,255,.72);backdrop-filter:blur(20px) saturate(1.4);
+    border:1px solid rgba(15,25,45,.08);border-radius:18px;padding:18px 18px 16px;cursor:pointer;
+    transition:transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+    box-shadow:0 1px 0 rgba(255,255,255,.9) inset, 0 6px 20px -12px rgba(15,25,45,.18);
+    overflow:hidden}
+  .ls-mode:hover{transform:translateY(-2px);border-color:rgba(10,132,255,.35);box-shadow:0 12px 32px -14px rgba(10,132,255,.35),0 1px 0 rgba(255,255,255,.9) inset}
+  .ls-mode:focus-visible{outline:2px solid #0a84ff;outline-offset:2px}
+  .ls-mode .glow{position:absolute;inset:auto -30% -60% auto;width:220px;height:220px;border-radius:50%;filter:blur(40px);opacity:.35;pointer-events:none}
+  .ls-mode .ico{width:38px;height:38px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:18px;color:#fff;margin-bottom:12px;box-shadow:0 8px 18px -8px rgba(15,25,45,.35)}
+  .ls-mode h4{margin:0 0 4px;font-size:15.5px;font-weight:600;letter-spacing:-.01em;color:#0b1220}
+  .ls-mode p{margin:0;font-size:12.5px;line-height:1.5;color:#5a6784}
+  .ls-mode .tag{position:absolute;top:14px;right:14px;font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#0a84ff;background:rgba(10,132,255,.10);padding:3px 8px;border-radius:999px}
+  .ls-mode.blank{background:rgba(255,255,255,.55);border-style:dashed}
+
+  .ls-import{background:rgba(255,255,255,.72);backdrop-filter:blur(20px) saturate(1.4);
+    border:1px solid rgba(15,25,45,.08);border-radius:20px;padding:20px;
+    box-shadow:0 1px 0 rgba(255,255,255,.9) inset, 0 10px 30px -18px rgba(15,25,45,.25);
+    position:sticky;top:24px}
+  .ls-import h3{margin:0 0 6px;font-size:15px;font-weight:600;color:#0b1220;letter-spacing:-.01em}
+  .ls-import p{margin:0 0 12px;font-size:12.5px;color:#5a6784;line-height:1.5}
+  .ls-import textarea{width:100%;min-height:220px;resize:vertical;border-radius:12px;border:1px solid rgba(15,25,45,.12);
+    background:#fbfcff;padding:12px;font-family:'JetBrains Mono',ui-monospace,monospace;font-size:12px;line-height:1.5;color:#0b1220;
+    box-shadow:inset 0 1px 2px rgba(15,25,45,.05)}
+  .ls-import textarea:focus{outline:none;border-color:#0a84ff;box-shadow:0 0 0 4px rgba(10,132,255,.15)}
+  .ls-import .row{display:flex;gap:8px;margin-top:12px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+  .ls-btn{appearance:none;border:none;cursor:pointer;font-family:inherit;font-size:13px;font-weight:600;letter-spacing:.01em;
+    padding:10px 16px;border-radius:11px;transition:transform .12s ease, box-shadow .12s ease, background .12s ease;color:#fff;
+    background:linear-gradient(135deg,#0a84ff,#5e5ce6);box-shadow:0 8px 20px -8px rgba(10,132,255,.55)}
+  .ls-btn:hover{transform:translateY(-1px);box-shadow:0 12px 28px -10px rgba(10,132,255,.65)}
+  .ls-btn.ghost{background:transparent;color:#4b5b7a;box-shadow:none;border:1px solid rgba(15,25,45,.1)}
+  .ls-btn.ghost:hover{background:rgba(15,25,45,.04)}
+  .ls-err{color:#c0392b;font-size:12px;margin-top:8px;min-height:14px}
+  .ls-foot{display:flex;justify-content:space-between;align-items:center;margin-top:28px;color:#7683a0;font-size:12px}
+  .ls-foot a{color:#0a84ff;text-decoration:none;cursor:pointer}
+</style>
+<section id="launchScreen" aria-hidden="true">
+  <div class="ls-wrap">
+    <div class="ls-hero">
+      <span class="ls-eyebrow"><span class="dot"></span>Discovery Canvas</span>
+      <h1 class="ls-title">Start a session your team will remember.</h1>
+      <p class="ls-sub">Choose a facilitated mode to pre-load the right canvas, prompts and lanes — or paste a session JSON to run something bespoke. Everything auto-saves in your browser.</p>
+    </div>
+    <div class="ls-grid">
+      <div>
+        <div class="ls-section-h"><h3>Choose a mode</h3><span class="hint">Click a card to launch</span></div>
+        <div class="ls-modes" id="lsModes"></div>
+      </div>
+      <aside class="ls-import">
+        <h3>Import a session</h3>
+        <p>Paste a single-canvas config or a multi-stage session JSON. Recognised keys: <code>stages</code>, <code>canvasType</code>, <code>lanes</code>, <code>prompts</code>, <code>cards</code>.</p>
+        <textarea id="lsImportText" placeholder='{ "title": "Discovery with BBC", "stages": [ ... ] }' spellcheck="false"></textarea>
+        <div class="ls-err" id="lsImportErr"></div>
+        <div class="row">
+          <button class="ls-btn ghost" id="lsPasteSample" type="button">Paste sample</button>
+          <button class="ls-btn" id="lsImportGo" type="button">Import & launch →</button>
+        </div>
+      </aside>
+    </div>
+    <div class="ls-foot">
+      <span>Tip: press <kbd>Esc</kbd> or click Home in the toolbar to return here anytime.</span>
+      <a id="lsSkip">Skip — open blank canvas</a>
+    </div>
+  </div>
+</section>
 <div class="app">
   <header class="topbar">
-    <div class="brand"><div class="logo"></div><span>Discovery Canvas</span></div>
+    <div class="brand"><div class="logo"></div><span>Discovery Canvas</span><button class="btn ico-btn" id="btnHome" title="Back to launcher" aria-label="Launcher" style="margin-left:10px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12l9-9 9 9"/><path d="M5 10v10h5v-6h4v6h5V10"/></svg></button></div>
 
     <div class="btn-group icons" role="group" aria-label="Panels" style="margin-left:6px">
       <button class="btn ico-btn" id="btnTogglePalette" title="Toggle palette (P)" aria-label="Toggle palette">
@@ -4337,8 +4427,98 @@ function renderAll(){
 })();
 
 
+// ============ Launch Screen ============
+const LS_MODES = [
+  {key:'frontier', title:'Frontier Action Plan', desc:'5-stage arc — future state, cluster, objectives, initiatives, plan.', icon:'🧭', grad:'linear-gradient(135deg,#0a84ff,#5e5ce6)', tag:'Multi-stage'},
+  {key:'backcast', title:'Future-State Backcast', desc:'Right-to-left "what had to be true" — perfect for responsible AI.', icon:'🌌', grad:'linear-gradient(135deg,#af52de,#ff375f)'},
+  {key:'ideation', title:'Ideation / Brainstorm', desc:'Diverge fast with colour-coded stickies and rich prompts.', icon:'💡', grad:'linear-gradient(135deg,#ffb703,#fb5607)'},
+  {key:'process',  title:'Process Mapping',      desc:'Swimlanes, decisions, delays and handoffs — end-to-end flow.', icon:'🔀', grad:'linear-gradient(135deg,#0091ad,#34c759)'},
+  {key:'experience', title:'Experience Mapping', desc:'Journey stages with emotions, pains and gains along the way.', icon:'🎭', grad:'linear-gradient(135deg,#ff6b6b,#ff9500)'},
+  {key:'empathy',  title:'Empathy Map',          desc:'Says / thinks / does / feels — build shared user understanding.', icon:'🫶', grad:'linear-gradient(135deg,#ff375f,#af52de)'},
+  {key:'retro',    title:'Retrospective',        desc:'What went well, what didn\'t, actions — for team rituals.', icon:'🔁', grad:'linear-gradient(135deg,#34c759,#0a84ff)'},
+  {key:'sample',   title:'Discovery Sample',     desc:'A fully-populated example to explore the canvas capabilities.', icon:'✨', grad:'linear-gradient(135deg,#5e5ce6,#0a84ff)'},
+  {key:'__blank',  title:'Blank canvas',         desc:'Start from an empty freestyle canvas and build it up yourself.', icon:'＋', grad:'linear-gradient(135deg,#8a95ad,#4b5b7a)', blank:true},
+];
+const LS_SAMPLE_JSON = {
+  title:'Discovery with BBC', customer:'BBC', sessionType:'Strategy Discovery',
+  description:'Frontier action plan for responsible AI in newsroom workflows.',
+  stages:[
+    {name:'Future state', canvasType:'backcast', activityType:'backcast',
+     groupings:[{name:'Future Outcome', color:'#af52de'},{name:'What Had To Be True', color:'#0a84ff'},{name:'Signals', color:'#34c759'}],
+     activities:[{type:'prompt', category:'Future Outcome', text:'What does success look like in 3 years?'}]},
+    {name:'Cluster', canvasType:'cluster'},
+    {name:'Objectives', canvasType:'objectives'},
+    {name:'Initiatives', canvasType:'initiatives'},
+    {name:'Plan', canvasType:'plan'}
+  ]
+};
+(function initLauncher(){
+  const scr = $('#launchScreen');
+  const grid = $('#lsModes');
+  grid.innerHTML = LS_MODES.map(m=>`
+    <button class="ls-mode ${m.blank?'blank':''}" data-key="${m.key}" type="button">
+      <span class="glow" style="background:${m.grad}"></span>
+      ${m.tag?`<span class="tag">${m.tag}</span>`:''}
+      <span class="ico" style="background:${m.grad}">${m.icon}</span>
+      <h4>${m.title}</h4>
+      <p>${m.desc}</p>
+    </button>`).join('');
+  grid.querySelectorAll('.ls-mode').forEach(b=>{
+    b.addEventListener('click', ()=>{
+      const k = b.dataset.key;
+      if(k==='__blank'){
+        state.session=null; state.canvasType='whiteboard';
+        state.lanes=[]; state.prompts=[]; state.cards=[]; state.connections=[];
+        state.view={x:40,y:40,scale:1};
+        $('#canvasType').value=state.canvasType;
+        renderAll(); save();
+      } else {
+        applyTemplate(k);
+      }
+      closeLauncher();
+    });
+  });
+  $('#lsSkip').addEventListener('click', ()=>{
+    state.session=null; state.canvasType='whiteboard';
+    state.lanes=[]; state.prompts=[]; state.cards=[]; state.connections=[];
+    $('#canvasType').value=state.canvasType; renderAll(); save();
+    closeLauncher();
+  });
+  $('#lsPasteSample').addEventListener('click', ()=>{
+    $('#lsImportText').value = JSON.stringify(LS_SAMPLE_JSON, null, 2);
+    $('#lsImportErr').textContent='';
+  });
+  $('#lsImportGo').addEventListener('click', ()=>{
+    const err = $('#lsImportErr'); err.textContent='';
+    const raw = $('#lsImportText').value.trim();
+    if(!raw){ err.textContent='Paste some JSON first — or pick a mode on the left.'; return; }
+    try{
+      const data = JSON.parse(raw);
+      if(Array.isArray(data.stages)) loadSessionFromSchema(data);
+      else{
+        state.session=null;
+        if(data.canvasType) state.canvasType=data.canvasType;
+        state.lanes = Array.isArray(data.lanes)?data.lanes:[];
+        state.prompts = Array.isArray(data.prompts)?data.prompts:[];
+        state.cards = Array.isArray(data.cards)?data.cards:[];
+        state.connections = Array.isArray(data.connections)?data.connections:[];
+      }
+      $('#canvasType').value = state.canvasType;
+      renderAll(); save();
+      closeLauncher();
+    }catch(e){ err.textContent='Invalid JSON: '+e.message; }
+  });
+  $('#btnHome').addEventListener('click', openLauncher);
+  document.addEventListener('keydown', e=>{
+    if(e.key==='Escape' && scr.classList.contains('open')) closeLauncher();
+  });
+})();
+function openLauncher(){ $('#launchScreen').classList.add('open'); $('#launchScreen').setAttribute('aria-hidden','false'); }
+function closeLauncher(){ $('#launchScreen').classList.remove('open'); $('#launchScreen').setAttribute('aria-hidden','true'); }
+
 if(!load()){
-  loadSample();
+  openLauncher();
+  renderAll();
 }else{
   $('#canvasType').value = state.canvasType;
   renderAll();
