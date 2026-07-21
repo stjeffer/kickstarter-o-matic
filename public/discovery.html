@@ -1088,17 +1088,17 @@
     </div>
     <div class="ls-grid">
       <div>
-        <div class="ls-section-h"><h3>Choose a mode</h3><span class="hint">Click a card to launch</span></div>
+        <div class="ls-section-h"><h3><span class="ls-step">1</span> Choose a mode</h3><span class="hint" id="lsPickedHint">Pick one to continue</span></div>
         <div class="ls-modes" id="lsModes"></div>
       </div>
       <aside class="ls-import">
-        <h3>Import a session</h3>
-        <p>Paste a single-canvas config or a multi-stage session JSON. Recognised keys: <code>stages</code>, <code>canvasType</code>, <code>lanes</code>, <code>prompts</code>, <code>cards</code>.</p>
+        <h3><span class="ls-step">2</span> Import a session <span class="ls-optional">optional</span></h3>
+        <p>Paste a single-canvas config or multi-stage session JSON to overlay on the selected mode. Leave blank to launch the mode as-is.</p>
         <textarea id="lsImportText" placeholder='{ "title": "Discovery with BBC", "stages": [ ... ] }' spellcheck="false"></textarea>
         <div class="ls-err" id="lsImportErr"></div>
         <div class="row">
           <button class="ls-btn ghost" id="lsPasteSample" type="button">Paste sample</button>
-          <button class="ls-btn" id="lsImportGo" type="button">Import & launch →</button>
+          <button class="ls-btn" id="lsLaunch" type="button" disabled>Select a mode →</button>
         </div>
       </aside>
     </div>
