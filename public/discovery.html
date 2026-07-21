@@ -51,36 +51,40 @@
   /* ===== Layout ===== */
    .app{display:grid;grid-template-columns:1fr;grid-template-rows:60px min-content min-content minmax(0,1fr);height:100vh;background:var(--bg)}
    header.topbar{
-     grid-column:1 / -1;display:flex;align-items:center;gap:14px;padding:0 18px;
-     background:linear-gradient(180deg,rgba(255,255,255,.92),rgba(250,250,252,.86));
-     backdrop-filter:saturate(180%) blur(20px);
-     border-bottom:1px solid var(--line);z-index:20;
-     box-shadow:0 1px 0 rgba(255,255,255,.6) inset, 0 1px 2px rgba(0,0,0,.02);
+     grid-column:1 / -1;display:flex;align-items:center;gap:12px;padding:0 20px;
+     background:
+       linear-gradient(180deg,rgba(255,255,255,.86),rgba(251,250,255,.82)),
+       radial-gradient(700px 200px at 0% 0%,#efe8ff 0%,transparent 60%),
+       radial-gradient(700px 200px at 100% 0%,#ffe6f0 0%,transparent 60%);
+     backdrop-filter:saturate(180%) blur(22px);
+     -webkit-backdrop-filter:saturate(180%) blur(22px);
+     border-bottom:1px solid rgba(90,70,150,.10);z-index:20;
+     box-shadow:0 1px 0 rgba(255,255,255,.7) inset;
    }
-   .brand{display:flex;align-items:center;gap:11px;font-family:var(--font-heading);font-weight:600;font-size:16px;letter-spacing:-.01em;color:var(--ink);}
-   .brand .logo{box-shadow:inset 0 0 0 1px rgba(255,255,255,.45),0 2px 8px rgba(10,132,255,.25)}
-   .logo{width:24px;height:24px;border-radius:7px;background:conic-gradient(from 210deg,#0a84ff,#5ac8fa,#af52de,#0a84ff);box-shadow:inset 0 0 0 1px rgba(255,255,255,.4)}
+   .brand{display:flex;align-items:center;gap:11px;font-family:'Segoe UI Semibold','Segoe UI',var(--font-heading);font-weight:600;font-size:15px;letter-spacing:-.005em;color:#2a2540;}
+   .brand .logo{box-shadow:0 4px 12px -4px rgba(120,90,200,.4), inset 0 0 0 1px rgba(255,255,255,.5)}
+   .logo{width:26px;height:26px;border-radius:9px;background:conic-gradient(from 210deg,#c7b8ff,#ffc9df,#bfe4ff,#c7f5da,#c7b8ff)}
    .top-actions{margin-left:auto;display:flex;gap:8px;align-items:center}
-   .btn-group{display:inline-flex;align-items:center;background:#fff;border:1px solid var(--line-2);border-radius:10px;padding:3px;gap:2px;box-shadow:var(--shadow-1)}
-   .btn-group .btn{border:0;box-shadow:none;background:transparent;border-radius:7px;padding:6px 11px;font-weight:600;color:var(--ink-2)}
-   .btn-group .btn:hover{background:#f0f1f4;color:var(--ink)}
+   .btn-group{display:inline-flex;align-items:center;background:rgba(255,255,255,.72);border:1px solid rgba(90,70,150,.12);border-radius:11px;padding:3px;gap:2px;box-shadow:0 4px 14px -8px rgba(90,70,150,.2);backdrop-filter:blur(10px)}
+   .btn-group .btn{border:0;box-shadow:none;background:transparent;border-radius:8px;padding:6px 11px;font-weight:500;color:#3b3560}
+   .btn-group .btn:hover{background:rgba(165,140,255,.14);color:#2a2540}
    .btn-group .btn svg{opacity:.85}
-   .btn-group .sep{width:1px;height:20px;background:var(--line);margin:0 2px}
+   .btn-group .sep{width:1px;height:20px;background:rgba(90,70,150,.15);margin:0 2px}
    /* Icon-only pill button */
-   .btn.ico-btn{width:32px;height:32px;padding:0;justify-content:center;color:var(--ink-2);border-radius:8px;border:0;background:transparent;box-shadow:none;position:relative}
-   .btn.ico-btn:hover{background:#eef0f4;color:var(--ink)}
-   .btn.ico-btn.active{background:var(--accent);color:#fff}
-   .btn.ico-btn.active:hover{background:#0077ed;color:#fff}
+   .btn.ico-btn{width:32px;height:32px;padding:0;justify-content:center;color:#3b3560;border-radius:9px;border:0;background:transparent;box-shadow:none;position:relative;transition:background .15s ease,color .15s ease}
+   .btn.ico-btn:hover{background:rgba(165,140,255,.16);color:#2a2540}
+   .btn.ico-btn.active{background:linear-gradient(135deg,#7a5dff,#a58cff);color:#fff;box-shadow:0 6px 14px -6px rgba(122,93,255,.55)}
+   .btn.ico-btn.active:hover{background:linear-gradient(135deg,#6a4dff,#957aff);color:#fff}
    .btn.ico-btn.danger{color:#c04033}
    .btn.ico-btn.danger:hover{background:#fdecec;color:var(--danger)}
    .btn-group.icons{padding:2px;gap:0}
    /* Native select styled as pill */
-   .select-wrap{position:relative;display:inline-flex;align-items:center;gap:6px;padding:0 10px 0 12px;height:34px;background:#fff;border:1px solid var(--line-2);border-radius:10px;box-shadow:var(--shadow-1);color:var(--ink-2);transition:background .15s}
-   .select-wrap:hover{background:#f7f8fa;color:var(--ink)}
+   .select-wrap{position:relative;display:inline-flex;align-items:center;gap:6px;padding:0 10px 0 12px;height:34px;background:rgba(255,255,255,.72);border:1px solid rgba(90,70,150,.12);border-radius:11px;box-shadow:0 4px 14px -8px rgba(90,70,150,.2);color:#3b3560;transition:background .15s;backdrop-filter:blur(10px)}
+   .select-wrap:hover{background:#fff;color:#2a2540}
    .select-wrap > svg:first-child{opacity:.7}
-   .select-wrap select{appearance:none;-webkit-appearance:none;border:0;background:transparent;padding:0 16px 0 4px;height:100%;font:inherit;font-weight:600;font-size:12.5px;color:inherit;cursor:pointer;outline:none}
+   .select-wrap select{appearance:none;-webkit-appearance:none;border:0;background:transparent;padding:0 16px 0 4px;height:100%;font:inherit;font-weight:500;font-size:12.5px;color:inherit;cursor:pointer;outline:none}
    .select-wrap .chev{position:absolute;right:8px;pointer-events:none;opacity:.55}
-   .btn.primary.cta{padding:0 14px;height:34px;border-radius:10px;font-weight:600;box-shadow:0 1px 2px rgba(0,113,227,.35),0 4px 12px rgba(0,113,227,.18)}
+   .btn.primary.cta{padding:0 14px;height:34px;border-radius:11px;font-weight:600;background:linear-gradient(135deg,#7a5dff,#a58cff);border:0;color:#fff;box-shadow:0 8px 20px -8px rgba(122,93,255,.5)}
 
   /* Session / stage bar */
   .stage-bar{
