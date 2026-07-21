@@ -4427,8 +4427,98 @@ function renderAll(){
 })();
 
 
+// ============ Launch Screen ============
+const LS_MODES = [
+  {key:'frontier', title:'Frontier Action Plan', desc:'5-stage arc — future state, cluster, objectives, initiatives, plan.', icon:'🧭', grad:'linear-gradient(135deg,#0a84ff,#5e5ce6)', tag:'Multi-stage'},
+  {key:'backcast', title:'Future-State Backcast', desc:'Right-to-left "what had to be true" — perfect for responsible AI.', icon:'🌌', grad:'linear-gradient(135deg,#af52de,#ff375f)'},
+  {key:'ideation', title:'Ideation / Brainstorm', desc:'Diverge fast with colour-coded stickies and rich prompts.', icon:'💡', grad:'linear-gradient(135deg,#ffb703,#fb5607)'},
+  {key:'process',  title:'Process Mapping',      desc:'Swimlanes, decisions, delays and handoffs — end-to-end flow.', icon:'🔀', grad:'linear-gradient(135deg,#0091ad,#34c759)'},
+  {key:'experience', title:'Experience Mapping', desc:'Journey stages with emotions, pains and gains along the way.', icon:'🎭', grad:'linear-gradient(135deg,#ff6b6b,#ff9500)'},
+  {key:'empathy',  title:'Empathy Map',          desc:'Says / thinks / does / feels — build shared user understanding.', icon:'🫶', grad:'linear-gradient(135deg,#ff375f,#af52de)'},
+  {key:'retro',    title:'Retrospective',        desc:'What went well, what didn\'t, actions — for team rituals.', icon:'🔁', grad:'linear-gradient(135deg,#34c759,#0a84ff)'},
+  {key:'sample',   title:'Discovery Sample',     desc:'A fully-populated example to explore the canvas capabilities.', icon:'✨', grad:'linear-gradient(135deg,#5e5ce6,#0a84ff)'},
+  {key:'__blank',  title:'Blank canvas',         desc:'Start from an empty freestyle canvas and build it up yourself.', icon:'＋', grad:'linear-gradient(135deg,#8a95ad,#4b5b7a)', blank:true},
+];
+const LS_SAMPLE_JSON = {
+  title:'Discovery with BBC', customer:'BBC', sessionType:'Strategy Discovery',
+  description:'Frontier action plan for responsible AI in newsroom workflows.',
+  stages:[
+    {name:'Future state', canvasType:'backcast', activityType:'backcast',
+     groupings:[{name:'Future Outcome', color:'#af52de'},{name:'What Had To Be True', color:'#0a84ff'},{name:'Signals', color:'#34c759'}],
+     activities:[{type:'prompt', category:'Future Outcome', text:'What does success look like in 3 years?'}]},
+    {name:'Cluster', canvasType:'cluster'},
+    {name:'Objectives', canvasType:'objectives'},
+    {name:'Initiatives', canvasType:'initiatives'},
+    {name:'Plan', canvasType:'plan'}
+  ]
+};
+(function initLauncher(){
+  const scr = $('#launchScreen');
+  const grid = $('#lsModes');
+  grid.innerHTML = LS_MODES.map(m=>`
+    <button class="ls-mode ${m.blank?'blank':''}" data-key="${m.key}" type="button">
+      <span class="glow" style="background:${m.grad}"></span>
+      ${m.tag?`<span class="tag">${m.tag}</span>`:''}
+      <span class="ico" style="background:${m.grad}">${m.icon}</span>
+      <h4>${m.title}</h4>
+      <p>${m.desc}</p>
+    </button>`).join('');
+  grid.querySelectorAll('.ls-mode').forEach(b=>{
+    b.addEventListener('click', ()=>{
+      const k = b.dataset.key;
+      if(k==='__blank'){
+        state.session=null; state.canvasType='whiteboard';
+        state.lanes=[]; state.prompts=[]; state.cards=[]; state.connections=[];
+        state.view={x:40,y:40,scale:1};
+        $('#canvasType').value=state.canvasType;
+        renderAll(); save();
+      } else {
+        applyTemplate(k);
+      }
+      closeLauncher();
+    });
+  });
+  $('#lsSkip').addEventListener('click', ()=>{
+    state.session=null; state.canvasType='whiteboard';
+    state.lanes=[]; state.prompts=[]; state.cards=[]; state.connections=[];
+    $('#canvasType').value=state.canvasType; renderAll(); save();
+    closeLauncher();
+  });
+  $('#lsPasteSample').addEventListener('click', ()=>{
+    $('#lsImportText').value = JSON.stringify(LS_SAMPLE_JSON, null, 2);
+    $('#lsImportErr').textContent='';
+  });
+  $('#lsImportGo').addEventListener('click', ()=>{
+    const err = $('#lsImportErr'); err.textContent='';
+    const raw = $('#lsImportText').value.trim();
+    if(!raw){ err.textContent='Paste some JSON first — or pick a mode on the left.'; return; }
+    try{
+      const data = JSON.parse(raw);
+      if(Array.isArray(data.stages)) loadSessionFromSchema(data);
+      else{
+        state.session=null;
+        if(data.canvasType) state.canvasType=data.canvasType;
+        state.lanes = Array.isArray(data.lanes)?data.lanes:[];
+        state.prompts = Array.isArray(data.prompts)?data.prompts:[];
+        state.cards = Array.isArray(data.cards)?data.cards:[];
+        state.connections = Array.isArray(data.connections)?data.connections:[];
+      }
+      $('#canvasType').value = state.canvasType;
+      renderAll(); save();
+      closeLauncher();
+    }catch(e){ err.textContent='Invalid JSON: '+e.message; }
+  });
+  $('#btnHome').addEventListener('click', openLauncher);
+  document.addEventListener('keydown', e=>{
+    if(e.key==='Escape' && scr.classList.contains('open')) closeLauncher();
+  });
+})();
+function openLauncher(){ $('#launchScreen').classList.add('open'); $('#launchScreen').setAttribute('aria-hidden','false'); }
+function closeLauncher(){ $('#launchScreen').classList.remove('open'); $('#launchScreen').setAttribute('aria-hidden','true'); }
+
 if(!load()){
-  loadSample();
+  openLauncher();
+  renderAll();
 }else{
   $('#canvasType').value = state.canvasType;
   renderAll();
