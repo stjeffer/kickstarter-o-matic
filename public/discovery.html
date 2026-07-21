@@ -920,24 +920,38 @@
     font-size:9px;font-weight:700;letter-spacing:.1em;background:var(--ink);color:#fff;padding:2px 6px;border-radius:4px;
   }
 
-  /* Prompt / discussion card — large, readable, premium */
+  /* Prompt / discussion card — editorial, premium, category-aware */
+  .card.prompt{--pc:#7a5dff}
   .card.prompt .card-body{
-    width:320px;min-height:160px;padding:20px 22px 24px;
-    background:linear-gradient(180deg,#ffffff,#f8fbff);
-    border:1px solid #d6e3f8;border-radius:18px;
-    box-shadow:0 10px 28px -12px rgba(10,132,255,.25), var(--shadow-2);
+    width:340px;min-height:160px;padding:22px 24px 24px;
+    background:
+      radial-gradient(240px 120px at 100% 0%, color-mix(in oklab,var(--pc) 12%, transparent), transparent 70%),
+      linear-gradient(180deg,#ffffff,#fbfbff);
+    border:.5px solid rgba(60,60,67,.14);border-radius:18px;
+    box-shadow:
+      0 1px 0 rgba(255,255,255,.9) inset,
+      0 14px 32px -14px color-mix(in oklab,var(--pc) 40%, rgba(30,20,60,.25)),
+      0 2px 6px rgba(30,20,60,.05);
     font-size:15px;line-height:1.55;color:var(--ink);
     position:relative;
   }
   .card.prompt .card-body::before{
-    content:'PROMPT';position:absolute;top:-9px;left:18px;
-    font-size:9px;font-weight:700;letter-spacing:.12em;background:var(--accent);color:#fff;padding:2px 8px;border-radius:4px;
+    content:''; position:absolute; left:0; top:14px; bottom:14px; width:3px;
+    background:linear-gradient(180deg,var(--pc), color-mix(in oklab,var(--pc) 50%, transparent));
+    border-radius:0 3px 3px 0;
   }
   .card.prompt .prompt-tag{
-    font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--accent);margin:2px 0 10px;
+    display:inline-flex;align-items:center;gap:6px;
+    padding:3px 10px 3px 9px;border-radius:999px;margin:0 0 12px;
+    background:color-mix(in oklab,var(--pc) 12%, #fff);
+    border:.5px solid color-mix(in oklab,var(--pc) 30%, transparent);
+    font-size:10.5px;font-weight:600;letter-spacing:.03em;
+    color:color-mix(in oklab,var(--pc) 70%, #1c1c1e);
+    text-transform:none;
   }
-  .card.prompt .prompt-text{font-family:var(--font-ui);font-size:19px;line-height:1.45;letter-spacing:-.005em;color:#111827;font-weight:400}
-  .card.prompt .prompt-text[contenteditable="true"]{font-family:var(--font-ui);font-size:19px;font-weight:400;outline:none}
+  .card.prompt .prompt-tag::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--pc);box-shadow:0 0 0 2px color-mix(in oklab,var(--pc) 22%, transparent)}
+  .card.prompt .prompt-text{font-family:var(--font-ui);font-size:19px;line-height:1.42;letter-spacing:-.01em;color:#1c1c1e;font-weight:450}
+  .card.prompt .prompt-text[contenteditable="true"]{font-family:var(--font-ui);font-size:19px;font-weight:450;outline:none}
 
   /* Resize handle */
   .resize-handle{
