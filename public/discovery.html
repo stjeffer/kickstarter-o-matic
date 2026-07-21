@@ -1927,6 +1927,34 @@ function buildCardEl(c){
     body.innerHTML = `${c.category?`<div class="prompt-tag">${escapeHtml(c.category)}</div>`:''}<div class="prompt-text">${escapeHtml(c.text)}</div>`;
     if(c.w) body.style.width = c.w+'px';
     if(c.h) body.style.minHeight = c.h+'px';
+  }else if(c.type==='group'){
+    const color = c.color || '#0a84ff';
+    body.style.setProperty('--group-color', color);
+    const w = c.w || 340, h = c.h || 220;
+    body.style.width = w+'px';
+    body.style.height = h+'px';
+    const memberCount = state.cards.filter(x=> x.groupId===c.id).length;
+    body.innerHTML = `<div class="group-head"><span>${escapeHtml(c.text||'Group')}</span><span class="group-count">${memberCount}</span></div><div class="group-resize" data-group-resize></div>`;
+  }else if(c.type==='objective'){
+    const promoted = !!c.promoted;
+    body.innerHTML = `
+      <div class="obj-title">${escapeHtml(c.text||'Objective')}</div>
+      <div class="obj-row"><span class="obj-lbl">Why</span><span class="obj-val">${escapeHtml(c.why||'—')}</span></div>
+      <div class="obj-row"><span class="obj-lbl">Measure</span><span class="obj-val">${escapeHtml(c.measure||'—')}</span></div>
+      <div class="obj-promote${promoted?' on':''}" data-obj-promote>${promoted?'✓ Promoted to plan':'Promote to plan'}</div>
+    `;
+  }else if(c.type==='initiative'){
+    const eff = c.effort || 'M';
+    const imp = c.impact || 3;
+    body.innerHTML = `
+      <div class="ini-name">${escapeHtml(c.text||'Initiative')}</div>
+      <div class="ini-hyp">${escapeHtml(c.hypothesis||'')}</div>
+      <div class="ini-tags">
+        ${c.owner?`<span class="ini-tag owner">👤 ${escapeHtml(c.owner)}</span>`:''}
+        <span class="ini-tag">Effort ${escapeHtml(eff)}</span>
+        <span class="ini-tag impact">Impact ${imp}/5</span>
+      </div>
+    `;
   }else if(isText){
     body.textContent = c.text;
     body.style.whiteSpace = 'pre-wrap';
@@ -1941,6 +1969,15 @@ function buildCardEl(c){
     handle.className = 'resize-handle';
     handle.addEventListener('mousedown', e=>{ e.stopPropagation(); startResize(c.id, e); });
     el.appendChild(handle);
+  }
+  if(c.type==='group'){
+    const gh = body.querySelector('[data-group-resize]');
+    if(gh) gh.addEventListener('mousedown', e=>{ e.stopPropagation(); startGroupResize(c.id, e); });
+  }
+  if(c.type==='objective'){
+    const p = body.querySelector('[data-obj-promote]');
+    if(p) p.addEventListener('click', e=>{ e.stopPropagation(); c.promoted = !c.promoted; renderCards(); save(); });
+    p && p.addEventListener('mousedown', e=> e.stopPropagation());
   }
 
 
