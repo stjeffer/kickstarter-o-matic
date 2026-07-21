@@ -2249,7 +2249,14 @@ function startDrag(id, e){
     document.removeEventListener('mousemove',move);
     document.removeEventListener('mouseup',up);
     const e2 = getCardEl(id); e2 && e2.classList.remove('dragging');
-    dragState=null; save();
+    dragState=null;
+    // Group hit-testing (Cluster canvas): assign this card to a group frame beneath it.
+    if(c.type !== 'group'){
+      const prev = c.groupId;
+      c.groupId = hitTestGroup(c);
+      if(c.groupId !== prev){ renderCards(); }
+    }
+    save();
   };
   document.addEventListener('mousemove',move);
   document.addEventListener('mouseup',up);
