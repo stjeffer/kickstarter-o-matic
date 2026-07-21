@@ -895,6 +895,123 @@
   ::-webkit-scrollbar{width:10px;height:10px}
   ::-webkit-scrollbar-thumb{background:#d2d2d7;border-radius:5px;border:2px solid transparent;background-clip:padding-box}
   ::-webkit-scrollbar-thumb:hover{background:#a1a1a6;background-clip:padding-box;border:2px solid transparent}
+
+  /* ===== Workflow (Frontier action plan) ===== */
+  .world.cluster{ background-color:#f6fbff; background-image:radial-gradient(circle, #dfe6ef 1px, transparent 1px); background-size:24px 24px; }
+  .world.objectives{ background-color:#f7f5ff; background-image:radial-gradient(circle, #e2ddef 1px, transparent 1px); background-size:24px 24px; }
+  .world.initiatives{ background-color:#fff9f2; background-image:radial-gradient(circle, #ecdcc4 1px, transparent 1px); background-size:24px 24px; }
+  .world.plan{
+    background-color:#f4fbf6;
+    background-image:
+      linear-gradient(90deg,
+        transparent calc(33.333% - 1px), rgba(0,0,0,.10) calc(33.333% - 1px) 33.333%, transparent 33.333%,
+        transparent calc(66.666% - 1px), rgba(0,0,0,.10) calc(66.666% - 1px) 66.666%, transparent 66.666%),
+      radial-gradient(circle, #d8e6dc 1px, transparent 1px);
+    background-size:auto,24px 24px;
+  }
+  main.stage[data-canvas="cluster"]{ --ct-accent:#0a84ff; --ct-tint:#eaf3ff; }
+  main.stage[data-canvas="objectives"]{ --ct-accent:#5856d6; --ct-tint:#efeeff; }
+  main.stage[data-canvas="initiatives"]{ --ct-accent:#ff9500; --ct-tint:#fff4e5; }
+  main.stage[data-canvas="plan"]{ --ct-accent:#34c759; --ct-tint:#eaf8ee; }
+
+  /* Group frames sit below cards but above lane bands */
+  .card.group{ z-index:1; }
+  .card.group .card-body{
+    background:rgba(255,255,255,.55);
+    border:2px dashed var(--group-color,#0a84ff);
+    border-radius:14px;
+    padding:34px 14px 14px;
+    box-shadow:none;
+    position:relative;
+  }
+  .card.group .group-head{
+    position:absolute; top:-14px; left:14px;
+    display:inline-flex; align-items:center; gap:8px;
+    padding:4px 12px; border-radius:999px;
+    background:var(--group-color,#0a84ff); color:#fff;
+    font-size:12px; font-weight:600; letter-spacing:.01em;
+    box-shadow:0 4px 12px -4px rgba(0,0,0,.25);
+  }
+  .card.group .group-count{
+    background:rgba(255,255,255,.28); padding:1px 7px; border-radius:999px; font-size:11px;
+  }
+  .card.group .group-resize{
+    position:absolute; right:2px; bottom:2px; width:14px; height:14px; cursor:nwse-resize;
+    background:linear-gradient(135deg, transparent 45%, var(--group-color,#0a84ff) 45% 60%, transparent 60% 70%, var(--group-color,#0a84ff) 70% 85%, transparent 85%);
+    opacity:.55; border-radius:3px;
+  }
+
+  /* Objective card */
+  .card.objective .card-body{
+    width:300px; background:#fff;
+    border:1px solid #d3d0eb; border-left:4px solid #5856d6; border-radius:12px;
+    padding:12px 14px; font-size:13px; color:#1d1d1f;
+    box-shadow:0 6px 20px -10px rgba(88,86,214,.35), var(--shadow-1);
+  }
+  .card.objective .obj-title{ font-weight:600; font-size:14.5px; margin-bottom:6px; }
+  .card.objective .obj-row{ display:flex; gap:6px; margin-top:6px; font-size:11.5px; }
+  .card.objective .obj-lbl{ color:#5856d6; font-weight:600; min-width:64px; }
+  .card.objective .obj-val{ color:#3a3a3c; flex:1; white-space:pre-wrap; }
+  .card.objective .obj-promote{
+    margin-top:10px; display:inline-flex; align-items:center; gap:6px;
+    font-size:11px; color:#5856d6; font-weight:600; cursor:pointer;
+    padding:4px 10px; border-radius:6px; background:#f2f1fb; user-select:none;
+    border:1px solid #d3d0eb;
+  }
+  .card.objective .obj-promote.on{ background:#5856d6; color:#fff; border-color:#5856d6; }
+
+  /* Initiative card */
+  .card.initiative .card-body{
+    width:230px; background:#fff;
+    border:1px solid #f0d9b8; border-top:3px solid #ff9500; border-radius:10px;
+    padding:10px 12px; font-size:12.5px;
+    box-shadow:var(--shadow-1);
+  }
+  .card.initiative .ini-name{ font-weight:600; font-size:13px; margin-bottom:4px; color:#1d1d1f; }
+  .card.initiative .ini-hyp{ color:#6b6b70; font-size:11.5px; margin-bottom:8px; white-space:pre-wrap; }
+  .card.initiative .ini-tags{ display:flex; flex-wrap:wrap; gap:5px; }
+  .card.initiative .ini-tag{
+    font-size:10.5px; padding:2px 8px; border-radius:999px;
+    background:#fff4e2; color:#8a4a00; border:1px solid #f0d9b8;
+  }
+  .card.initiative .ini-tag.owner{ background:#eaf3ff; color:#003a75; border-color:#c9def8; }
+  .card.initiative .ini-tag.impact{ background:#eef8ef; color:#0b5e2a; border-color:#c5e9cc; }
+
+  /* Progress rail */
+  .workflow-rail{
+    display:flex; align-items:center; gap:6px;
+    padding:8px 14px; background:#fff;
+    border-bottom:1px solid var(--line);
+    overflow-x:auto; scrollbar-width:none;
+  }
+  .workflow-rail::-webkit-scrollbar{ display:none; }
+  .workflow-rail .wr-label{
+    font-size:11px; font-weight:600; color:var(--muted);
+    text-transform:uppercase; letter-spacing:.06em; margin-right:6px;
+    white-space:nowrap;
+  }
+  .workflow-rail .wr-step{
+    display:inline-flex; align-items:center; gap:6px;
+    padding:4px 10px; border-radius:999px; border:1px solid var(--line);
+    font-size:12px; color:var(--ink-2); background:#fafafa; cursor:pointer;
+    white-space:nowrap; font-weight:500; transition:all .15s;
+  }
+  .workflow-rail .wr-step:hover{ background:#f0f4fa; border-color:#c9def8; }
+  .workflow-rail .wr-step.active{ background:#0a84ff; color:#fff; border-color:transparent; box-shadow:0 3px 10px -3px rgba(10,132,255,.5); }
+  .workflow-rail .wr-step .wr-num{
+    width:18px; height:18px; border-radius:50%; background:rgba(0,0,0,.06);
+    display:inline-flex; align-items:center; justify-content:center; font-size:11px; font-weight:700;
+  }
+  .workflow-rail .wr-step.active .wr-num{ background:rgba(255,255,255,.28); }
+  .workflow-rail .wr-arrow{ color:var(--muted); font-size:14px; user-select:none; }
+  .workflow-rail .wr-forward{
+    margin-left:auto; padding:6px 14px; border-radius:8px;
+    background:#0a84ff; color:#fff; border:none; cursor:pointer;
+    font-size:12px; font-weight:600; box-shadow:0 3px 10px -3px rgba(10,132,255,.5);
+    white-space:nowrap;
+  }
+  .workflow-rail .wr-forward:hover{ transform:translateY(-1px); }
+  .workflow-rail .wr-forward:disabled{ opacity:.4; cursor:not-allowed; transform:none; }
 </style>
 <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
