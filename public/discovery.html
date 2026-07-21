@@ -4557,33 +4557,34 @@ const LS_PREVIEWS = {
 function previewFor(key, ct){ return LS_PREVIEWS[ct] || LS_PREVIEWS[key] || LS_PREVIEWS.whiteboard; }
 
 const LS_MODES = [
-  {key:'frontier', cat:'featured', title:'Frontier Action Plan', desc:'5-stage arc — future, cluster, objectives, initiatives, plan.', badge:'Multi-stage', ct:'backcast'},
-  {key:'backcast', cat:'featured', title:'Future-State Backcast', desc:'Right-to-left "what had to be true" for responsible AI.', ct:'backcast'},
-  {key:'sample',   cat:'featured', title:'Discovery Sample', desc:'A populated example showcasing the full canvas.', ct:'whiteboard'},
-  {key:'__blank',  cat:'featured', title:'Blank canvas', desc:'Freestyle — start with an empty page.', ct:'whiteboard', blank:true},
+  // Templates — populated, ready-to-run sessions
+  {key:'frontier',   cat:'templates', kind:'template', title:'Frontier Action Plan', desc:'5-stage arc — future, cluster, objectives, initiatives, plan.', badge:'Multi-stage', badgeKind:'multi', ct:'backcast'},
+  {key:'backcast',   cat:'templates', kind:'template', title:'Future-State Backcast', desc:'Right-to-left "what had to be true" for responsible AI.', ct:'backcast'},
+  {key:'sample',     cat:'templates', kind:'template', title:'Discovery Sample', desc:'A populated example showcasing the full canvas.', ct:'whiteboard'},
+  {key:'ideation',   cat:'templates', kind:'template', title:'Ideation / Brainstorm', desc:'Diverge fast with colour-coded stickies.', ct:'whiteboard'},
+  {key:'empathy',    cat:'templates', kind:'template', title:'Empathy Map', desc:'Says / thinks / does / feels — pre-laid.', ct:'empathy'},
+  {key:'experience', cat:'templates', kind:'template', title:'Experience Mapping', desc:'Journey stages with emotions along the way.', ct:'journey'},
+  {key:'retro',      cat:'templates', kind:'template', title:'Retrospective', desc:'Went well · didn\'t · actions — seeded lanes.', ct:'whiteboard'},
+  {key:'process',    cat:'templates', kind:'template', title:'Process Mapping', desc:'Swimlanes, decisions, delays and handoffs.', ct:'hswimlanes'},
 
-  {key:'ideation', cat:'ideation', title:'Ideation / Brainstorm', desc:'Diverge fast with colour-coded stickies.', ct:'whiteboard'},
-  {key:'empathy',  cat:'ideation', title:'Empathy Map', desc:'Says / thinks / does / feels.', ct:'empathy'},
-  {key:'experience', cat:'ideation', title:'Experience Mapping', desc:'Journey stages with emotions along the way.', ct:'journey'},
-  {key:'retro',    cat:'ideation', title:'Retrospective', desc:'Went well · didn\'t · actions.', ct:'whiteboard'},
-  {key:'ct:usecase', cat:'ideation', title:'Use Case Ideation', desc:'Trigger · JTBD · Idea · Value · Risk.', ct:'usecase', blank:true},
-
-  {key:'process',  cat:'process', title:'Process Mapping', desc:'Swimlanes, decisions, delays and handoffs.', ct:'hswimlanes'},
-  {key:'ct:hswimlanes', cat:'process', title:'Horizontal Swimlanes', desc:'Blank horizontal lanes by role or system.', ct:'hswimlanes', blank:true},
-  {key:'ct:vswimlanes', cat:'process', title:'Vertical Swimlanes', desc:'Blank vertical columns for phased work.', ct:'vswimlanes', blank:true},
-  {key:'ct:journey',    cat:'process', title:'Journey Map', desc:'Stages with a customer emotion line.', ct:'journey', blank:true},
-
-  {key:'ct:matrix2x2',  cat:'strategy', title:'2×2 Matrix', desc:'Prioritise on impact vs. effort.', ct:'matrix2x2', blank:true},
-  {key:'ct:raci',       cat:'strategy', title:'RACI Matrix', desc:'Responsible, accountable, consulted, informed.', ct:'raci', blank:true},
-  {key:'ct:strategy',   cat:'strategy', title:'Strategy on a Page', desc:'Vision + Now / Next / Later horizons.', ct:'strategy', blank:true},
-  {key:'ct:mindmap',    cat:'strategy', title:'Mind Map', desc:'Radial exploration around a central idea.', ct:'mindmap', blank:true},
+  // Canvas types — blank scaffolds
+  {key:'__blank',       cat:'canvases', kind:'canvas', title:'Blank canvas', desc:'Freestyle — start with an empty page.', ct:'whiteboard', blank:true},
+  {key:'ct:matrix2x2',  cat:'canvases', kind:'canvas', title:'2×2 Matrix', desc:'Prioritise on impact vs. effort.', ct:'matrix2x2', blank:true},
+  {key:'ct:raci',       cat:'canvases', kind:'canvas', title:'RACI Matrix', desc:'Responsible, accountable, consulted, informed.', ct:'raci', blank:true},
+  {key:'ct:strategy',   cat:'canvases', kind:'canvas', title:'Strategy on a Page', desc:'Vision + Now / Next / Later horizons.', ct:'strategy', blank:true},
+  {key:'ct:hswimlanes', cat:'canvases', kind:'canvas', title:'Horizontal Swimlanes', desc:'Blank horizontal lanes by role or system.', ct:'hswimlanes', blank:true},
+  {key:'ct:vswimlanes', cat:'canvases', kind:'canvas', title:'Vertical Swimlanes', desc:'Blank vertical columns for phased work.', ct:'vswimlanes', blank:true},
+  {key:'ct:journey',    cat:'canvases', kind:'canvas', title:'Journey Map', desc:'Stages with a customer emotion line.', ct:'journey', blank:true},
+  {key:'ct:mindmap',    cat:'canvases', kind:'canvas', title:'Mind Map', desc:'Radial exploration around a central idea.', ct:'mindmap', blank:true},
+  {key:'ct:usecase',    cat:'canvases', kind:'canvas', title:'Use Case Ideation', desc:'Trigger · JTBD · Idea · Value · Risk.', ct:'usecase', blank:true},
 ];
+// Featured = curated highlights (mix of templates + canvases)
+const LS_FEATURED_KEYS = ['frontier','backcast','ideation','process','ct:matrix2x2','__blank'];
 const LS_CATS = [
-  {key:'all', label:'All canvases'},
   {key:'featured', label:'Featured'},
-  {key:'ideation', label:'Ideation & research'},
-  {key:'process', label:'Process & flow'},
-  {key:'strategy', label:'Strategy'},
+  {key:'templates', label:'Templates'},
+  {key:'canvases', label:'Canvas types'},
+  {key:'all', label:'All'},
 ];
 const LS_SAMPLE_JSON = {
   title:'Discovery with BBC', customer:'BBC', sessionType:'Strategy Discovery',
