@@ -2213,7 +2213,6 @@ function buildCardEl(c){
     body.innerHTML = `${c.category?`<div class="prompt-tag">${escapeHtml(c.category)}</div>`:''}<div class="prompt-text">${escapeHtml(c.text)}</div>`;
     if(c.w) body.style.width = c.w+'px';
     if(c.h) body.style.minHeight = c.h+'px';
-    if(c.h) body.style.minHeight = c.h+'px';
   }else if(c.type==='group'){
     const color = c.color || '#0a84ff';
     body.style.setProperty('--group-color', color);
