@@ -3056,6 +3056,7 @@ function sendForward(fromKind, toKind){
 }
 
 function renderStageBar(){
+  renderWorkflowRail();
   const bar = $('#stageBar');
   bar.classList.add('open');
   bar.innerHTML = '';
