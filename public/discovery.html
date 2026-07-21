@@ -1358,6 +1358,10 @@ const CARD_TYPES = {
   prompt:     { group:'Prompt',       label:'Prompt',    icon:promptIcon,     defaults:{ text:'Discussion prompt', w:320, h:180 } },
   // Attached only via the pain-point toggle — hidden from palette
   painscore:  { group:'_hidden',      label:'Pain Score', defaults:{ w:230, h:150 } },
+  // Workflow primitives (Frontier action plan)
+  group:      { group:'Workflow',     label:'Group',     icon:groupIcon,     defaults:{ text:'Group name', w:340, h:220, color:'#0a84ff' } },
+  objective:  { group:'Workflow',     label:'Objective', icon:objectiveIcon, defaults:{ text:'Objective title', why:'Why this matters', measure:'How we know it worked', w:300, h:170 } },
+  initiative: { group:'Workflow',     label:'Initiative',icon:initiativeIcon,defaults:{ text:'Initiative name', hypothesis:'We believe … so that …', owner:'Owner', effort:'M', impact:3, horizon:'now', w:230, h:130 } },
 };
 
 function stickyIcon(){return svgTag('<rect x="6" y="4" width="24" height="22" fill="#fff9b1" stroke="#e5c400" transform="rotate(-2 18 15)"/>')}
