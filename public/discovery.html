@@ -1078,6 +1078,12 @@
   .ls-err{color:#c0392b;font-size:12px;margin-top:8px;min-height:14px}
   .ls-foot{display:flex;justify-content:space-between;align-items:center;margin-top:28px;color:#7683a0;font-size:12px}
   .ls-foot a{color:#0a84ff;text-decoration:none;cursor:pointer}
+  .ls-step{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:50%;background:linear-gradient(135deg,#0a84ff,#5e5ce6);color:#fff;font-size:11px;font-weight:700;margin-right:8px;vertical-align:1px}
+  .ls-optional{font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#8a95ad;margin-left:6px}
+  .ls-mode.selected{border-color:#0a84ff;box-shadow:0 0 0 3px rgba(10,132,255,.18),0 12px 32px -14px rgba(10,132,255,.45)}
+  .ls-mode.selected::after{content:'✓';position:absolute;top:12px;right:12px;width:22px;height:22px;border-radius:50%;background:#0a84ff;color:#fff;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center}
+  .ls-mode.selected .tag{display:none}
+  .ls-btn:disabled{opacity:.5;cursor:not-allowed;transform:none;box-shadow:none}
 </style>
 <section id="launchScreen" aria-hidden="true">
   <div class="ls-wrap">
@@ -1088,17 +1094,17 @@
     </div>
     <div class="ls-grid">
       <div>
-        <div class="ls-section-h"><h3>Choose a mode</h3><span class="hint">Click a card to launch</span></div>
+        <div class="ls-section-h"><h3><span class="ls-step">1</span> Choose a mode</h3><span class="hint" id="lsPickedHint">Pick one to continue</span></div>
         <div class="ls-modes" id="lsModes"></div>
       </div>
       <aside class="ls-import">
-        <h3>Import a session</h3>
-        <p>Paste a single-canvas config or a multi-stage session JSON. Recognised keys: <code>stages</code>, <code>canvasType</code>, <code>lanes</code>, <code>prompts</code>, <code>cards</code>.</p>
+        <h3><span class="ls-step">2</span> Import a session <span class="ls-optional">optional</span></h3>
+        <p>Paste a single-canvas config or multi-stage session JSON to overlay on the selected mode. Leave blank to launch the mode as-is.</p>
         <textarea id="lsImportText" placeholder='{ "title": "Discovery with BBC", "stages": [ ... ] }' spellcheck="false"></textarea>
         <div class="ls-err" id="lsImportErr"></div>
         <div class="row">
           <button class="ls-btn ghost" id="lsPasteSample" type="button">Paste sample</button>
-          <button class="ls-btn" id="lsImportGo" type="button">Import & launch →</button>
+          <button class="ls-btn" id="lsLaunch" type="button" disabled>Select a mode →</button>
         </div>
       </aside>
     </div>
@@ -4463,21 +4469,26 @@ const LS_SAMPLE_JSON = {
       <h4>${m.title}</h4>
       <p>${m.desc}</p>
     </button>`).join('');
+  let lsSelected = null;
+  const launchBtn = $('#lsLaunch');
+  const pickedHint = $('#lsPickedHint');
+  function updateLaunchBtn(){
+    if(!lsSelected){ launchBtn.disabled = true; launchBtn.textContent = 'Select a mode →'; return; }
+    launchBtn.disabled = false;
+    const hasJson = $('#lsImportText').value.trim().length > 0;
+    launchBtn.textContent = hasJson ? 'Import & launch →' : 'Launch mode →';
+  }
   grid.querySelectorAll('.ls-mode').forEach(b=>{
     b.addEventListener('click', ()=>{
-      const k = b.dataset.key;
-      if(k==='__blank'){
-        state.session=null; state.canvasType='whiteboard';
-        state.lanes=[]; state.prompts=[]; state.cards=[]; state.connections=[];
-        state.view={x:40,y:40,scale:1};
-        $('#canvasType').value=state.canvasType;
-        renderAll(); save();
-      } else {
-        applyTemplate(k);
-      }
-      closeLauncher();
+      grid.querySelectorAll('.ls-mode').forEach(x=>x.classList.remove('selected'));
+      b.classList.add('selected');
+      lsSelected = b.dataset.key;
+      const mode = LS_MODES.find(m=>m.key===lsSelected);
+      pickedHint.textContent = 'Selected: ' + mode.title;
+      updateLaunchBtn();
     });
   });
+  $('#lsImportText').addEventListener('input', ()=>{ $('#lsImportErr').textContent=''; updateLaunchBtn(); });
   $('#lsSkip').addEventListener('click', ()=>{
     state.session=null; state.canvasType='whiteboard';
     state.lanes=[]; state.prompts=[]; state.cards=[]; state.connections=[];
@@ -4486,27 +4497,38 @@ const LS_SAMPLE_JSON = {
   });
   $('#lsPasteSample').addEventListener('click', ()=>{
     $('#lsImportText').value = JSON.stringify(LS_SAMPLE_JSON, null, 2);
-    $('#lsImportErr').textContent='';
+    $('#lsImportErr').textContent=''; updateLaunchBtn();
   });
-  $('#lsImportGo').addEventListener('click', ()=>{
+  launchBtn.addEventListener('click', ()=>{
     const err = $('#lsImportErr'); err.textContent='';
+    if(!lsSelected){ err.textContent='Pick a mode first.'; return; }
+    // Step 1: apply the chosen mode
+    if(lsSelected==='__blank'){
+      state.session=null; state.canvasType='whiteboard';
+      state.lanes=[]; state.prompts=[]; state.cards=[]; state.connections=[];
+      state.view={x:40,y:40,scale:1};
+    } else {
+      applyTemplate(lsSelected);
+    }
+    // Step 2: optionally overlay JSON
     const raw = $('#lsImportText').value.trim();
-    if(!raw){ err.textContent='Paste some JSON first — or pick a mode on the left.'; return; }
-    try{
-      const data = JSON.parse(raw);
-      if(Array.isArray(data.stages)) loadSessionFromSchema(data);
-      else{
-        state.session=null;
-        if(data.canvasType) state.canvasType=data.canvasType;
-        state.lanes = Array.isArray(data.lanes)?data.lanes:[];
-        state.prompts = Array.isArray(data.prompts)?data.prompts:[];
-        state.cards = Array.isArray(data.cards)?data.cards:[];
-        state.connections = Array.isArray(data.connections)?data.connections:[];
-      }
-      $('#canvasType').value = state.canvasType;
-      renderAll(); save();
-      closeLauncher();
-    }catch(e){ err.textContent='Invalid JSON: '+e.message; }
+    if(raw){
+      try{
+        const data = JSON.parse(raw);
+        if(Array.isArray(data.stages)) loadSessionFromSchema(data);
+        else{
+          state.session=null;
+          if(data.canvasType) state.canvasType=data.canvasType;
+          if(Array.isArray(data.lanes)) state.lanes=data.lanes;
+          if(Array.isArray(data.prompts)) state.prompts=data.prompts;
+          if(Array.isArray(data.cards)) state.cards=data.cards;
+          if(Array.isArray(data.connections)) state.connections=data.connections;
+        }
+      }catch(e){ err.textContent='Invalid JSON: '+e.message; return; }
+    }
+    $('#canvasType').value = state.canvasType;
+    renderAll(); save();
+    closeLauncher();
   });
   $('#btnHome').addEventListener('click', openLauncher);
   document.addEventListener('keydown', e=>{
