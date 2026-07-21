@@ -1866,7 +1866,7 @@ function buildCardEl(c){
 
   const tools = document.createElement('div');
   tools.className='card-tools';
-  const canBePain = !['prompt','title','painscore'].includes(c.type);
+  const canBePain = !['prompt','title','painscore','group','objective','initiative'].includes(c.type);
   const painBtn = canBePain
     ? `<button data-act="pain" class="pain-toggle${c.painPoint?' on':''}" title="${c.painPoint?'Remove pain point':'Mark as pain point'}">!</button>`
     : '';
