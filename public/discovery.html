@@ -2533,8 +2533,13 @@ $('#canvasType').addEventListener('change', e=>{
   if(state.canvasType==='mindmap' && !state.cards.length){
     addCard({ type:'process', text:'Central Idea', x:WORLD_W/2 - 90, y:WORLD_H/2 - 30, color:'#e6f0ff' });
   }
+  if(state.session){
+    const st = state.session.stages[state.session.activeIndex];
+    if(st) st.canvasType = state.canvasType;
+  }
   applyCanvasTheme();
-  renderLanesLayer(); save();
+  renderAll();
+  save();
 });
 $('#btnAddLane').addEventListener('click', ()=>{
   const id='l'+Date.now();
