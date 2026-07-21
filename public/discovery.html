@@ -2942,6 +2942,118 @@ function renameStage(idx){
   renderStageBar(); save();
 }
 
+const WORKFLOW_STAGES = [
+  {kind:'future',      short:'1. Future',      label:'Envision the future state'},
+  {kind:'cluster',     short:'2. Cluster',     label:'Group related ideas'},
+  {kind:'objectives',  short:'3. Objectives',  label:'Form objectives from groups'},
+  {kind:'initiatives', short:'4. Initiatives', label:'Define initiatives per objective'},
+  {kind:'plan',        short:'5. Plan',        label:'Sequence on a page'},
+];
+function renderWorkflowRail(){
+  const rail = $('#workflowRail');
+  if(!rail) return;
+  const tabs = state.tabs || [];
+  const hasWorkflow = tabs.some(t=>t.stageKind);
+  if(!hasWorkflow){ rail.style.display='none'; rail.innerHTML=''; return; }
+  rail.style.display = 'flex';
+  const activeTab = tabs.find(t=>t.id===state.activeTabId);
+  const activeKind = activeTab?.stageKind;
+
+  const parts = [`<span class="wr-label">Frontier action plan</span>`];
+  WORKFLOW_STAGES.forEach((st, i)=>{
+    const tab = tabs.find(t=>t.stageKind===st.kind);
+    if(!tab) return;
+    const cls = 'wr-step' + (activeKind===st.kind?' active':'');
+    parts.push(`<button class="${cls}" data-goto-tab="${tab.id}" title="${escapeHtml(st.label)}"><span class="wr-num">${i+1}</span>${escapeHtml(st.short.replace(/^\d+\.\s*/,''))}</button>`);
+    if(i<WORKFLOW_STAGES.length-1) parts.push(`<span class="wr-arrow">→</span>`);
+  });
+  const nextIdx = WORKFLOW_STAGES.findIndex(s=>s.kind===activeKind);
+  const nextStage = nextIdx>=0 ? WORKFLOW_STAGES[nextIdx+1] : null;
+  const nextTab = nextStage && tabs.find(t=>t.stageKind===nextStage.kind);
+  const btnLabel = nextTab ? `Send forward → ${nextStage.short.replace(/^\d+\.\s*/,'')}` : 'End of flow';
+  parts.push(`<button class="wr-forward" data-send-forward ${nextTab?'':'disabled'}>${escapeHtml(btnLabel)}</button>`);
+  rail.innerHTML = parts.join('');
+
+  rail.querySelectorAll('[data-goto-tab]').forEach(b=>{
+    b.addEventListener('click', ()=>{ switchTab(b.dataset.gotoTab); });
+  });
+  const fwd = rail.querySelector('[data-send-forward]');
+  if(fwd && nextTab){
+    fwd.addEventListener('click', ()=> sendForward(activeKind, nextStage.kind));
+  }
+}
+
+function sendForward(fromKind, toKind){
+  const tabs = state.tabs || [];
+  const fromTab = tabs.find(t=>t.stageKind===fromKind);
+  const toTab   = tabs.find(t=>t.stageKind===toKind);
+  if(!fromTab || !toTab) return;
+
+  if(fromKind==='cluster' && toKind==='objectives'){
+    // Each group frame with members → 1 objective card in the objectives tab
+    const groups = (fromTab.cards||[]).filter(c=>c.type==='group');
+    const seeds = groups.map((g,i)=>{
+      const members = (fromTab.cards||[]).filter(c=>c.groupId===g.id && c.type!=='group');
+      const summary = members.slice(0,4).map(m=> (m.text||'').replace(/\s+/g,' ').slice(0,60)).filter(Boolean).join(' · ');
+      return {
+        id: uid(), type:'objective',
+        x: 80 + (i%3)*340, y: 160 + Math.floor(i/3)*220,
+        text: g.text || 'Objective '+(i+1),
+        why: summary || 'Derived from clustered ideas',
+        measure: 'TBD — define a success measure',
+      };
+    });
+    if(!seeds.length){ alert('No group frames with members to send forward. On the Cluster canvas, drag stickies into a Group frame first.'); return; }
+    toTab.cards = (toTab.cards||[]).concat(seeds);
+    switchTab(toTab.id);
+    return;
+  }
+  if(fromKind==='objectives' && toKind==='initiatives'){
+    const objectives = (fromTab.cards||[]).filter(c=>c.type==='objective');
+    if(!objectives.length){ alert('No objectives to send forward.'); return; }
+    const rows = objectives.map((o,i)=>({
+      id: uid(), type:'objective',
+      x: 60, y: 120 + i*220,
+      text: o.text, why:o.why, measure:o.measure, promoted:true,
+    }));
+    // Seed one placeholder initiative per objective
+    const inis = objectives.map((o,i)=>({
+      id: uid(), type:'initiative',
+      x: 420, y: 120 + i*220,
+      text: 'Initiative for: '+ (o.text||''),
+      hypothesis:'We believe … so that …',
+      owner:'', effort:'M', impact:3, horizon:'now',
+      objectiveId: o.id,
+    }));
+    toTab.cards = (toTab.cards||[]).concat(rows, inis);
+    switchTab(toTab.id);
+    return;
+  }
+  if(fromKind==='initiatives' && toKind==='plan'){
+    const inis = (fromTab.cards||[]).filter(c=>c.type==='initiative');
+    if(!inis.length){ alert('No initiatives to send forward.'); return; }
+    const colW = 540; // approx third of world
+    const byHorizon = {now:0, next:1, later:2};
+    const counters = {now:0, next:0, later:0};
+    const seeds = inis.map(i=>{
+      const h = ['now','next','later'].includes(i.horizon) ? i.horizon : 'now';
+      const col = byHorizon[h];
+      const row = counters[h]++;
+      return {
+        id: uid(), type:'initiative',
+        x: 60 + col*colW, y: 180 + row*160,
+        text:i.text, hypothesis:i.hypothesis, owner:i.owner,
+        effort:i.effort, impact:i.impact, horizon:h,
+      };
+    });
+    toTab.cards = (toTab.cards||[]).concat(seeds);
+    switchTab(toTab.id);
+    return;
+  }
+  // Fallback: just switch
+  switchTab(toTab.id);
+}
+
 function renderStageBar(){
   const bar = $('#stageBar');
   bar.classList.add('open');
