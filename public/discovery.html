@@ -2831,11 +2831,6 @@ document.addEventListener('keydown', e=>{
     clipboardCard = JSON.parse(JSON.stringify({...rest, x:x+24, y:y+24}));
     if(nc && nc.id) selectCard(nc.id);
   }
-  if(mod && (e.key==='d'||e.key==='D') && !isEditing() && state.selection.cardId){
-    e.preventDefault();
-    const c = state.cards.find(x=>x.id===state.selection.cardId);
-    if(c){ const {id, painScoreId, ...rest}=c; const nc=addCard({...rest, x:c.x+24, y:c.y+24, painPoint:false, painScoreId:undefined}); if(nc&&nc.id) selectCard(nc.id); }
-  }
   if((e.key==='Tab') && !isEditing() && state.canvasType==='mindmap' && state.selection.cardId){
     e.preventDefault(); addMindmapChild(state.selection.cardId);
   }
