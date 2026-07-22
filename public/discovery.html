@@ -280,14 +280,14 @@
 
   /* Timer widget */
   .timer{
-    display:inline-flex;align-items:center;gap:4px;
-    background:linear-gradient(180deg,rgba(255,255,255,.95),rgba(248,247,252,.85));
-    border:.5px solid rgba(60,60,67,.14);border-radius:10px;
-    padding:3px 4px 3px 10px;
+    display:inline-flex;align-items:center;gap:4px;height:32px;
+    background:linear-gradient(180deg,rgba(255,255,255,.96),rgba(246,244,252,.88));
+    border:.5px solid rgba(60,60,67,.14);border-radius:11px;
+    padding:0 4px 0 12px;
     box-shadow:
-      0 1px 0 rgba(255,255,255,.9) inset,
-      0 1px 2px rgba(30,20,60,.04),
-      0 4px 12px -6px rgba(30,20,60,.10);
+      0 1px 0 rgba(255,255,255,.95) inset,
+      0 1px 2px rgba(30,20,60,.05),
+      0 6px 14px -8px rgba(80,60,160,.18);
     font-variant-numeric:tabular-nums;
   }
   .timer.warn{border-color:#ffb020;box-shadow:0 0 0 3px rgba(255,176,32,.15)}
@@ -295,7 +295,7 @@
   @keyframes tflash{50%{background:#fff5f5}}
   .timer .tval{font-family:var(--font-mono);font-size:12.5px;font-weight:600;color:#1c1c1e;min-width:48px;text-align:center;letter-spacing:.02em}
   .timer .tbtn{
-    width:22px;height:22px;border:0;border-radius:6px;background:transparent;cursor:pointer;
+    width:24px;height:24px;border:0;border-radius:7px;background:transparent;cursor:pointer;
     display:inline-flex;align-items:center;justify-content:center;color:#1c1c1e;transition:background .15s,transform .12s;
   }
   .timer .tbtn:hover{background:rgba(60,60,67,.08);color:#000}
