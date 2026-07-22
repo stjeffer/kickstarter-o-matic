@@ -52,80 +52,105 @@
    .app{display:grid;grid-template-columns:1fr;grid-template-rows:60px min-content min-content minmax(0,1fr);height:100vh;background:var(--bg)}
   /* ── Apple-style toolbar ────────────────────────────────────── */
   header.topbar{
-    grid-column:1 / -1;display:flex;align-items:center;gap:10px;padding:0 18px;
+    grid-column:1 / -1;display:flex;align-items:center;gap:10px;padding:10px 16px;
     background:
-      linear-gradient(180deg,rgba(255,255,255,.78),rgba(248,247,252,.72));
-    backdrop-filter:saturate(180%) blur(28px);
-    -webkit-backdrop-filter:saturate(180%) blur(28px);
+      radial-gradient(1200px 200px at 20% -40%, rgba(199,184,255,.35), transparent 60%),
+      radial-gradient(900px 180px at 80% -30%, rgba(191,228,255,.30), transparent 60%),
+      linear-gradient(180deg,rgba(255,255,255,.85),rgba(248,247,252,.78));
+    backdrop-filter:saturate(180%) blur(30px);
+    -webkit-backdrop-filter:saturate(180%) blur(30px);
     border-bottom:1px solid rgba(60,60,67,.10);z-index:20;
-    box-shadow:0 1px 0 rgba(255,255,255,.9) inset, 0 1px 2px rgba(30,20,60,.03);
+    box-shadow:0 1px 0 rgba(255,255,255,.9) inset, 0 4px 20px -12px rgba(80,60,160,.18);
   }
-  .brand{display:flex;align-items:center;gap:10px;font-family:'Segoe UI Semibold','Segoe UI',var(--font-heading);font-weight:600;font-size:14.5px;letter-spacing:-.01em;color:#1c1c1e;}
+  .brand{display:flex;align-items:center;gap:10px;font-family:'Segoe UI Semibold','Segoe UI',var(--font-heading);font-weight:600;font-size:14px;letter-spacing:-.01em;color:#1c1c1e;}
   .brand .logo{box-shadow:0 4px 14px -4px rgba(120,90,200,.45), inset 0 0 0 1px rgba(255,255,255,.6)}
-  .logo{width:24px;height:24px;border-radius:8px;background:conic-gradient(from 210deg,#c7b8ff,#ffc9df,#bfe4ff,#c7f5da,#c7b8ff)}
-  .top-actions{margin-left:auto;display:flex;gap:8px;align-items:center}
+  .logo{width:26px;height:26px;border-radius:9px;background:conic-gradient(from 210deg,#c7b8ff,#ffc9df,#bfe4ff,#c7f5da,#c7b8ff)}
+  .brand .brand-name{background:linear-gradient(180deg,#1c1c1e,#3a2a72);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .top-actions{margin-left:auto;display:flex;gap:10px;align-items:center}
 
-  /* Apple-style pill cluster */
+  /* Frosted pill cluster — floating chrome */
   .btn-group{
-    display:inline-flex;align-items:center;gap:1px;
-    background:linear-gradient(180deg,rgba(255,255,255,.95),rgba(248,247,252,.85));
+    display:inline-flex;align-items:center;gap:2px;
+    background:linear-gradient(180deg,rgba(255,255,255,.96),rgba(246,244,252,.88));
     border:.5px solid rgba(60,60,67,.14);
-    border-radius:10px;padding:3px;
+    border-radius:12px;padding:4px;
     box-shadow:
-      0 1px 0 rgba(255,255,255,.9) inset,
-      0 1px 2px rgba(30,20,60,.04),
-      0 4px 12px -6px rgba(30,20,60,.10);
+      0 1px 0 rgba(255,255,255,.95) inset,
+      0 1px 2px rgba(30,20,60,.05),
+      0 8px 20px -10px rgba(80,60,160,.20);
   }
-  .btn-group .btn{border:0;background:transparent;box-shadow:none;border-radius:7px;padding:6px 11px;font-weight:510;color:#1c1c1e;letter-spacing:-.005em}
-  .btn-group .btn:hover{background:rgba(60,60,67,.06);color:#000}
-  .btn-group .btn svg{opacity:.78}
+  .btn-group .btn{border:0;background:transparent;box-shadow:none;border-radius:8px;padding:6px 11px;font-weight:520;color:#1c1c1e;letter-spacing:-.005em}
+  .btn-group .btn:hover{background:rgba(90,70,180,.08);color:#000}
+  .btn-group .btn svg{opacity:.82}
   .btn-group .sep{width:.5px;height:18px;background:rgba(60,60,67,.15);margin:0 3px}
 
-  /* Icon-only pill button — SF-toolbar feel */
+  /* Icon-only pill button */
   .btn.ico-btn{
-    width:30px;height:30px;padding:0;justify-content:center;color:#1c1c1e;
-    border-radius:7px;border:0;background:transparent;box-shadow:none;position:relative;
+    width:32px;height:32px;padding:0;justify-content:center;color:#1c1c1e;
+    border-radius:9px;border:0;background:transparent;box-shadow:none;position:relative;
     transition:background .16s ease, color .16s ease, transform .12s ease;
   }
-  .btn.ico-btn:hover{background:rgba(60,60,67,.07);color:#000}
+  .btn.ico-btn:hover{background:rgba(90,70,180,.09);color:#000}
   .btn.ico-btn:active{transform:scale(.94)}
   .btn.ico-btn.active{
-    background:linear-gradient(180deg,#fff,#f2eeff);
+    background:linear-gradient(180deg,#ffffff,#efe9ff);
     color:#5b3fe0;
     box-shadow:
-      0 0 0 .5px rgba(122,93,255,.35),
-      0 1px 0 rgba(255,255,255,.9) inset,
-      0 4px 10px -4px rgba(122,93,255,.35);
+      0 0 0 .5px rgba(122,93,255,.4),
+      0 1px 0 rgba(255,255,255,.95) inset,
+      0 6px 14px -6px rgba(122,93,255,.45);
   }
   .btn.ico-btn.danger{color:#8e8e93}
   .btn.ico-btn.danger:hover{background:#fdecec;color:#d70015}
-  .btn-group.icons{padding:3px;gap:1px}
+  .btn-group.icons{padding:4px;gap:1px}
+
+  /* Labeled pill — icon + text (Designer-style "Add Assets" / "Layers") */
+  .pill-labeled{
+    display:inline-flex;align-items:center;gap:8px;height:32px;padding:0 12px 0 8px;
+    border:0;background:transparent;border-radius:9px;color:#1c1c1e;
+    font:inherit;font-weight:600;font-size:12.5px;letter-spacing:-.005em;cursor:pointer;
+    transition:background .16s ease, color .16s ease, transform .1s;
+  }
+  .pill-labeled svg{opacity:.85}
+  .pill-labeled:hover{background:rgba(90,70,180,.08);color:#000}
+  .pill-labeled:active{transform:scale(.97)}
+  .pill-labeled.active{
+    background:linear-gradient(180deg,#ffffff,#efe9ff);color:#5b3fe0;
+    box-shadow:0 0 0 .5px rgba(122,93,255,.4), 0 1px 0 rgba(255,255,255,.95) inset, 0 6px 14px -6px rgba(122,93,255,.45);
+  }
+  .pill-labeled .lbl-badge{
+    display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:7px;
+    background:linear-gradient(180deg,#efe9ff,#dcd0ff);color:#5b3fe0;
+  }
+  .pill-labeled.active .lbl-badge{background:linear-gradient(180deg,#7a5dff,#5b3fe0);color:#fff;box-shadow:0 4px 10px -4px rgba(90,60,220,.55)}
 
   /* Native select styled as pill */
   .select-wrap{
     position:relative;display:inline-flex;align-items:center;gap:6px;
     padding:0 10px 0 12px;height:32px;
-    background:linear-gradient(180deg,rgba(255,255,255,.95),rgba(248,247,252,.85));
+    background:linear-gradient(180deg,rgba(255,255,255,.96),rgba(246,244,252,.88));
     border:.5px solid rgba(60,60,67,.14);
-    border-radius:10px;
+    border-radius:11px;
     box-shadow:
-      0 1px 0 rgba(255,255,255,.9) inset,
-      0 1px 2px rgba(30,20,60,.04),
-      0 4px 12px -6px rgba(30,20,60,.10);
+      0 1px 0 rgba(255,255,255,.95) inset,
+      0 1px 2px rgba(30,20,60,.05),
+      0 6px 14px -8px rgba(80,60,160,.18);
     color:#1c1c1e;transition:background .15s,box-shadow .15s;
   }
   .select-wrap:hover{background:#fff}
-  .select-wrap > svg:first-child{opacity:.6;color:#5b3fe0}
+  .select-wrap > svg:first-child{opacity:.7;color:#5b3fe0}
   .select-wrap select{appearance:none;-webkit-appearance:none;border:0;background:transparent;padding:0 18px 0 4px;height:100%;font:inherit;font-weight:520;font-size:12.5px;color:inherit;cursor:pointer;outline:none;letter-spacing:-.005em}
   .select-wrap .chev{position:absolute;right:8px;pointer-events:none;opacity:.5}
 
   .btn.primary.cta{
-    padding:0 14px;height:32px;border-radius:10px;font-weight:600;letter-spacing:-.01em;
-    background:linear-gradient(180deg,#8a70ff,#6a4dff);border:.5px solid rgba(80,50,200,.5);color:#fff;
+    padding:0 14px;height:32px;border-radius:11px;font-weight:600;letter-spacing:-.005em;
+    background:linear-gradient(135deg,#a78bff 0%,#7a5dff 50%,#5b3fe0 100%);
+    border:.5px solid rgba(80,50,200,.55);color:#fff;display:inline-flex;align-items:center;gap:6px;
     box-shadow:
-      0 1px 0 rgba(255,255,255,.35) inset,
-      0 8px 20px -8px rgba(90,60,220,.55);
+      0 1px 0 rgba(255,255,255,.4) inset,
+      0 10px 22px -8px rgba(90,60,220,.55);
   }
+  .btn.primary.cta:hover{filter:brightness(1.05)}
 
   /* Session / stage bar */
   .stage-bar{
@@ -206,9 +231,32 @@
     backdrop-filter:blur(1px);
   }
   .flyout-scrim.show{opacity:1;pointer-events:auto}
-  .side-section{padding:14px 16px;border-bottom:1px solid var(--line)}
-  .side-section h3{margin:0 0 10px;font-size:10.5px;font-weight:600;text-transform:uppercase;letter-spacing:.11em;color:var(--muted)}
-  .side-scroll{overflow-y:auto;flex:1}
+  aside.left, aside.right{background:linear-gradient(180deg,#fbfaff 0%,#f6f4fb 100%)}
+  .side-scroll{overflow-y:auto;flex:1;padding:14px 14px 40px}
+  .side-section{
+    position:relative;padding:14px;margin-bottom:12px;border-radius:16px;
+    background:linear-gradient(180deg,rgba(255,255,255,.98),rgba(250,248,255,.94));
+    border:.5px solid rgba(60,60,67,.10);
+    box-shadow:
+      0 1px 0 rgba(255,255,255,.95) inset,
+      0 1px 2px rgba(30,20,60,.04),
+      0 10px 24px -14px rgba(80,60,160,.22);
+  }
+  .side-section + .side-section{margin-top:0}
+  .side-section h3{
+    margin:0 0 12px;font-size:12.5px;font-weight:600;text-transform:none;letter-spacing:-.005em;
+    color:#1c1c1e;display:flex;align-items:center;gap:9px;
+  }
+  .side-section h3::before{
+    content:"";display:inline-flex;width:26px;height:26px;border-radius:8px;
+    background:linear-gradient(180deg,#efe9ff,#dcd0ff);
+    box-shadow:inset 0 0 0 .5px rgba(122,93,255,.35), 0 4px 10px -4px rgba(122,93,255,.35);
+    background-image:
+      linear-gradient(180deg,#efe9ff,#dcd0ff),
+      url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%235b3fe0' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><rect x='3' y='3' width='7' height='7' rx='1.5'/><rect x='14' y='3' width='7' height='7' rx='1.5'/><rect x='3' y='14' width='7' height='7' rx='1.5'/><rect x='14' y='14' width='7' height='7' rx='1.5'/></svg>");
+    background-repeat:no-repeat;background-position:center;background-size:cover, 14px 14px;
+  }
+  .side-section .side-sub{font-size:11.5px;color:var(--muted);margin:-6px 0 12px;line-height:1.4}
 
   /* Toggle buttons in topbar */
   .btn.toggle-panel{background:#fff;border:1px solid var(--line-2);border-radius:8px;padding:6px 11px;font-weight:600;color:var(--ink-2);box-shadow:var(--shadow-1)}
@@ -303,39 +351,47 @@
   /* Palette (card types) — segmented tabs */
   .palette-tabs{
     display:flex;gap:2px;padding:3px;margin-bottom:12px;
-    background:#eef0f3;border-radius:9px;border:1px solid var(--line);
+    background:rgba(122,93,255,.08);border-radius:10px;border:.5px solid rgba(122,93,255,.15);
   }
   .palette-tab{
-    flex:1;font:inherit;font-size:11.5px;font-weight:600;letter-spacing:.01em;
-    color:var(--ink-2);background:transparent;border:0;border-radius:7px;
+    flex:1;font:inherit;font-size:11.5px;font-weight:600;letter-spacing:-.005em;
+    color:var(--ink-2);background:transparent;border:0;border-radius:8px;
     padding:6px 4px;cursor:pointer;transition:all .18s cubic-bezier(.2,.8,.2,1);
     white-space:nowrap;
   }
   .palette-tab:hover:not(.active){color:var(--ink)}
   .palette-tab.active{
-    background:#fff;color:var(--ink);
-    box-shadow:0 1px 2px rgba(0,0,0,.06), 0 0 0 .5px rgba(0,0,0,.04);
+    background:#fff;color:#5b3fe0;
+    box-shadow:0 2px 6px -2px rgba(122,93,255,.35), 0 0 0 .5px rgba(122,93,255,.25);
   }
   .palette-panel{display:none;animation:paletteFade .2s cubic-bezier(.2,.8,.2,1)}
   .palette-panel.active{display:block}
   @keyframes paletteFade{from{opacity:0;transform:translateY(2px)}to{opacity:1;transform:none}}
   .palette-section-label{
-    font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;
-    color:var(--muted);margin:12px 2px 6px;
+    font-size:10.5px;font-weight:600;text-transform:uppercase;letter-spacing:.09em;
+    color:var(--muted);margin:14px 2px 8px;
   }
-  .palette-panel > .palette-section-label:first-child{margin-top:0}
-  .palette-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+  .palette-panel > .palette-section-label:first-child{margin-top:2px}
+  .palette-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
   .palette-item{
-    display:flex;flex-direction:column;align-items:center;gap:6px;
-    padding:10px 6px;border:1px solid var(--line);border-radius:10px;
-    background:linear-gradient(180deg,#fff,#fafafc);
+    display:flex;flex-direction:column;align-items:center;gap:8px;
+    padding:12px 8px 10px;border:.5px solid rgba(60,60,67,.10);border-radius:12px;
+    background:linear-gradient(180deg,#ffffff 0%,#faf8ff 100%);
     cursor:grab;transition:all .18s cubic-bezier(.2,.8,.2,1);text-align:center;
     position:relative;
+    box-shadow:0 1px 0 rgba(255,255,255,.9) inset, 0 2px 8px -4px rgba(80,60,160,.10);
   }
-  .palette-item:hover{border-color:var(--accent);transform:translateY(-1px);box-shadow:0 4px 12px -4px rgba(10,132,255,.25), var(--shadow-2)}
+  .palette-item:hover{
+    border-color:rgba(122,93,255,.45);transform:translateY(-2px);
+    box-shadow:0 1px 0 rgba(255,255,255,.9) inset, 0 8px 20px -8px rgba(122,93,255,.35);
+  }
   .palette-item:active{cursor:grabbing;transform:translateY(0)}
-  .palette-icon{width:40px;height:32px;display:flex;align-items:center;justify-content:center}
-  .palette-label{font-size:11px;color:var(--ink-2);font-weight:500;letter-spacing:.01em}
+  .palette-icon{
+    width:100%;height:48px;display:flex;align-items:center;justify-content:center;
+    border-radius:9px;background:linear-gradient(180deg,#f6f2ff,#ece5ff);
+    box-shadow:inset 0 0 0 .5px rgba(122,93,255,.15);
+  }
+  .palette-label{font-size:11.5px;color:#1c1c1e;font-weight:600;letter-spacing:-.005em}
 
 
   /* ── Prompt cards (right flyout) — editorial + premium ─────── */
@@ -1283,14 +1339,17 @@
 </section>
 <div class="app">
   <header class="topbar">
-    <div class="brand"><div class="logo"></div><span>Discovery Canvas</span><button class="btn ico-btn" id="btnHome" title="Back to launcher" aria-label="Launcher" style="margin-left:10px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12l9-9 9 9"/><path d="M5 10v10h5v-6h4v6h5V10"/></svg></button></div>
+    <div class="brand"><div class="logo"></div><span class="brand-name">Discovery Canvas</span><button class="btn ico-btn" id="btnHome" title="Back to launcher" aria-label="Launcher" style="margin-left:6px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12l9-9 9 9"/><path d="M5 10v10h5v-6h4v6h5V10"/></svg></button></div>
 
-    <div class="btn-group icons" role="group" aria-label="Panels" style="margin-left:6px">
-      <button class="btn ico-btn" id="btnTogglePalette" title="Toggle palette (P)" aria-label="Toggle palette">
-        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a9 9 0 1 0 9 9c0-1.7-1.3-3-3-3h-2.5a2.5 2.5 0 0 1 0-5H16a4 4 0 0 0-4-4z"/><circle cx="7.5" cy="10.5" r="1"/><circle cx="10.5" cy="7" r="1"/><circle cx="14.5" cy="7" r="1"/></svg>
+    <div class="btn-group" role="group" aria-label="Panels" style="margin-left:8px;padding:4px">
+      <button class="pill-labeled" id="btnTogglePalette" title="Toggle palette (P)" aria-label="Toggle palette">
+        <span class="lbl-badge"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></span>
+        <span>Palette</span>
       </button>
-      <button class="btn ico-btn" id="btnTogglePrompts" title="Toggle prompts (Q)" aria-label="Toggle prompts">
-        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/><circle cx="12" cy="12" r="10"/></svg>
+      <span class="sep"></span>
+      <button class="pill-labeled" id="btnTogglePrompts" title="Toggle prompts (Q)" aria-label="Toggle prompts">
+        <span class="lbl-badge"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="14" rx="2"/><line x1="7" y1="9" x2="17" y2="9"/><line x1="7" y1="13" x2="13" y2="13"/></svg></span>
+        <span>Prompts</span>
       </button>
     </div>
 
@@ -1348,6 +1407,7 @@
   <aside class="left" id="leftPanel"><div class="side-scroll">
     <div class="side-section">
       <h3>Canvas Type</h3>
+      <div class="side-sub">Choose the working surface for this stage.</div>
       <select id="canvasType">
         <option value="whiteboard">Freestyle (empty)</option>
         <option value="matrix2x2">2×2 Matrix</option>
@@ -1365,14 +1425,15 @@
 
     <div class="side-section">
       <h3>Card Palette</h3>
+      <div class="side-sub">Drag any element onto the canvas.</div>
       <div id="palette">
         <!-- populated in JS -->
       </div>
-      <p class="empty" style="margin:8px 0 0;padding:0">Drag onto canvas to place.</p>
     </div>
 
     <div class="side-section">
       <h3>Swimlanes / Groups</h3>
+      <div class="side-sub">Organize the canvas into lanes or bands.</div>
       <div id="lanes"></div>
       <button class="btn sm" id="btnAddLane" style="width:100%;justify-content:center;margin-top:6px">+ Add Lane</button>
     </div>
