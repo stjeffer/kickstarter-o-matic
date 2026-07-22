@@ -53,7 +53,7 @@ export function viewportCenterWorld() {
 }
 
 // ============ Lane helpers ============
-function laneDefaultSize(orient) {
+export function laneDefaultSize(orient) {
   return orient === 'v' ? Math.round(WORLD_W / 4) : Math.round(WORLD_H / 4);
 }
 
