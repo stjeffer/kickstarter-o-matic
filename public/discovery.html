@@ -1580,6 +1580,14 @@
   <button data-ctx="reset"><span class="ico">100</span>Zoom 100%</button>
 </div>
 
+<div class="ctxmenu" id="ctxCardMenu">
+  <div class="ctx-label">Card</div>
+  <button data-cctx="copy"><span class="ico">⧉</span>Copy</button>
+  <button data-cctx="duplicate"><span class="ico">➕</span>Duplicate</button>
+  <button data-cctx="paste"><span class="ico">📋</span>Paste</button>
+  <div class="ctx-sep"></div>
+  <button data-cctx="delete" class="danger"><span class="ico">🗑</span>Delete</button>
+
 
 <div class="modal-backdrop" id="importModal">
   <div class="modal">
@@ -4736,10 +4744,58 @@ function renderAll(){
   viewport.addEventListener('contextmenu', e=>{
     e.preventDefault();
     e.stopPropagation();
-    if(e.target.closest('.card')) { hide(); return; }
+    const cardEl = e.target.closest('.card');
+    if(cardEl) { hide(); showCardMenu(cardEl.dataset.id, e.clientX, e.clientY); return; }
+    hideCardMenu();
     ctxPt = {x:e.clientX, y:e.clientY};
     show(e.clientX, e.clientY);
   });
+
+  // Card context menu
+  const cardMenu = $('#ctxCardMenu');
+  let ctxCardId = null, cardShownAt = 0, ctxCardPt = null;
+  function showCardMenu(id, x, y){
+    ctxCardId = id;
+    ctxCardPt = {x,y};
+    selectCard(id);
+    cardMenu.style.left = Math.min(x, window.innerWidth-220)+'px';
+    cardMenu.style.top  = Math.min(y, window.innerHeight-240)+'px';
+    cardMenu.classList.add('show');
+    cardShownAt = Date.now();
+    const pasteBtn = cardMenu.querySelector('[data-cctx="paste"]');
+    if(pasteBtn) pasteBtn.style.display = clipboardCard ? 'flex' : 'none';
+  }
+  function hideCardMenu(){ cardMenu.classList.remove('show'); ctxCardId=null; ctxCardPt=null; }
+  cardMenu.querySelectorAll('button[data-cctx]').forEach(b=>{
+    b.addEventListener('click', ()=>{
+      const k = b.dataset.cctx;
+      const c = state.cards.find(x=>x.id===ctxCardId);
+      if(!c && k!=='paste'){ hideCardMenu(); return; }
+      if(k==='copy'){
+        clipboardCard = JSON.parse(JSON.stringify(c));
+      } else if(k==='duplicate'){
+        const {id, painScoreId, ...rest} = c;
+        addCard({...rest, x:c.x+24, y:c.y+24, painPoint:false, painScoreId:undefined});
+      } else if(k==='paste' && clipboardCard){
+        const p = ctxCardPt ? clientToWorld(ctxCardPt.x, ctxCardPt.y) : viewportCenterWorld();
+        const {id, painScoreId, ...rest} = clipboardCard;
+        addCard({...rest, x:p.x, y:p.y, painPoint:false, painScoreId:undefined});
+        clipboardCard = JSON.parse(JSON.stringify({...rest, x:p.x+24, y:p.y+24}));
+      } else if(k==='delete'){
+        deleteCard(c.id);
+      }
+      hideCardMenu();
+    });
+  });
+  const outsideCloseCard = e=>{
+    if(!cardMenu.classList.contains('show')) return;
+    if(Date.now() - cardShownAt < 250) return;
+    if(cardMenu.contains(e.target)) return;
+    hideCardMenu();
+  };
+  document.addEventListener('mousedown', outsideCloseCard, true);
+  document.addEventListener('keydown', e=>{ if(e.key==='Escape') hideCardMenu(); });
+
   const outsideClose = e=>{
     if(!menu.classList.contains('show')) return;
     if(Date.now() - shownAt < 250) return;
