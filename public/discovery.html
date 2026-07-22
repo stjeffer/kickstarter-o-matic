@@ -2799,6 +2799,9 @@ function zoomAt(cx, cy, newScale){
 }
 
 let spaceDown=false;
+let clipboardCard=null;
+let lastMouseClient={x:null,y:null};
+viewport.addEventListener('mousemove', e=>{ lastMouseClient.x=e.clientX; lastMouseClient.y=e.clientY; });
 document.addEventListener('keydown', e=>{
   if(e.code==='Space' && !isEditing()){ spaceDown=true; viewport.style.cursor='grab'; }
   if((e.key==='Delete'||e.key==='Backspace') && !isEditing()){
@@ -2808,6 +2811,31 @@ document.addEventListener('keydown', e=>{
       state.selection.connId=null; renderConnections(); save();
     }
   }
+  const mod = e.metaKey || e.ctrlKey;
+  if(mod && (e.key==='c'||e.key==='C') && !isEditing() && state.selection.cardId){
+    const c = state.cards.find(x=>x.id===state.selection.cardId);
+    if(c){ clipboardCard = JSON.parse(JSON.stringify(c)); e.preventDefault(); }
+  }
+  if(mod && (e.key==='v'||e.key==='V') && !isEditing() && clipboardCard){
+    e.preventDefault();
+    let x, y;
+    if(lastMouseClient.x!=null){
+      const p = clientToWorld(lastMouseClient.x, lastMouseClient.y);
+      x = p.x; y = p.y;
+    } else {
+      x = (clipboardCard.x||200)+24; y = (clipboardCard.y||200)+24;
+    }
+    const {id, painScoreId, ...rest} = clipboardCard;
+    const nc = addCard({...rest, x, y, painPoint:false, painScoreId:undefined});
+    // update clipboard offset for repeat paste
+    clipboardCard = JSON.parse(JSON.stringify({...rest, x:x+24, y:y+24}));
+    if(nc && nc.id) selectCard(nc.id);
+  }
+  if(mod && (e.key==='d'||e.key==='D') && !isEditing() && state.selection.cardId){
+    e.preventDefault();
+    const c = state.cards.find(x=>x.id===state.selection.cardId);
+    if(c){ const {id, painScoreId, ...rest}=c; const nc=addCard({...rest, x:c.x+24, y:c.y+24, painPoint:false, painScoreId:undefined}); if(nc&&nc.id) selectCard(nc.id); }
+  }
   if((e.key==='Tab') && !isEditing() && state.canvasType==='mindmap' && state.selection.cardId){
     e.preventDefault(); addMindmapChild(state.selection.cardId);
   }
@@ -2815,6 +2843,7 @@ document.addEventListener('keydown', e=>{
 });
 document.addEventListener('keyup', e=>{ if(e.code==='Space'){spaceDown=false; viewport.style.cursor=''} });
 function isEditing(){ return document.activeElement && (document.activeElement.isContentEditable || ['INPUT','TEXTAREA','SELECT'].includes(document.activeElement.tagName)) }
+
 
 // ============ Ops ============
 function addCard(partial){
@@ -2839,6 +2868,7 @@ function addCard(partial){
   renderCards();
   selectCard(c.id);
   save();
+  return c;
 }
 function addMindmapChild(parentId){
   const parent = state.cards.find(c=>c.id===parentId);
