@@ -162,20 +162,29 @@
   .session-meta{display:flex;flex-direction:column;gap:1px;min-width:0;max-width:34%}
   .session-title{font-family:var(--font-heading);font-size:16px;font-weight:500;color:var(--ink);letter-spacing:-.015em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
   .session-sub{font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .stage-tabs{display:flex;gap:4px;padding:3px;background:#eef0f3;border:1px solid var(--line);border-radius:9px;flex:1;min-width:0;overflow-x:auto;align-items:center}
+  .stage-tabs{
+    display:flex;gap:2px;padding:4px;
+    background:linear-gradient(180deg,rgba(255,255,255,.96),rgba(246,244,252,.88));
+    border:.5px solid rgba(60,60,67,.14);border-radius:12px;
+    box-shadow:0 1px 0 rgba(255,255,255,.95) inset, 0 1px 2px rgba(30,20,60,.05), 0 6px 14px -8px rgba(80,60,160,.18);
+    flex:1;min-width:0;overflow-x:auto;align-items:center;
+  }
   .stage-tab{
-    font:inherit;font-size:12px;font-weight:600;color:var(--ink-2);
-    background:transparent;border:0;border-radius:7px;padding:6px 8px 6px 12px;cursor:pointer;
+    font:inherit;font-size:12px;font-weight:600;color:var(--ink-2);letter-spacing:-.005em;
+    background:transparent;border:0;border-radius:8px;padding:6px 10px 6px 12px;cursor:pointer;
     transition:all .18s cubic-bezier(.2,.8,.2,1);white-space:nowrap;display:flex;align-items:center;gap:6px;
   }
   .stage-tab .stage-num{
     display:inline-flex;align-items:center;justify-content:center;
-    width:18px;height:18px;border-radius:50%;background:rgba(0,0,0,.06);
-    font-size:10px;font-weight:700;color:var(--ink-2);
+    width:18px;height:18px;border-radius:50%;background:rgba(122,93,255,.12);
+    font-size:10px;font-weight:700;color:#5b3fe0;
   }
-  .stage-tab:hover:not(.active){color:var(--ink)}
-  .stage-tab.active{background:#fff;color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.06),0 0 0 .5px rgba(0,0,0,.04)}
-  .stage-tab.active .stage-num{background:var(--accent);color:#fff}
+  .stage-tab:hover:not(.active){color:var(--ink);background:rgba(90,70,180,.06)}
+  .stage-tab.active{
+    background:linear-gradient(180deg,#ffffff,#efe9ff);color:#5b3fe0;
+    box-shadow:0 0 0 .5px rgba(122,93,255,.4), 0 1px 0 rgba(255,255,255,.95) inset, 0 6px 14px -6px rgba(122,93,255,.45);
+  }
+  .stage-tab.active .stage-num{background:linear-gradient(180deg,#7a5dff,#5b3fe0);color:#fff}
   .stage-tab .tab-close{
     display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;
     border-radius:50%;border:0;background:transparent;color:var(--muted);cursor:pointer;
