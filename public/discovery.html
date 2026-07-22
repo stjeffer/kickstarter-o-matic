@@ -1308,14 +1308,17 @@
 </section>
 <div class="app">
   <header class="topbar">
-    <div class="brand"><div class="logo"></div><span>Discovery Canvas</span><button class="btn ico-btn" id="btnHome" title="Back to launcher" aria-label="Launcher" style="margin-left:10px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12l9-9 9 9"/><path d="M5 10v10h5v-6h4v6h5V10"/></svg></button></div>
+    <div class="brand"><div class="logo"></div><span class="brand-name">Discovery Canvas</span><button class="btn ico-btn" id="btnHome" title="Back to launcher" aria-label="Launcher" style="margin-left:6px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12l9-9 9 9"/><path d="M5 10v10h5v-6h4v6h5V10"/></svg></button></div>
 
-    <div class="btn-group icons" role="group" aria-label="Panels" style="margin-left:6px">
-      <button class="btn ico-btn" id="btnTogglePalette" title="Toggle palette (P)" aria-label="Toggle palette">
-        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a9 9 0 1 0 9 9c0-1.7-1.3-3-3-3h-2.5a2.5 2.5 0 0 1 0-5H16a4 4 0 0 0-4-4z"/><circle cx="7.5" cy="10.5" r="1"/><circle cx="10.5" cy="7" r="1"/><circle cx="14.5" cy="7" r="1"/></svg>
+    <div class="btn-group" role="group" aria-label="Panels" style="margin-left:8px;padding:4px">
+      <button class="pill-labeled" id="btnTogglePalette" title="Toggle palette (P)" aria-label="Toggle palette">
+        <span class="lbl-badge"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></span>
+        <span>Palette</span>
       </button>
-      <button class="btn ico-btn" id="btnTogglePrompts" title="Toggle prompts (Q)" aria-label="Toggle prompts">
-        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/><circle cx="12" cy="12" r="10"/></svg>
+      <span class="sep"></span>
+      <button class="pill-labeled" id="btnTogglePrompts" title="Toggle prompts (Q)" aria-label="Toggle prompts">
+        <span class="lbl-badge"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="14" rx="2"/><line x1="7" y1="9" x2="17" y2="9"/><line x1="7" y1="13" x2="13" y2="13"/></svg></span>
+        <span>Prompts</span>
       </button>
     </div>
 
