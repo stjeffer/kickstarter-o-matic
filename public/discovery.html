@@ -4883,10 +4883,15 @@ const LS_SAMPLE_JSON = {
   sectionTitle.textContent = LS_CATS.find(c=>c.key===currentCat).label;
 
   function updateLaunchBtn(){
-    if(!lsSelected){ launchBtn.disabled = true; launchBtn.textContent = 'Select a canvas →'; return; }
+    const raw = $('#lsImportText').value.trim();
+    const hasJson = raw.length > 0;
+    if(!lsSelected && !hasJson){
+      launchBtn.disabled = true; launchBtn.textContent = 'Select a canvas →'; return;
+    }
     launchBtn.disabled = false;
-    const hasJson = $('#lsImportText').value.trim().length > 0;
-    launchBtn.textContent = hasJson ? 'Import & launch →' : 'Launch →';
+    if(lsSelected && hasJson) launchBtn.textContent = 'Import & launch →';
+    else if(hasJson) launchBtn.textContent = 'Import JSON & launch →';
+    else launchBtn.textContent = 'Launch →';
   }
   function renderGrid(){
     const q = (searchEl.value||'').trim().toLowerCase();
@@ -4926,11 +4931,35 @@ const LS_SAMPLE_JSON = {
   searchEl.addEventListener('input', renderGrid);
   renderGrid();
 
+  function openImport(){ importBox.classList.add('open'); }
   importToggle.addEventListener('click', ()=>{
     importBox.classList.toggle('open');
     if(importBox.classList.contains('open')) $('#lsImportText').focus();
   });
-  $('#lsImportText').addEventListener('input', ()=>{ $('#lsImportErr').textContent=''; updateLaunchBtn(); });
+  const importTa = $('#lsImportText');
+  function validateJson(){
+    const raw = importTa.value.trim();
+    const errEl = $('#lsImportErr');
+    if(!raw){ errEl.textContent=''; updateLaunchBtn(); return; }
+    try{ JSON.parse(raw); errEl.textContent=''; errEl.style.color=''; }
+    catch(e){ errEl.style.color='#c0392b'; errEl.textContent='Invalid JSON: '+e.message; }
+    updateLaunchBtn();
+  }
+  importTa.addEventListener('input', validateJson);
+  importTa.addEventListener('paste', ()=>{ setTimeout(validateJson, 0); });
+  // Route paste from anywhere on the launcher into the JSON box when it looks like JSON
+  scr.addEventListener('paste', (e)=>{
+    if(document.activeElement === importTa) return;
+    const text = (e.clipboardData||window.clipboardData)?.getData('text');
+    if(!text) return;
+    const trimmed = text.trim();
+    if(!(trimmed.startsWith('{') || trimmed.startsWith('['))) return;
+    e.preventDefault();
+    openImport();
+    importTa.value = text;
+    importTa.focus();
+    validateJson();
+  });
   $('#lsSkip').addEventListener('click', ()=>{
     state.session=null; state.canvasType='whiteboard';
     state.lanes=[]; state.prompts=[]; state.cards=[]; state.connections=[];
@@ -4938,24 +4967,35 @@ const LS_SAMPLE_JSON = {
     closeLauncher();
   });
   $('#lsPasteSample').addEventListener('click', ()=>{
-    $('#lsImportText').value = JSON.stringify(LS_SAMPLE_JSON, null, 2);
-    $('#lsImportErr').textContent=''; updateLaunchBtn();
+    openImport();
+    importTa.value = JSON.stringify(LS_SAMPLE_JSON, null, 2);
+    validateJson();
   });
   launchBtn.addEventListener('click', ()=>{
-    const err = $('#lsImportErr'); err.textContent='';
-    if(!lsSelected){ err.textContent='Pick a canvas first.'; return; }
-    const mode = LS_MODES.find(m=>m.key===lsSelected);
-    if(mode.blank){
-      state.session=null; state.canvasType = mode.ct || 'whiteboard';
+    const err = $('#lsImportErr'); err.style.color=''; err.textContent='';
+    const raw = importTa.value.trim();
+    let data = null;
+    if(raw){
+      try{ data = JSON.parse(raw); }
+      catch(e){ err.style.color='#c0392b'; err.textContent='Invalid JSON: '+e.message; openImport(); return; }
+    }
+    if(!lsSelected && !data){ err.textContent='Pick a canvas or paste a session JSON.'; return; }
+    if(lsSelected){
+      const mode = LS_MODES.find(m=>m.key===lsSelected);
+      if(mode.blank){
+        state.session=null; state.canvasType = mode.ct || 'whiteboard';
+        state.lanes=[]; state.prompts=[]; state.cards=[]; state.connections=[];
+        state.view={x:40,y:40,scale:1};
+      } else {
+        applyTemplate(mode.key);
+      }
+    } else {
+      state.session=null; state.canvasType='whiteboard';
       state.lanes=[]; state.prompts=[]; state.cards=[]; state.connections=[];
       state.view={x:40,y:40,scale:1};
-    } else {
-      applyTemplate(mode.key);
     }
-    const raw = $('#lsImportText').value.trim();
-    if(raw){
+    if(data){
       try{
-        const data = JSON.parse(raw);
         if(Array.isArray(data.stages)) loadSessionFromSchema(data);
         else{
           state.session=null;
@@ -4965,7 +5005,7 @@ const LS_SAMPLE_JSON = {
           if(Array.isArray(data.cards)) state.cards=data.cards;
           if(Array.isArray(data.connections)) state.connections=data.connections;
         }
-      }catch(e){ err.textContent='Invalid JSON: '+e.message; return; }
+      }catch(e){ err.style.color='#c0392b'; err.textContent='Could not load session: '+e.message; openImport(); return; }
     }
     $('#canvasType').value = state.canvasType;
     renderAll(); save();
