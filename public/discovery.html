@@ -2868,6 +2868,7 @@ function addCard(partial){
   renderCards();
   selectCard(c.id);
   save();
+  return c;
 }
 function addMindmapChild(parentId){
   const parent = state.cards.find(c=>c.id===parentId);
