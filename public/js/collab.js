@@ -6,8 +6,19 @@ import { state, save, setOnSaveHook } from './state.js';
 import { STORAGE_KEY } from './constants.js';
 
 // Helper: wrap a plain object as a LiveObject for storage
+// Only include primitive values (string, number, boolean, null) to avoid nesting issues
 function toLive(obj) {
-  return new LiveObject({ ...obj });
+  const clean = {};
+  for (const [k, v] of Object.entries(obj)) {
+    if (v === null || typeof v === 'string' || typeof v === 'number' || typeof v === 'boolean') {
+      clean[k] = v;
+    } else if (Array.isArray(v)) {
+      clean[k] = JSON.stringify(v); // serialize arrays as JSON strings
+    } else if (typeof v === 'object' && v !== null) {
+      clean[k] = JSON.stringify(v); // serialize nested objects as JSON strings
+    }
+  }
+  return new LiveObject(clean);
 }
 
 // ============ Liveblocks client ============
@@ -208,35 +219,50 @@ function doPush() {
   if (!storageRoot || !room) return;
   syncing = true;
   lastPushTime = Date.now();
-  console.log('[collab] Pushing state — cards:', state.cards.length);
+  console.log('[collab] Pushing state — cards:', state.cards.length, 'first:', JSON.stringify(state.cards[0]));
 
   try {
-    room.batch(() => {
+    const doMutations = () => {
       // Replace cards
       const liveCards = storageRoot.get('cards');
       while (liveCards.length > 0) liveCards.delete(0);
-      for (const c of state.cards) liveCards.push(toLive(c));
+      for (const c of state.cards) {
+        if (c && c.id) liveCards.push(toLive(c));
+      }
 
       // Replace connections
       const liveConns = storageRoot.get('connections');
       while (liveConns.length > 0) liveConns.delete(0);
-      for (const c of state.connections) liveConns.push(toLive(c));
+      for (const c of state.connections) {
+        if (c && c.id) liveConns.push(toLive(c));
+      }
 
       // Replace lanes
       const liveLanes = storageRoot.get('lanes');
       while (liveLanes.length > 0) liveLanes.delete(0);
-      for (const l of state.lanes) liveLanes.push(toLive(l));
+      for (const l of state.lanes) {
+        if (l && l.id) liveLanes.push(toLive(l));
+      }
 
       // Replace prompts
       const livePrompts = storageRoot.get('prompts');
       while (livePrompts.length > 0) livePrompts.delete(0);
-      for (const p of state.prompts) livePrompts.push(toLive(p));
+      for (const p of state.prompts) {
+        if (p && p.id) livePrompts.push(toLive(p));
+      }
 
       // Meta
       const liveMeta = storageRoot.get('meta');
       liveMeta.set('canvasType', state.canvasType);
       liveMeta.set('session', state.session ? JSON.parse(JSON.stringify(state.session)) : null);
-    });
+    };
+
+    // Use batch if available, otherwise run directly
+    if (typeof room.batch === 'function') {
+      room.batch(doMutations);
+    } else {
+      doMutations();
+    }
   } catch (e) {
     console.error('[collab] Push failed:', e);
   }
@@ -273,18 +299,26 @@ function toLiteral(item) {
 
   // Try .get() method — LiveObjects in Liveblocks use .get(key)
   if (typeof item.get === 'function') {
-    // We need to know the keys — try _serialize, toJSON, or iterate
+    // We need to know the keys — try toJSON first
     if (typeof item.toJSON === 'function') return item.toJSON();
 
-    // Try reading known card properties directly
+    // Read known card properties directly
     const knownKeys = ['id', 'type', 'x', 'y', 'w', 'h', 'text', 'color', 'lane',
       'from', 'to', 'fromAnchor', 'toAnchor', 'name', 'orientation', 'size',
-      'label', 'stage', 'prompt', 'collapsed', 'locked'];
+      'label', 'stage', 'prompt', 'collapsed', 'locked', 'tags', 'metadata'];
     const result = {};
     let found = false;
     for (const k of knownKeys) {
       const v = item.get(k);
-      if (v !== undefined) { result[k] = v; found = true; }
+      if (v !== undefined) {
+        // Try parsing JSON-encoded arrays/objects
+        if (typeof v === 'string' && (v.startsWith('[') || v.startsWith('{'))) {
+          try { result[k] = JSON.parse(v); } catch { result[k] = v; }
+        } else {
+          result[k] = v;
+        }
+        found = true;
+      }
     }
     if (found) return result;
   }
@@ -329,10 +363,10 @@ function pullStateFromStorage() {
     const livePrompts = storageRoot.get('prompts');
     const liveMeta = storageRoot.get('meta');
 
-    state.cards = liveListToArray(liveCards).map(toLiteral);
-    state.connections = liveListToArray(liveConns).map(toLiteral);
-    state.lanes = liveListToArray(liveLanes).map(toLiteral);
-    state.prompts = liveListToArray(livePrompts).map(toLiteral);
+    state.cards = liveListToArray(liveCards).map(toLiteral).filter(c => c && c.id && c.x !== undefined);
+    state.connections = liveListToArray(liveConns).map(toLiteral).filter(c => c && c.id && c.from && c.to);
+    state.lanes = liveListToArray(liveLanes).map(toLiteral).filter(l => l && l.id);
+    state.prompts = liveListToArray(livePrompts).map(toLiteral).filter(p => p && p.id);
 
     console.log('[collab] Pulled cards:', state.cards.length, 'first card:', JSON.stringify(state.cards[0]));
 
