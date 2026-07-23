@@ -31,8 +31,9 @@ let localNickname = '';
 let localColor = '';
 let syncing = false; // prevents feedback loops
 let lastPushTime = 0; // debounce: ignore subscription events shortly after pushing
-const PUSH_DEBOUNCE_MS = 500;
+const PUSH_DEBOUNCE_MS = 2000; // 2 seconds — generous to prevent self-trigger
 let storageRoot = null;
+let pushTimer = null; // throttle pushes
 
 // ============ Generate / validate room codes ============
 export function generateRoomCode() {
@@ -202,42 +203,53 @@ export function disconnect() {
 }
 
 // ============ Push local state → Liveblocks Storage ============
-export function pushStateToStorage() {
-  if (!storageRoot) return;
+function doPush() {
+  if (!storageRoot || !room) return;
   syncing = true;
   lastPushTime = Date.now();
   console.log('[collab] Pushing state — cards:', state.cards.length);
 
   try {
-    // Replace cards
-    const liveCards = storageRoot.get('cards');
-    while (liveCards.length > 0) liveCards.delete(0);
-    for (const c of state.cards) liveCards.push(toLive(c));
+    room.batch(() => {
+      // Replace cards
+      const liveCards = storageRoot.get('cards');
+      while (liveCards.length > 0) liveCards.delete(0);
+      for (const c of state.cards) liveCards.push(toLive(c));
 
-    // Replace connections
-    const liveConns = storageRoot.get('connections');
-    while (liveConns.length > 0) liveConns.delete(0);
-    for (const c of state.connections) liveConns.push(toLive(c));
+      // Replace connections
+      const liveConns = storageRoot.get('connections');
+      while (liveConns.length > 0) liveConns.delete(0);
+      for (const c of state.connections) liveConns.push(toLive(c));
 
-    // Replace lanes
-    const liveLanes = storageRoot.get('lanes');
-    while (liveLanes.length > 0) liveLanes.delete(0);
-    for (const l of state.lanes) liveLanes.push(toLive(l));
+      // Replace lanes
+      const liveLanes = storageRoot.get('lanes');
+      while (liveLanes.length > 0) liveLanes.delete(0);
+      for (const l of state.lanes) liveLanes.push(toLive(l));
 
-    // Replace prompts
-    const livePrompts = storageRoot.get('prompts');
-    while (livePrompts.length > 0) livePrompts.delete(0);
-    for (const p of state.prompts) livePrompts.push(toLive(p));
+      // Replace prompts
+      const livePrompts = storageRoot.get('prompts');
+      while (livePrompts.length > 0) livePrompts.delete(0);
+      for (const p of state.prompts) livePrompts.push(toLive(p));
 
-    // Meta
-    const liveMeta = storageRoot.get('meta');
-    liveMeta.set('canvasType', state.canvasType);
-    liveMeta.set('session', state.session ? JSON.parse(JSON.stringify(state.session)) : null);
+      // Meta
+      const liveMeta = storageRoot.get('meta');
+      liveMeta.set('canvasType', state.canvasType);
+      liveMeta.set('session', state.session ? JSON.parse(JSON.stringify(state.session)) : null);
+    });
   } catch (e) {
     console.error('[collab] Push failed:', e);
   }
 
   syncing = false;
+}
+
+// Throttled push: coalesce rapid save() calls into one push
+export function pushStateToStorage() {
+  if (pushTimer) clearTimeout(pushTimer);
+  pushTimer = setTimeout(() => {
+    pushTimer = null;
+    doPush();
+  }, 300); // wait 300ms for rapid saves to settle
 }
 
 // ============ Pull Liveblocks Storage → local state ============
