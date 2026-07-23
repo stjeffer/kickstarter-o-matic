@@ -1,9 +1,7 @@
-// Collaboration module: Yjs + Liveblocks for real-time multi-user sessions
-// Uses CDN ESM imports via import map defined in discovery.html
+// Collaboration module: Liveblocks Storage for real-time multi-user sessions
+// Uses a single CDN import — no Yjs, no module deduplication issues
 
-import * as Y from 'yjs';
-import { createClient } from '@liveblocks/client';
-import { getYjsProviderForRoom } from '@liveblocks/yjs';
+import { createClient, LiveList, LiveMap, LiveObject } from '@liveblocks/client';
 import { state, save, setOnSaveHook } from './state.js';
 
 // ============ Liveblocks client ============
@@ -21,20 +19,17 @@ const PRESENCE_COLORS = [
   '#ff6482', '#63da38', '#ff9f0a', '#bf5af2', '#64d2ff',
 ];
 
-let ydoc = null;
-let yProvider = null;
-let awareness = null;
 let room = null;
 let leaveRoomFn = null;
-let currentRoomId = null;
 let roomCode = null;
 let localNickname = '';
 let localColor = '';
 let syncing = false; // prevents feedback loops
+let storageRoot = null;
 
 // ============ Generate / validate room codes ============
 export function generateRoomCode() {
-  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // no I/O/0/1 to avoid confusion
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
   let code = '';
   for (let i = 0; i < 6; i++) code += chars[Math.floor(Math.random() * chars.length)];
   return code;
@@ -46,27 +41,38 @@ export function isValidRoomCode(code) {
 
 // ============ Get connected peers ============
 export function getPeers() {
-  if (!awareness) return [];
-  const states = awareness.getStates();
+  if (!room) return [];
+  const others = room.getOthers();
+  const self = room.getSelf();
   const peers = [];
-  states.forEach((peerState, clientId) => {
-    if (peerState.user) {
+
+  if (self && self.presence) {
+    peers.push({
+      clientId: self.connectionId,
+      nickname: self.presence.nickname || 'Anonymous',
+      color: self.presence.color || '#888',
+      isLocal: true,
+    });
+  }
+
+  for (const other of others) {
+    if (other.presence) {
       peers.push({
-        clientId,
-        nickname: peerState.user.nickname || 'Anonymous',
-        color: peerState.user.color || '#888',
-        isLocal: clientId === ydoc.clientID,
+        clientId: other.connectionId,
+        nickname: other.presence.nickname || 'Anonymous',
+        color: other.presence.color || '#888',
+        isLocal: false,
       });
     }
-  });
+  }
   return peers;
 }
 
 export function getRoomCode() { return roomCode; }
-export function isConnected() { return !!yProvider; }
+export function isConnected() { return !!room; }
 export function getNickname() { return localNickname; }
 
-// ============ Awareness change callbacks ============
+// ============ Callbacks ============
 let onPeersChange = null;
 export function setOnPeersChange(fn) { onPeersChange = fn; }
 
@@ -80,7 +86,7 @@ export function createRoom(nickname) {
 }
 
 export function joinRoom(code, nickname) {
-  if (yProvider) disconnect();
+  if (room) disconnect();
 
   code = code.toUpperCase().trim();
   if (!isValidRoomCode(code)) {
@@ -91,9 +97,7 @@ export function joinRoom(code, nickname) {
   localNickname = nickname || 'Anonymous';
   localColor = PRESENCE_COLORS[Math.floor(Math.random() * PRESENCE_COLORS.length)];
 
-  // Enter Liveblocks room
   const roomId = ROOM_PREFIX + code;
-  currentRoomId = roomId;
   console.log('[collab] Entering Liveblocks room:', roomId);
 
   try {
@@ -103,6 +107,13 @@ export function joinRoom(code, nickname) {
         color: localColor,
         joinedAt: Date.now(),
       },
+      initialStorage: {
+        cards: new LiveList([]),
+        connections: new LiveList([]),
+        lanes: new LiveList([]),
+        prompts: new LiveList([]),
+        meta: new LiveObject({ canvasType: 'whiteboard', session: null }),
+      },
     });
     room = result.room;
     leaveRoomFn = result.leave;
@@ -111,66 +122,56 @@ export function joinRoom(code, nickname) {
     throw new Error('Failed to connect. Check browser console for details.');
   }
 
-  // Get Yjs provider from the room
-  yProvider = getYjsProviderForRoom(room);
-  ydoc = yProvider.getYDoc();
-  awareness = yProvider.awareness;
-  console.log('[collab] Liveblocks Yjs provider ready, clientID:', ydoc.clientID);
+  console.log('[collab] Room entered, waiting for storage...');
 
-  // Shared types matching our state structure
-  const yCards = ydoc.getArray('cards');
-  const yConnections = ydoc.getArray('connections');
-  const yLanes = ydoc.getArray('lanes');
-  const yPrompts = ydoc.getArray('prompts');
-  const yMeta = ydoc.getMap('meta');
-
-  // Set local awareness/presence state
-  awareness.setLocalStateField('user', {
-    nickname: localNickname,
-    color: localColor,
-    joinedAt: Date.now(),
-  });
-
-  // Listen for awareness changes (peers joining/leaving)
-  awareness.on('update', () => {
+  // Listen for others joining/leaving (presence)
+  room.subscribe('others', () => {
     const peers = getPeers();
-    console.log('[collab] Awareness update, peers:', peers.length, peers.map(p => p.nickname));
+    console.log('[collab] Others changed, peers:', peers.length);
     if (onPeersChange) onPeersChange(peers);
   });
 
-  // Notify connected
-  if (onConnectionStatusChange) onConnectionStatusChange(true);
-
-  // Listen for room connection status changes
+  // Listen for connection status
   room.subscribe('status', (status) => {
+    console.log('[collab] Connection status:', status);
     const connected = status === 'connected';
-    console.log('[collab] Room status:', status);
     if (onConnectionStatusChange) onConnectionStatusChange(connected);
   });
 
-  // Sync initial state: wait briefly to see if room has existing data
-  setTimeout(() => {
-    console.log('[collab] Initial sync check — yCards:', yCards.length, 'localCards:', state.cards.length);
-    if (yCards.length === 0 && state.cards.length > 0) {
-      console.log('[collab] Pushing local state to Yjs (first peer)');
-      pushStateToYjs();
-    } else if (yCards.length > 0) {
-      console.log('[collab] Pulling existing state from Yjs');
-      pullStateFromYjs();
-    }
-  }, 1500);
+  // Notify UI immediately
+  if (onConnectionStatusChange) onConnectionStatusChange(true);
+  if (onPeersChange) onPeersChange(getPeers());
 
-  // Observe remote changes
-  yCards.observe(() => { if (!syncing) { console.log('[collab] Remote cards change detected'); pullStateFromYjs(); } });
-  yConnections.observe(() => { if (!syncing) pullStateFromYjs(); });
-  yLanes.observe(() => { if (!syncing) pullStateFromYjs(); });
-  yPrompts.observe(() => { if (!syncing) pullStateFromYjs(); });
-  yMeta.observe(() => { if (!syncing) pullMetaFromYjs(); });
+  // Get storage and set up sync
+  room.getStorage().then((storage) => {
+    storageRoot = storage.root;
+    console.log('[collab] Storage loaded');
+
+    const liveCards = storageRoot.get('cards');
+    const liveLanes = storageRoot.get('lanes');
+
+    // If storage is empty and we have local state, push it
+    if (liveCards.length === 0 && state.cards.length > 0) {
+      console.log('[collab] First peer — pushing local state');
+      pushStateToStorage();
+    } else if (liveCards.length > 0) {
+      console.log('[collab] Existing state in room — pulling');
+      pullStateFromStorage();
+    }
+
+    // Subscribe to storage changes from other users
+    room.subscribe(storageRoot, () => {
+      if (!syncing) {
+        console.log('[collab] Remote storage change detected');
+        pullStateFromStorage();
+      }
+    }, { isDeep: true });
+  });
 
   // Save room info to localStorage for reconnect
   localStorage.setItem('collab-room', JSON.stringify({ code, nickname: localNickname }));
 
-  // Register save hook to sync local changes to Yjs
+  // Register save hook to sync local changes
   setOnSaveHook(() => syncLocalChange());
 
   return code;
@@ -183,10 +184,7 @@ export function disconnect() {
     leaveRoomFn = null;
   }
   room = null;
-  currentRoomId = null;
-  yProvider = null;
-  ydoc = null;
-  awareness = null;
+  storageRoot = null;
   roomCode = null;
   localStorage.removeItem('collab-room');
   setOnSaveHook(null);
@@ -194,87 +192,88 @@ export function disconnect() {
   if (onConnectionStatusChange) onConnectionStatusChange(false);
 }
 
-// ============ Push local state → Yjs ============
-export function pushStateToYjs() {
-  if (!ydoc) return;
+// ============ Push local state → Liveblocks Storage ============
+export function pushStateToStorage() {
+  if (!storageRoot) return;
   syncing = true;
-  console.log('[collab] Pushing state to Yjs — cards:', state.cards.length, 'connections:', state.connections.length);
+  console.log('[collab] Pushing state — cards:', state.cards.length);
 
-  const yCards = ydoc.getArray('cards');
-  const yConnections = ydoc.getArray('connections');
-  const yLanes = ydoc.getArray('lanes');
-  const yPrompts = ydoc.getArray('prompts');
-  const yMeta = ydoc.getMap('meta');
+  try {
+    // Replace cards
+    const liveCards = storageRoot.get('cards');
+    while (liveCards.length > 0) liveCards.delete(0);
+    for (const c of state.cards) liveCards.push({ ...c });
 
-  ydoc.transact(() => {
-    yCards.delete(0, yCards.length);
-    yCards.push(state.cards.map(c => ({ ...c })));
+    // Replace connections
+    const liveConns = storageRoot.get('connections');
+    while (liveConns.length > 0) liveConns.delete(0);
+    for (const c of state.connections) liveConns.push({ ...c });
 
-    yConnections.delete(0, yConnections.length);
-    yConnections.push(state.connections.map(c => ({ ...c })));
+    // Replace lanes
+    const liveLanes = storageRoot.get('lanes');
+    while (liveLanes.length > 0) liveLanes.delete(0);
+    for (const l of state.lanes) liveLanes.push({ ...l });
 
-    yLanes.delete(0, yLanes.length);
-    yLanes.push(state.lanes.map(l => ({ ...l })));
+    // Replace prompts
+    const livePrompts = storageRoot.get('prompts');
+    while (livePrompts.length > 0) livePrompts.delete(0);
+    for (const p of state.prompts) livePrompts.push({ ...p });
 
-    yPrompts.delete(0, yPrompts.length);
-    yPrompts.push(state.prompts.map(p => ({ ...p })));
-
-    yMeta.set('canvasType', state.canvasType);
-    if (state.session) {
-      yMeta.set('session', JSON.parse(JSON.stringify(state.session)));
-    }
-  });
-
-  syncing = false;
-}
-
-// ============ Pull Yjs → local state ============
-function pullStateFromYjs() {
-  if (!ydoc) return;
-  syncing = true;
-  console.log('[collab] Pulling state from Yjs');
-
-  const yCards = ydoc.getArray('cards');
-  const yConnections = ydoc.getArray('connections');
-  const yLanes = ydoc.getArray('lanes');
-  const yPrompts = ydoc.getArray('prompts');
-
-  state.cards = yCards.toArray().map(c => ({ ...c }));
-  state.connections = yConnections.toArray().map(c => ({ ...c }));
-  state.lanes = yLanes.toArray().map(l => ({ ...l }));
-  state.prompts = yPrompts.toArray().map(p => ({ ...p }));
-
-  if (window.__renderAll) window.__renderAll();
-  save();
-
-  syncing = false;
-}
-
-function pullMetaFromYjs() {
-  if (!ydoc) return;
-  syncing = true;
-
-  const yMeta = ydoc.getMap('meta');
-  const ct = yMeta.get('canvasType');
-  if (ct && ct !== state.canvasType) {
-    state.canvasType = ct;
-    const sel = document.getElementById('canvasType');
-    if (sel) sel.value = ct;
+    // Meta
+    const liveMeta = storageRoot.get('meta');
+    liveMeta.set('canvasType', state.canvasType);
+    liveMeta.set('session', state.session ? JSON.parse(JSON.stringify(state.session)) : null);
+  } catch (e) {
+    console.error('[collab] Push failed:', e);
   }
-  const sess = yMeta.get('session');
-  if (sess) state.session = JSON.parse(JSON.stringify(sess));
-
-  if (window.__renderAll) window.__renderAll();
-  save();
 
   syncing = false;
 }
 
-// ============ Notify Yjs of local changes ============
-export function syncLocalChange() {
-  if (!ydoc || syncing) return;
-  pushStateToYjs();
+// ============ Pull Liveblocks Storage → local state ============
+function pullStateFromStorage() {
+  if (!storageRoot) return;
+  syncing = true;
+  console.log('[collab] Pulling state from storage');
+
+  try {
+    const liveCards = storageRoot.get('cards');
+    const liveConns = storageRoot.get('connections');
+    const liveLanes = storageRoot.get('lanes');
+    const livePrompts = storageRoot.get('prompts');
+    const liveMeta = storageRoot.get('meta');
+
+    state.cards = liveCards.toArray().map(c => typeof c === 'object' ? { ...c } : c);
+    state.connections = liveConns.toArray().map(c => typeof c === 'object' ? { ...c } : c);
+    state.lanes = liveLanes.toArray().map(l => typeof l === 'object' ? { ...l } : l);
+    state.prompts = livePrompts.toArray().map(p => typeof p === 'object' ? { ...p } : p);
+
+    const ct = liveMeta.get('canvasType');
+    if (ct && ct !== state.canvasType) {
+      state.canvasType = ct;
+      const sel = document.getElementById('canvasType');
+      if (sel) sel.value = ct;
+    }
+    const sess = liveMeta.get('session');
+    if (sess) state.session = JSON.parse(JSON.stringify(sess));
+
+    if (window.__renderAll) window.__renderAll();
+    save();
+  } catch (e) {
+    console.error('[collab] Pull failed:', e);
+  }
+
+  syncing = false;
 }
+
+// ============ Sync local changes ============
+export function syncLocalChange() {
+  if (!storageRoot || syncing) return;
+  pushStateToStorage();
+}
+
+// Keep same export name for collab-ui.js compatibility
+export { pushStateToStorage as pushStateToYjs };
 
 // ============ Auto-reconnect on page load ============
 export function tryAutoReconnect() {
