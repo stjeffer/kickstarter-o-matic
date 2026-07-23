@@ -1143,6 +1143,12 @@
 }
 .room-code-label{ color:var(--muted); font-weight:600; text-transform:uppercase; font-size:10px; letter-spacing:.08em; }
 
+/* Collab control pill — the whole group matches the button radius */
+.btn-group.collab{
+  border-radius:999px;
+  padding:4px 6px;
+  background:linear-gradient(180deg,rgba(255,255,255,.96),rgba(246,244,252,.88));
+}
 /* Collab button — Apple pill */
 .btn-collab{
   display:inline-flex; align-items:center; gap:7px;
