@@ -2,11 +2,12 @@
 import { $ } from './utils.js';
 import { escapeHtml } from './utils.js';
 import {
-  createRoom, joinRoom, disconnect, getPeers, getRoomCode,
+  createRoom, joinRoom, getPeers, getRoomCode,
   isConnected, getNickname, isValidRoomCode,
   setOnPeersChange, setOnConnectionStatusChange, syncLocalChange,
-  tryAutoReconnect,
+  tryAutoReconnect, deleteRoomAndDisconnect,
 } from './collab.js';
+import { runExport } from './export.js';
 
 // ============ Render presence pills ============
 function renderPresencePills(peers) {
@@ -132,12 +133,48 @@ function handleJoin() {
   }
 }
 
-function handleDisconnect() {
-  disconnect();
+function handleEndSession() {
   closeCollabModal();
+  openEndSessionModal();
+}
+
+function openEndSessionModal() {
+  const modal = $('#endSessionModal');
+  if (!modal) return;
+  modal.classList.add('open');
+}
+
+function closeEndSessionModal() {
+  const modal = $('#endSessionModal');
+  if (modal) modal.classList.remove('open');
+}
+
+async function handleEndSessionConfirm() {
+  const btn = $('#endSessionConfirm');
+  if (btn) {
+    btn.disabled = true;
+    btn.textContent = '⏳ Cleaning up…';
+  }
+
+  await deleteRoomAndDisconnect();
+
+  closeEndSessionModal();
   updateRoomCodeDisplay();
   updateStatusBadge(false);
   renderPresencePills([]);
+
+  if (btn) {
+    btn.disabled = false;
+    btn.textContent = '🗑️ Delete & Disconnect';
+  }
+}
+
+async function handleEndSessionExport(kind) {
+  try {
+    await runExport(kind);
+  } catch (e) {
+    console.error('[collab-ui] Export failed:', e);
+  }
 }
 
 function handleCopyCode() {
@@ -164,8 +201,17 @@ export function initCollabUI() {
   $('#collabModal')?.addEventListener('click', e => { if (e.target.id === 'collabModal') closeCollabModal(); });
   $('#collabCreateBtn')?.addEventListener('click', handleCreate);
   $('#collabJoinBtn')?.addEventListener('click', handleJoin);
-  $('#collabDisconnectBtn')?.addEventListener('click', handleDisconnect);
+  $('#collabEndSessionBtn')?.addEventListener('click', handleEndSession);
   $('#collabCopyBtn')?.addEventListener('click', handleCopyCode);
+
+  // End session modal events
+  $('#endSessionCancel')?.addEventListener('click', closeEndSessionModal);
+  $('#endSessionModal')?.addEventListener('click', e => { if (e.target.id === 'endSessionModal') closeEndSessionModal(); });
+  $('#endSessionConfirm')?.addEventListener('click', handleEndSessionConfirm);
+  $('#endSessionExportJSON')?.addEventListener('click', () => handleEndSessionExport('json'));
+  $('#endSessionExportPNG')?.addEventListener('click', () => handleEndSessionExport('png'));
+  $('#endSessionExportPDF')?.addEventListener('click', () => handleEndSessionExport('pdf'));
+  $('#endSessionExportDOCX')?.addEventListener('click', () => handleEndSessionExport('docx'));
 
   // Room code display copy on click
   $('#roomCodeDisplay')?.addEventListener('click', () => {

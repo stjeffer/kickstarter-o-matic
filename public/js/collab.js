@@ -214,6 +214,48 @@ export function disconnect() {
   if (onConnectionStatusChange) onConnectionStatusChange(false);
 }
 
+// ============ Delete room data from Liveblocks, then disconnect ============
+export async function deleteRoomAndDisconnect() {
+  if (!storageRoot || !room) {
+    disconnect();
+    return;
+  }
+
+  syncing = true;
+  try {
+    const doDelete = () => {
+      // Clear all LiveLists
+      for (const key of ['cards', 'connections', 'lanes', 'prompts']) {
+        const list = storageRoot.get(key);
+        if (list) {
+          while (list.length > 0) list.delete(0);
+        }
+      }
+      // Reset meta
+      const meta = storageRoot.get('meta');
+      if (meta) {
+        meta.set('canvasType', 'whiteboard');
+        meta.set('session', null);
+      }
+    };
+
+    if (typeof room.batch === 'function') {
+      room.batch(doDelete);
+    } else {
+      doDelete();
+    }
+
+    // Brief pause to let Liveblocks propagate the deletion to other clients
+    await new Promise(r => setTimeout(r, 500));
+    console.log('[collab] Room data deleted');
+  } catch (e) {
+    console.error('[collab] Failed to delete room data:', e);
+  }
+
+  syncing = false;
+  disconnect();
+}
+
 // ============ Push local state → Liveblocks Storage ============
 function doPush() {
   if (!storageRoot || !room) return;

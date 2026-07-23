@@ -406,12 +406,39 @@
         <p class="collab-active-meta">Nickname: <strong id="collabActiveNick"></strong></p>
         <p class="collab-active-meta" id="collabActivePeers"></p>
         <button class="btn" id="collabCopyBtn">Copy room code</button>
-        <button class="btn danger" id="collabDisconnectBtn" style="margin-left:8px">Disconnect</button>
+        <button class="btn danger" id="collabEndSessionBtn" style="margin-left:8px">End Session</button>
       </div>
     </div>
 
     <div class="actions" style="margin-top:16px">
       <button class="btn" id="collabClose">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- End Session Confirmation Modal -->
+<div class="modal-backdrop" id="endSessionModal">
+  <div class="modal end-session-modal">
+    <h2>⚠️ End Collaboration Session</h2>
+
+    <div class="end-session-warning">
+      <strong>Warning:</strong> Ending this session will permanently delete all shared data from the collaboration server. This cannot be undone. All connected participants will be disconnected.
+    </div>
+
+    <div class="end-session-export">
+      <p style="margin:0 0 8px;font-weight:600;font-size:13px">Export your work first?</p>
+      <p style="margin:0 0 12px;color:var(--muted);font-size:12px">Save a copy of the canvas before deleting the session data.</p>
+      <div class="end-session-export-buttons">
+        <button class="btn" id="endSessionExportJSON" title="Download session data as JSON">📄 JSON</button>
+        <button class="btn" id="endSessionExportPNG" title="Download canvas as PNG image">🖼️ PNG</button>
+        <button class="btn" id="endSessionExportPDF" title="Download structured PDF report">📑 PDF</button>
+        <button class="btn" id="endSessionExportDOCX" title="Download Word document">📝 Word</button>
+      </div>
+    </div>
+
+    <div class="end-session-actions">
+      <button class="btn" id="endSessionCancel">Cancel</button>
+      <button class="btn danger" id="endSessionConfirm">🗑️ Delete &amp; Disconnect</button>
     </div>
   </div>
 </div>
