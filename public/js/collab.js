@@ -1,20 +1,18 @@
-// Collaboration module: Yjs + WebRTC for real-time multi-user sessions
+// Collaboration module: Yjs + Liveblocks for real-time multi-user sessions
 // Uses CDN ESM imports via import map defined in discovery.html
 
 import * as Y from 'yjs';
-import { WebrtcProvider } from 'y-webrtc';
+import { createClient } from '@liveblocks/client';
+import { getYjsProviderForRoom } from '@liveblocks/yjs';
 import { state, save, setOnSaveHook } from './state.js';
-import { uid } from './utils.js';
 
-// ============ Room / session management ============
+// ============ Liveblocks client ============
+const LIVEBLOCKS_PUBLIC_KEY = 'pk_prod_fL8J_IAVOGHuBBReNmSTJt_aNbAAzXIBcOpYm9FufRJYvd5bgs74u1R1Mvpo6IyR';
 const ROOM_PREFIX = 'discovery-canvas-';
-// y-webrtc also uses BroadcastChannel (same browser, different tabs) automatically.
-// Signaling servers are only needed for cross-browser/cross-device WebRTC.
-// Most public servers are no longer maintained — these are best-effort fallbacks.
-const SIGNALING_SERVERS = [
-  'wss://signaling.yjs.dev',
-  'wss://y-webrtc-eu.fly.dev',
-];
+
+const lbClient = createClient({
+  publicApiKey: LIVEBLOCKS_PUBLIC_KEY,
+});
 
 // User colors for presence
 const PRESENCE_COLORS = [
@@ -24,8 +22,10 @@ const PRESENCE_COLORS = [
 ];
 
 let ydoc = null;
-let provider = null;
+let yProvider = null;
 let awareness = null;
+let room = null;
+let leaveRoom = null;
 let roomCode = null;
 let localNickname = '';
 let localColor = '';
@@ -48,12 +48,12 @@ export function getPeers() {
   if (!awareness) return [];
   const states = awareness.getStates();
   const peers = [];
-  states.forEach((state, clientId) => {
-    if (state.user) {
+  states.forEach((peerState, clientId) => {
+    if (peerState.user) {
       peers.push({
         clientId,
-        nickname: state.user.nickname || 'Anonymous',
-        color: state.user.color || '#888',
+        nickname: peerState.user.nickname || 'Anonymous',
+        color: peerState.user.color || '#888',
         isLocal: clientId === ydoc.clientID,
       });
     }
@@ -62,7 +62,7 @@ export function getPeers() {
 }
 
 export function getRoomCode() { return roomCode; }
-export function isConnected() { return !!provider; }
+export function isConnected() { return !!yProvider; }
 export function getNickname() { return localNickname; }
 
 // ============ Awareness change callbacks ============
@@ -79,7 +79,7 @@ export function createRoom(nickname) {
 }
 
 export function joinRoom(code, nickname) {
-  if (provider) disconnect();
+  if (yProvider) disconnect();
 
   code = code.toUpperCase().trim();
   if (!isValidRoomCode(code)) {
@@ -90,33 +90,39 @@ export function joinRoom(code, nickname) {
   localNickname = nickname || 'Anonymous';
   localColor = PRESENCE_COLORS[Math.floor(Math.random() * PRESENCE_COLORS.length)];
 
-  // Create Yjs document
-  ydoc = new Y.Doc();
-  console.log('[collab] Created Yjs doc, clientID:', ydoc.clientID);
+  // Enter Liveblocks room
+  const roomId = ROOM_PREFIX + code;
+  console.log('[collab] Entering Liveblocks room:', roomId);
+
+  try {
+    const result = lbClient.enterRoom(roomId, {
+      initialPresence: {
+        nickname: localNickname,
+        color: localColor,
+        joinedAt: Date.now(),
+      },
+    });
+    room = result.room;
+    leaveRoom = result.leave;
+  } catch (e) {
+    console.error('[collab] Failed to enter room:', e);
+    throw new Error('Failed to connect. Check browser console for details.');
+  }
+
+  // Get Yjs provider from the room
+  yProvider = getYjsProviderForRoom(room);
+  ydoc = yProvider.getYDoc();
+  awareness = yProvider.awareness;
+  console.log('[collab] Liveblocks Yjs provider ready, clientID:', ydoc.clientID);
 
   // Shared types matching our state structure
   const yCards = ydoc.getArray('cards');
   const yConnections = ydoc.getArray('connections');
   const yLanes = ydoc.getArray('lanes');
   const yPrompts = ydoc.getArray('prompts');
-  const yMeta = ydoc.getMap('meta'); // canvasType, session info, etc.
+  const yMeta = ydoc.getMap('meta');
 
-  // Create WebRTC provider
-  try {
-    provider = new WebrtcProvider(ROOM_PREFIX + code, ydoc, {
-      signaling: SIGNALING_SERVERS,
-      password: null,
-      maxConns: 20,
-    });
-  } catch (e) {
-    console.error('[collab] Failed to create WebRTC provider:', e);
-    throw new Error('Failed to connect. Check browser console for details.');
-  }
-
-  awareness = provider.awareness;
-  console.log('[collab] WebRTC provider created, room:', ROOM_PREFIX + code);
-
-  // Set local user state
+  // Set local awareness/presence state
   awareness.setLocalStateField('user', {
     nickname: localNickname,
     color: localColor,
@@ -124,39 +130,29 @@ export function joinRoom(code, nickname) {
   });
 
   // Listen for awareness changes (peers joining/leaving)
-  awareness.on('change', () => {
+  awareness.on('update', () => {
     const peers = getPeers();
-    console.log('[collab] Awareness change, peers:', peers.length, peers.map(p => p.nickname));
+    console.log('[collab] Awareness update, peers:', peers.length, peers.map(p => p.nickname));
     if (onPeersChange) onPeersChange(peers);
   });
 
-  // Listen for connection status
-  provider.on('status', (event) => {
-    console.log('[collab] Status:', event.connected ? 'connected' : 'disconnected');
-    if (onConnectionStatusChange) onConnectionStatusChange(event.connected);
+  // Notify connected
+  if (onConnectionStatusChange) onConnectionStatusChange(true);
+
+  // Listen for room connection status changes
+  room.subscribe('status', (status) => {
+    const connected = status === 'connected';
+    console.log('[collab] Room status:', status);
+    if (onConnectionStatusChange) onConnectionStatusChange(connected);
   });
 
-  // Listen for peer events
-  provider.on('peers', (event) => {
-    console.log('[collab] Peers event — added:', event.added, 'removed:', event.removed,
-      'webrtc:', event.webrtcPeers, 'bc:', event.bcPeers);
-  });
-
-  // Listen for synced event
-  provider.on('synced', (event) => {
-    console.log('[collab] Synced with all peers:', event.synced);
-  });
-
-  // Sync initial state if we're the first peer (room is empty)
-  // Wait a moment to see if we receive state from existing peers
+  // Sync initial state: wait briefly to see if room has existing data
   setTimeout(() => {
     console.log('[collab] Initial sync check — yCards:', yCards.length, 'localCards:', state.cards.length);
     if (yCards.length === 0 && state.cards.length > 0) {
-      // We're likely the first peer — push our local state
       console.log('[collab] Pushing local state to Yjs (first peer)');
       pushStateToYjs();
     } else if (yCards.length > 0) {
-      // Room has existing state — pull it
       console.log('[collab] Pulling existing state from Yjs');
       pullStateFromYjs();
     }
@@ -180,15 +176,13 @@ export function joinRoom(code, nickname) {
 
 // ============ Disconnect ============
 export function disconnect() {
-  if (provider) {
-    provider.disconnect();
-    provider.destroy();
-    provider = null;
+  if (leaveRoom) {
+    leaveRoom();
+    leaveRoom = null;
   }
-  if (ydoc) {
-    ydoc.destroy();
-    ydoc = null;
-  }
+  room = null;
+  yProvider = null;
+  ydoc = null;
   awareness = null;
   roomCode = null;
   localStorage.removeItem('collab-room');
@@ -210,7 +204,6 @@ export function pushStateToYjs() {
   const yMeta = ydoc.getMap('meta');
 
   ydoc.transact(() => {
-    // Replace arrays
     yCards.delete(0, yCards.length);
     yCards.push(state.cards.map(c => ({ ...c })));
 
@@ -223,7 +216,6 @@ export function pushStateToYjs() {
     yPrompts.delete(0, yPrompts.length);
     yPrompts.push(state.prompts.map(p => ({ ...p })));
 
-    // Meta
     yMeta.set('canvasType', state.canvasType);
     if (state.session) {
       yMeta.set('session', JSON.parse(JSON.stringify(state.session)));
@@ -249,7 +241,6 @@ function pullStateFromYjs() {
   state.lanes = yLanes.toArray().map(l => ({ ...l }));
   state.prompts = yPrompts.toArray().map(p => ({ ...p }));
 
-  // Re-render
   if (window.__renderAll) window.__renderAll();
   save();
 
@@ -277,7 +268,6 @@ function pullMetaFromYjs() {
 }
 
 // ============ Notify Yjs of local changes ============
-// Call this after any local mutation (instead of just save())
 export function syncLocalChange() {
   if (!ydoc || syncing) return;
   pushStateToYjs();
