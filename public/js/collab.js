@@ -183,7 +183,7 @@ export function joinRoom(code, nickname) {
 
     // Subscribe to storage changes from other users
     room.subscribe(storageRoot, () => {
-      if (!syncing && (Date.now() - lastPushTime > PUSH_DEBOUNCE_MS)) {
+      if (!syncing && !pushTimer && (Date.now() - lastPushTime > PUSH_DEBOUNCE_MS)) {
         console.log('[collab] Remote storage change detected');
         pullStateFromStorage();
       }
