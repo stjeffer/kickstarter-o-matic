@@ -1147,10 +1147,11 @@
 .btn-collab{
   display:inline-flex; align-items:center; gap:7px;
   height:32px; padding:0 14px; border-radius:999px;
-  background:transparent;
-  color:var(--ink); border:0;
+  background:rgba(255,255,255,.7);
+  color:var(--ink); border:1px solid var(--line);
+  box-shadow:var(--shadow-1);
   font-size:12px; font-weight:600;
-  cursor:pointer; transition:background .2s, transform .15s, box-shadow .15s;
+  cursor:pointer; transition:transform .15s, box-shadow .15s, background .2s;
   backdrop-filter:blur(10px);
 }
 .btn-collab:hover{ background:#fff; transform:translateY(-1px); box-shadow:0 3px 10px -3px rgba(0,0,0,.15); }
