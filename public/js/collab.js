@@ -255,23 +255,49 @@ export function pushStateToStorage() {
 
 // ============ Pull Liveblocks Storage → local state ============
 function toLiteral(item) {
-  if (item && typeof item.toImmutable === 'function') return item.toImmutable();
-  if (item && typeof item.toObject === 'function') {
-    // toObject() returns {key: LiveValue} — need to recursively extract
+  if (!item || typeof item !== 'object') return item;
+
+  // Try toImmutable first (returns plain deep copy)
+  if (typeof item.toImmutable === 'function') return item.toImmutable();
+
+  // Try toObject (returns shallow {key: value} or {key: LiveValue})
+  if (typeof item.toObject === 'function') {
     const obj = item.toObject();
     const result = {};
     for (const [k, v] of Object.entries(obj)) {
-      result[k] = (v && typeof v.toImmutable === 'function') ? v.toImmutable() : v;
+      result[k] = (v && typeof v === 'object' && typeof v.toImmutable === 'function')
+        ? v.toImmutable() : v;
     }
     return result;
   }
-  if (item && typeof item === 'object' && !Array.isArray(item)) {
-    // Might be a plain object or a LiveObject without the methods exposed
-    // Try to get all own enumerable properties
-    const keys = Object.keys(item);
-    if (keys.length > 0) return { ...item };
+
+  // Try .get() method — LiveObjects in Liveblocks use .get(key)
+  if (typeof item.get === 'function') {
+    // We need to know the keys — try _serialize, toJSON, or iterate
+    if (typeof item.toJSON === 'function') return item.toJSON();
+
+    // Try reading known card properties directly
+    const knownKeys = ['id', 'type', 'x', 'y', 'w', 'h', 'text', 'color', 'lane',
+      'from', 'to', 'fromAnchor', 'toAnchor', 'name', 'orientation', 'size',
+      'label', 'stage', 'prompt', 'collapsed', 'locked'];
+    const result = {};
+    let found = false;
+    for (const k of knownKeys) {
+      const v = item.get(k);
+      if (v !== undefined) { result[k] = v; found = true; }
+    }
+    if (found) return result;
   }
-  return item;
+
+  // Plain object fallback
+  const keys = Object.keys(item);
+  if (keys.length > 0) return { ...item };
+
+  // Last resort: try JSON
+  if (typeof item.toJSON === 'function') return item.toJSON();
+
+  console.warn('[collab] Cannot extract data from item:', item, 'proto:', Object.getPrototypeOf(item));
+  return {};
 }
 
 function liveListToArray(list) {
