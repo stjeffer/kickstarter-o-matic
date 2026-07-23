@@ -4,6 +4,11 @@
 import { createClient, LiveList, LiveMap, LiveObject } from '@liveblocks/client';
 import { state, save, setOnSaveHook } from './state.js';
 
+// Helper: wrap a plain object as a LiveObject for storage
+function toLive(obj) {
+  return new LiveObject({ ...obj });
+}
+
 // ============ Liveblocks client ============
 const LIVEBLOCKS_PUBLIC_KEY = 'pk_prod_fL8J_IAVOGHuBBReNmSTJt_aNbAAzXIBcOpYm9FufRJYvd5bgs74u1R1Mvpo6IyR';
 const ROOM_PREFIX = 'discovery-canvas-';
@@ -202,22 +207,22 @@ export function pushStateToStorage() {
     // Replace cards
     const liveCards = storageRoot.get('cards');
     while (liveCards.length > 0) liveCards.delete(0);
-    for (const c of state.cards) liveCards.push({ ...c });
+    for (const c of state.cards) liveCards.push(toLive(c));
 
     // Replace connections
     const liveConns = storageRoot.get('connections');
     while (liveConns.length > 0) liveConns.delete(0);
-    for (const c of state.connections) liveConns.push({ ...c });
+    for (const c of state.connections) liveConns.push(toLive(c));
 
     // Replace lanes
     const liveLanes = storageRoot.get('lanes');
     while (liveLanes.length > 0) liveLanes.delete(0);
-    for (const l of state.lanes) liveLanes.push({ ...l });
+    for (const l of state.lanes) liveLanes.push(toLive(l));
 
     // Replace prompts
     const livePrompts = storageRoot.get('prompts');
     while (livePrompts.length > 0) livePrompts.delete(0);
-    for (const p of state.prompts) livePrompts.push({ ...p });
+    for (const p of state.prompts) livePrompts.push(toLive(p));
 
     // Meta
     const liveMeta = storageRoot.get('meta');
@@ -231,6 +236,14 @@ export function pushStateToStorage() {
 }
 
 // ============ Pull Liveblocks Storage → local state ============
+function toLiteral(item) {
+  // LiveObject instances have a toImmutable() method; plain objects don't
+  if (item && typeof item.toImmutable === 'function') return item.toImmutable();
+  if (item && typeof item.toObject === 'function') return { ...item.toObject() };
+  if (item && typeof item === 'object') return { ...item };
+  return item;
+}
+
 function pullStateFromStorage() {
   if (!storageRoot) return;
   syncing = true;
@@ -243,10 +256,12 @@ function pullStateFromStorage() {
     const livePrompts = storageRoot.get('prompts');
     const liveMeta = storageRoot.get('meta');
 
-    state.cards = liveCards.toArray().map(c => typeof c === 'object' ? { ...c } : c);
-    state.connections = liveConns.toArray().map(c => typeof c === 'object' ? { ...c } : c);
-    state.lanes = liveLanes.toArray().map(l => typeof l === 'object' ? { ...l } : l);
-    state.prompts = livePrompts.toArray().map(p => typeof p === 'object' ? { ...p } : p);
+    state.cards = liveCards.toArray().map(toLiteral);
+    state.connections = liveConns.toArray().map(toLiteral);
+    state.lanes = liveLanes.toArray().map(toLiteral);
+    state.prompts = livePrompts.toArray().map(toLiteral);
+
+    console.log('[collab] Pulled cards:', state.cards.length, 'connections:', state.connections.length);
 
     const ct = liveMeta.get('canvasType');
     if (ct && ct !== state.canvasType) {
