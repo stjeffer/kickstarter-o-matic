@@ -13,6 +13,7 @@ import { renderStageBar, initSessionUI, applyTemplate, persistCurrentStage } fro
 import { initUI, fitToView } from './ui.js';
 import { LANE_COLORS } from './constants.js';
 import { initCollabUI } from './collab-ui.js';
+import { initLauncher, openLauncher } from './launcher.js';
 
 // Wire tool mode from UI to interactions
 $('#toolMode')?.addEventListener('click', e=>{
@@ -44,6 +45,7 @@ initExportUI();
 initSessionUI();
 initUI();
 initCollabUI();
+initLauncher();
 
 // Clear canvas button
 $('#btnClear')?.addEventListener('click', ()=>{
@@ -73,9 +75,10 @@ $('#btnAddLane')?.addEventListener('click', ()=>{
   renderLanes(); renderLanesLayer(); save();
 });
 
-// Load saved state or default template
+// Load saved state or show launcher for first-time users
 if(!load()){
-  applyTemplate('sample');
+  openLauncher();
+  renderAll();
 } else {
   $('#canvasType').value = state.canvasType;
   renderAll();

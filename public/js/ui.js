@@ -1,8 +1,8 @@
 // UI modules: flyout panels, timer, context menu
 import { state, save } from './state.js';
 import { $, isEditing } from './utils.js';
-import { addCard, clearSelection, applyView, clientToWorld, getCardSize, fitToView } from './render.js';
-import { zoomAt } from './interactions.js';
+import { addCard, clearSelection, deleteCard, selectCard, applyView, clientToWorld, getCardSize, fitToView } from './render.js';
+import { zoomAt, getClipboardCard, setClipboardCard } from './interactions.js';
 
 // ============ Flyout Panels ============
 function initFlyouts(){
@@ -143,7 +143,9 @@ function initContextMenu(){
   viewport.addEventListener('contextmenu', e=>{
     e.preventDefault();
     e.stopPropagation();
-    if(e.target.closest('.card')) { hide(); return; }
+    const cardEl = e.target.closest('.card');
+    if(cardEl) { hide(); showCardMenu(cardEl.dataset.id, e.clientX, e.clientY); return; }
+    hideCardMenu();
     ctxPt = {x:e.clientX, y:e.clientY};
     show(e.clientX, e.clientY);
   });
@@ -171,6 +173,63 @@ function initContextMenu(){
   });
 }
 
+// ============ Card Context Menu ============
+let ctxCardId = null, cardShownAt = 0, ctxCardPt = null;
+function showCardMenu(id, x, y){
+  const cardMenu = $('#ctxCardMenu');
+  if(!cardMenu) return;
+  ctxCardId = id;
+  ctxCardPt = {x, y};
+  selectCard(id);
+  cardMenu.style.left = Math.min(x, window.innerWidth-220)+'px';
+  cardMenu.style.top  = Math.min(y, window.innerHeight-240)+'px';
+  cardMenu.classList.add('show');
+  cardShownAt = Date.now();
+  const pasteBtn = cardMenu.querySelector('[data-cctx="paste"]');
+  if(pasteBtn) pasteBtn.style.display = getClipboardCard() ? 'flex' : 'none';
+}
+function hideCardMenu(){ const m=$('#ctxCardMenu'); if(m) m.classList.remove('show'); ctxCardId=null; ctxCardPt=null; }
+
+function initCardContextMenu(){
+  const cardMenu = $('#ctxCardMenu');
+  if(!cardMenu) return;
+  const viewport = document.getElementById('viewport');
+  function viewportCenterWorld(){
+    const r = viewport.getBoundingClientRect();
+    return clientToWorld(r.left + r.width/2, r.top + r.height/2);
+  }
+  cardMenu.querySelectorAll('button[data-cctx]').forEach(b=>{
+    b.addEventListener('click', ()=>{
+      const k = b.dataset.cctx;
+      const c = state.cards.find(x=>x.id===ctxCardId);
+      if(!c && k!=='paste'){ hideCardMenu(); return; }
+      if(k==='copy'){
+        setClipboardCard(JSON.parse(JSON.stringify(c)));
+      } else if(k==='duplicate'){
+        const {id, painScoreId, ...rest} = c;
+        addCard({...rest, x:c.x+24, y:c.y+24, painPoint:false, painScoreId:undefined});
+      } else if(k==='paste' && getClipboardCard()){
+        const clip = getClipboardCard();
+        const p = ctxCardPt ? clientToWorld(ctxCardPt.x, ctxCardPt.y) : viewportCenterWorld();
+        const {id, painScoreId, ...rest} = clip;
+        addCard({...rest, x:p.x, y:p.y, painPoint:false, painScoreId:undefined});
+        setClipboardCard(JSON.parse(JSON.stringify({...rest, x:p.x+24, y:p.y+24})));
+      } else if(k==='delete'){
+        deleteCard(c.id);
+      }
+      hideCardMenu();
+    });
+  });
+  const outsideCloseCard = e=>{
+    if(!cardMenu.classList.contains('show')) return;
+    if(Date.now() - cardShownAt < 250) return;
+    if(cardMenu.contains(e.target)) return;
+    hideCardMenu();
+  };
+  document.addEventListener('mousedown', outsideCloseCard, true);
+  document.addEventListener('keydown', e=>{ if(e.key==='Escape') hideCardMenu(); });
+}
+
 // ============ Toolbar buttons ============
 function initToolbar(){
   const viewport = document.getElementById('viewport');
@@ -189,5 +248,6 @@ export function initUI(){
   initFlyouts();
   initTimer();
   initContextMenu();
+  initCardContextMenu();
   initToolbar();
 }
