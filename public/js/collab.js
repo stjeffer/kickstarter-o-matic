@@ -25,7 +25,7 @@ let ydoc = null;
 let yProvider = null;
 let awareness = null;
 let room = null;
-let leaveRoom = null;
+let currentRoomId = null;
 let roomCode = null;
 let localNickname = '';
 let localColor = '';
@@ -92,18 +92,17 @@ export function joinRoom(code, nickname) {
 
   // Enter Liveblocks room
   const roomId = ROOM_PREFIX + code;
+  currentRoomId = roomId;
   console.log('[collab] Entering Liveblocks room:', roomId);
 
   try {
-    const result = lbClient.enterRoom(roomId, {
+    room = lbClient.enterRoom(roomId, {
       initialPresence: {
         nickname: localNickname,
         color: localColor,
         joinedAt: Date.now(),
       },
     });
-    room = result.room;
-    leaveRoom = result.leave;
   } catch (e) {
     console.error('[collab] Failed to enter room:', e);
     throw new Error('Failed to connect. Check browser console for details.');
@@ -176,9 +175,9 @@ export function joinRoom(code, nickname) {
 
 // ============ Disconnect ============
 export function disconnect() {
-  if (leaveRoom) {
-    leaveRoom();
-    leaveRoom = null;
+  if (currentRoomId) {
+    lbClient.leaveRoom(currentRoomId);
+    currentRoomId = null;
   }
   room = null;
   yProvider = null;
