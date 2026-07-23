@@ -191,6 +191,7 @@ function renderWorkflowRail(){
   const nextStageIdx = nextStage ? stages.findIndex(t=>t.stageKind===nextStage.kind) : -1;
   const btnLabel = nextStageIdx>=0 ? `Send forward → ${nextStage.short.replace(/^\d+\.\s*/,'')}` : (activeKind?'End of flow':'');
   parts.push(`<button class="wr-forward" data-send-forward ${nextStageIdx>=0?'':'disabled'}>${escapeHtml(btnLabel)}</button>`);
+  parts.push(`<button class="wr-close" data-wr-close title="Hide workflow rail" aria-label="Hide">×</button>`);
   rail.innerHTML = parts.join('');
 
   rail.querySelectorAll('[data-goto-idx]').forEach(b=>{
@@ -200,6 +201,8 @@ function renderWorkflowRail(){
   if(fwd && nextStageIdx>=0){
     fwd.addEventListener('click', ()=> sendForward(activeKind, nextStage.kind));
   }
+  const closeBtn = rail.querySelector('[data-wr-close]');
+  if(closeBtn) closeBtn.addEventListener('click', ()=>{ rail.style.display='none'; });
 }
 
 function sendForward(fromKind, toKind){

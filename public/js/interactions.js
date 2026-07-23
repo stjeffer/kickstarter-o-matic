@@ -13,6 +13,10 @@ import {
 
 let toolMode = 'select';
 let spaceDown = false;
+let clipboardCard = null;
+export function getClipboardCard() { return clipboardCard; }
+export function setClipboardCard(c) { clipboardCard = c; }
+let lastMouseClient = {x:null, y:null};
 let dragState = null, panState = null, connectState = null;
 
 export function getToolMode() { return toolMode; }
@@ -332,6 +336,9 @@ export function initInteractions() {
     if (!e.target.closest('.card') && !e.target.closest('.conn-hit')) clearSelection();
   });
 
+  // Track mouse position for paste placement
+  viewport.addEventListener('mousemove', e => { lastMouseClient.x = e.clientX; lastMouseClient.y = e.clientY; });
+
   // Keyboard
   document.addEventListener('keydown', e => {
     if (e.code === 'Space' && !isEditing()) { spaceDown = true; viewport.style.cursor = 'grab'; }
@@ -341,6 +348,25 @@ export function initInteractions() {
         state.connections = state.connections.filter(c => c.id !== state.selection.connId);
         state.selection.connId = null; renderConnections(); save();
       }
+    }
+    const mod = e.metaKey || e.ctrlKey;
+    if (mod && (e.key === 'c' || e.key === 'C') && !isEditing() && state.selection.cardId) {
+      const c = state.cards.find(x => x.id === state.selection.cardId);
+      if (c) { clipboardCard = JSON.parse(JSON.stringify(c)); e.preventDefault(); }
+    }
+    if (mod && (e.key === 'v' || e.key === 'V') && !isEditing() && clipboardCard) {
+      e.preventDefault();
+      let x, y;
+      if (lastMouseClient.x != null) {
+        const p = clientToWorld(lastMouseClient.x, lastMouseClient.y);
+        x = p.x; y = p.y;
+      } else {
+        x = (clipboardCard.x || 200) + 24; y = (clipboardCard.y || 200) + 24;
+      }
+      const {id, painScoreId, ...rest} = clipboardCard;
+      const nc = addCard({...rest, x, y, painPoint: false, painScoreId: undefined});
+      clipboardCard = JSON.parse(JSON.stringify({...rest, x: x + 24, y: y + 24}));
+      if (nc && nc.id) selectCard(nc.id);
     }
     if ((e.key === 'Tab') && !isEditing() && state.canvasType === 'mindmap' && state.selection.cardId) {
       e.preventDefault(); addMindmapChild(state.selection.cardId);

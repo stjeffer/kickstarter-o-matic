@@ -19,16 +19,61 @@
 <script src="https://unpkg.com/docx@8.5.0/build/index.umd.js"></script>
 </head>
 <body>
+<section id="launchScreen" aria-hidden="true">
+  <div class="ls-wrap">
+    <div class="ls-topbar">
+      <div class="ls-brand"><div class="logo"></div>Discovery Canvas</div>
+      <div class="ls-search">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+        <input id="lsSearch" type="text" placeholder="Search canvas types, templates, sessions…" />
+      </div>
+      <button class="ls-topbtn" id="lsImportToggle" type="button">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Import JSON
+      </button>
+    </div>
+
+    <div class="ls-hero">
+      <h1>Start a session your team will remember.</h1>
+      <p>Pick a canvas — each one loads with the right structure, prompts and lanes. Preview the layout before you commit.</p>
+    </div>
+
+    <div class="ls-tabs" id="lsTabs"></div>
+
+    <div class="ls-section-title"><h3 id="lsSectionTitle">All canvases</h3><span class="hint" id="lsCount"></span></div>
+    <div class="ls-grid" id="lsGrid"></div>
+
+    <div class="ls-import" id="lsImport">
+      <p><strong>Optional:</strong> paste a session JSON to overlay onto the selected canvas — supports single-canvas configs and multi-stage sessions.</p>
+      <textarea id="lsImportText" placeholder='{ "title": "Discovery with BBC", "stages": [ ... ] }' spellcheck="false"></textarea>
+      <div class="ls-err" id="lsImportErr"></div>
+      <div class="row">
+        <button class="ls-btn ghost" id="lsPasteSample" type="button">Paste sample</button>
+      </div>
+    </div>
+
+    <div class="ls-launchbar">
+      <div class="ls-selected-lbl" id="lsPickedHint">Pick a canvas to continue</div>
+      <div style="display:flex;gap:10px">
+        <button class="ls-btn ghost" id="lsSkip" type="button">Skip — blank canvas</button>
+        <button class="ls-btn" id="lsLaunch" type="button" disabled>Select a canvas →</button>
+      </div>
+    </div>
+  </div>
+</section>
 <div class="app">
   <header class="topbar">
-    <div class="brand"><div class="logo"></div><span>Discovery Canvas</span></div>
+    <div class="brand"><div class="logo"></div><span class="brand-name">Discovery Canvas</span><button class="btn ico-btn" id="btnHome" title="Back to launcher" aria-label="Launcher" style="margin-left:6px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12l9-9 9 9"/><path d="M5 10v10h5v-6h4v6h5V10"/></svg></button></div>
 
-    <div class="btn-group icons" role="group" aria-label="Panels" style="margin-left:6px">
-      <button class="btn ico-btn" id="btnTogglePalette" title="Toggle palette (P)" aria-label="Toggle palette">
-        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a9 9 0 1 0 9 9c0-1.7-1.3-3-3-3h-2.5a2.5 2.5 0 0 1 0-5H16a4 4 0 0 0-4-4z"/><circle cx="7.5" cy="10.5" r="1"/><circle cx="10.5" cy="7" r="1"/><circle cx="14.5" cy="7" r="1"/></svg>
+    <div class="btn-group" role="group" aria-label="Panels" style="margin-left:8px;padding:4px">
+      <button class="pill-labeled" id="btnTogglePalette" title="Toggle palette (P)" aria-label="Toggle palette">
+        <span class="lbl-badge"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></span>
+        <span>Palette</span>
       </button>
-      <button class="btn ico-btn" id="btnTogglePrompts" title="Toggle prompts (Q)" aria-label="Toggle prompts">
-        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/><circle cx="12" cy="12" r="10"/></svg>
+      <span class="sep"></span>
+      <button class="pill-labeled" id="btnTogglePrompts" title="Toggle prompts (Q)" aria-label="Toggle prompts">
+        <span class="lbl-badge"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="14" rx="2"/><line x1="7" y1="9" x2="17" y2="9"/><line x1="7" y1="13" x2="13" y2="13"/></svg></span>
+        <span>Prompts</span>
       </button>
     </div>
 
@@ -75,21 +120,8 @@
       </div>
 
 
-      <div class="select-wrap" title="Load template pack">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
-        <select id="templatePack" aria-label="Template pack">
-          <option value="">Templates</option>
-          <option value="sample">Discovery Sample</option>
-          <option value="ideation">Ideation / Brainstorm</option>
-          <option value="process">Process Mapping</option>
-          <option value="experience">Experience Mapping</option>
-          <option value="empathy">Empathy Map</option>
-          <option value="retro">Retrospective</option>
-          <option value="backcast">Future-State Backcast</option>
-          <option value="frontier">Frontier Action Plan (5 stages)</option>
-        </select>
-        <svg class="chev" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
-      </div>
+      <!-- Templates now live exclusively on the Launcher (Home button) -->
+      <select id="templatePack" aria-label="Template pack" hidden><option value=""></option></select>
 
       <div class="btn-group icons" role="group" aria-label="Session">
         <button class="btn ico-btn" id="btnSession" title="Session info" aria-label="Session info">
@@ -111,6 +143,7 @@
   <aside class="left" id="leftPanel"><div class="side-scroll">
     <div class="side-section">
       <h3>Canvas Type</h3>
+      <div class="side-sub">Choose the working surface for this stage.</div>
       <select id="canvasType">
         <option value="whiteboard">Freestyle (empty)</option>
         <option value="matrix2x2">2×2 Matrix</option>
@@ -128,14 +161,15 @@
 
     <div class="side-section">
       <h3>Card Palette</h3>
+      <div class="side-sub">Drag any element onto the canvas.</div>
       <div id="palette">
         <!-- populated in JS -->
       </div>
-      <p class="empty" style="margin:8px 0 0;padding:0">Drag onto canvas to place.</p>
     </div>
 
     <div class="side-section">
       <h3>Swimlanes / Groups</h3>
+      <div class="side-sub">Organize the canvas into lanes or bands.</div>
       <div id="lanes"></div>
       <button class="btn sm" id="btnAddLane" style="width:100%;justify-content:center;margin-top:6px">+ Add Lane</button>
     </div>
@@ -227,6 +261,15 @@
   <div class="ctx-sep"></div>
   <button data-ctx="fit"><span class="ico">⤢</span>Fit to view</button>
   <button data-ctx="reset"><span class="ico">100</span>Zoom 100%</button>
+</div>
+
+<div class="ctxmenu" id="ctxCardMenu">
+  <div class="ctx-label">Card</div>
+  <button data-cctx="copy"><span class="ico">⧉</span>Copy</button>
+  <button data-cctx="duplicate"><span class="ico">➕</span>Duplicate</button>
+  <button data-cctx="paste"><span class="ico">📋</span>Paste</button>
+  <div class="ctx-sep"></div>
+  <button data-cctx="delete" class="danger"><span class="ico">🗑</span>Delete</button>
 </div>
 
 
