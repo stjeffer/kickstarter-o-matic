@@ -1146,7 +1146,7 @@
 /* Collab button — Apple pill */
 .btn-collab{
   display:inline-flex; align-items:center; gap:7px;
-  height:32px; padding:0 14px; border-radius:999px;
+  height:32px; padding:0 14px; border-radius:8px;
   background:rgba(255,255,255,.7);
   color:var(--ink); border:1px solid var(--line);
   box-shadow:var(--shadow-1);
