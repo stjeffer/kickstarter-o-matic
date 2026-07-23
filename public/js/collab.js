@@ -8,10 +8,12 @@ import { uid } from './utils.js';
 
 // ============ Room / session management ============
 const ROOM_PREFIX = 'discovery-canvas-';
+// y-webrtc also uses BroadcastChannel (same browser, different tabs) automatically.
+// Signaling servers are only needed for cross-browser/cross-device WebRTC.
+// Most public servers are no longer maintained — these are best-effort fallbacks.
 const SIGNALING_SERVERS = [
   'wss://signaling.yjs.dev',
-  'wss://y-webrtc-signaling-eu.herokuapp.com',
-  'wss://y-webrtc-signaling-us.herokuapp.com',
+  'wss://y-webrtc-eu.fly.dev',
 ];
 
 // User colors for presence
@@ -90,6 +92,7 @@ export function joinRoom(code, nickname) {
 
   // Create Yjs document
   ydoc = new Y.Doc();
+  console.log('[collab] Created Yjs doc, clientID:', ydoc.clientID);
 
   // Shared types matching our state structure
   const yCards = ydoc.getArray('cards');
@@ -99,13 +102,19 @@ export function joinRoom(code, nickname) {
   const yMeta = ydoc.getMap('meta'); // canvasType, session info, etc.
 
   // Create WebRTC provider
-  provider = new WebrtcProvider(ROOM_PREFIX + code, ydoc, {
-    signaling: SIGNALING_SERVERS,
-    password: null, // could add encryption later
-    maxConns: 20,
-  });
+  try {
+    provider = new WebrtcProvider(ROOM_PREFIX + code, ydoc, {
+      signaling: SIGNALING_SERVERS,
+      password: null,
+      maxConns: 20,
+    });
+  } catch (e) {
+    console.error('[collab] Failed to create WebRTC provider:', e);
+    throw new Error('Failed to connect. Check browser console for details.');
+  }
 
   awareness = provider.awareness;
+  console.log('[collab] WebRTC provider created, room:', ROOM_PREFIX + code);
 
   // Set local user state
   awareness.setLocalStateField('user', {
@@ -116,28 +125,45 @@ export function joinRoom(code, nickname) {
 
   // Listen for awareness changes (peers joining/leaving)
   awareness.on('change', () => {
-    if (onPeersChange) onPeersChange(getPeers());
+    const peers = getPeers();
+    console.log('[collab] Awareness change, peers:', peers.length, peers.map(p => p.nickname));
+    if (onPeersChange) onPeersChange(peers);
   });
 
   // Listen for connection status
   provider.on('status', (event) => {
+    console.log('[collab] Status:', event.connected ? 'connected' : 'disconnected');
     if (onConnectionStatusChange) onConnectionStatusChange(event.connected);
+  });
+
+  // Listen for peer events
+  provider.on('peers', (event) => {
+    console.log('[collab] Peers event — added:', event.added, 'removed:', event.removed,
+      'webrtc:', event.webrtcPeers, 'bc:', event.bcPeers);
+  });
+
+  // Listen for synced event
+  provider.on('synced', (event) => {
+    console.log('[collab] Synced with all peers:', event.synced);
   });
 
   // Sync initial state if we're the first peer (room is empty)
   // Wait a moment to see if we receive state from existing peers
   setTimeout(() => {
+    console.log('[collab] Initial sync check — yCards:', yCards.length, 'localCards:', state.cards.length);
     if (yCards.length === 0 && state.cards.length > 0) {
       // We're likely the first peer — push our local state
+      console.log('[collab] Pushing local state to Yjs (first peer)');
       pushStateToYjs();
     } else if (yCards.length > 0) {
       // Room has existing state — pull it
+      console.log('[collab] Pulling existing state from Yjs');
       pullStateFromYjs();
     }
-  }, 1000);
+  }, 1500);
 
   // Observe remote changes
-  yCards.observe(() => { if (!syncing) pullStateFromYjs(); });
+  yCards.observe(() => { if (!syncing) { console.log('[collab] Remote cards change detected'); pullStateFromYjs(); } });
   yConnections.observe(() => { if (!syncing) pullStateFromYjs(); });
   yLanes.observe(() => { if (!syncing) pullStateFromYjs(); });
   yPrompts.observe(() => { if (!syncing) pullStateFromYjs(); });
@@ -175,6 +201,7 @@ export function disconnect() {
 export function pushStateToYjs() {
   if (!ydoc) return;
   syncing = true;
+  console.log('[collab] Pushing state to Yjs — cards:', state.cards.length, 'connections:', state.connections.length);
 
   const yCards = ydoc.getArray('cards');
   const yConnections = ydoc.getArray('connections');
@@ -210,6 +237,7 @@ export function pushStateToYjs() {
 function pullStateFromYjs() {
   if (!ydoc) return;
   syncing = true;
+  console.log('[collab] Pulling state from Yjs');
 
   const yCards = ydoc.getArray('cards');
   const yConnections = ydoc.getArray('connections');
