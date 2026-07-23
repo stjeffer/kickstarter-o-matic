@@ -3,6 +3,7 @@
 
 import { createClient, LiveList, LiveMap, LiveObject } from '@liveblocks/client';
 import { state, save, setOnSaveHook } from './state.js';
+import { STORAGE_KEY } from './constants.js';
 
 // Helper: wrap a plain object as a LiveObject for storage
 function toLive(obj) {
@@ -307,7 +308,7 @@ function pullStateFromStorage() {
     state.lanes = liveListToArray(liveLanes).map(toLiteral);
     state.prompts = liveListToArray(livePrompts).map(toLiteral);
 
-    console.log('[collab] Pulled cards:', state.cards.length, 'first card:', state.cards[0]);
+    console.log('[collab] Pulled cards:', state.cards.length, 'first card:', JSON.stringify(state.cards[0]));
 
     const ct = liveMeta.get('canvasType');
     if (ct && ct !== state.canvasType) {
@@ -319,7 +320,13 @@ function pullStateFromStorage() {
     if (sess) state.session = JSON.parse(JSON.stringify(sess));
 
     if (window.__renderAll) window.__renderAll();
-    save();
+
+    // Save to localStorage WITHOUT triggering the sync hook
+    // (otherwise we'd push back what we just pulled → infinite loop)
+    try {
+      const { selection, view, ...persist } = state;
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(persist));
+    } catch (e) { /* silent */ }
   } catch (e) {
     console.error('[collab] Pull failed:', e);
   }
