@@ -239,11 +239,27 @@ export function pushStateToStorage() {
 
 // ============ Pull Liveblocks Storage → local state ============
 function toLiteral(item) {
-  // LiveObject instances have a toImmutable() method; plain objects don't
   if (item && typeof item.toImmutable === 'function') return item.toImmutable();
   if (item && typeof item.toObject === 'function') return { ...item.toObject() };
   if (item && typeof item === 'object') return { ...item };
   return item;
+}
+
+function liveListToArray(list) {
+  // Handle different LiveList API versions
+  if (typeof list.toArray === 'function') return list.toArray();
+  if (typeof list.toImmutable === 'function') return [...list.toImmutable()];
+  // It might already be iterable or array-like
+  if (Array.isArray(list)) return list;
+  if (typeof list[Symbol.iterator] === 'function') return [...list];
+  // Last resort: read by index using .get()
+  if (typeof list.get === 'function' && typeof list.length === 'number') {
+    const arr = [];
+    for (let i = 0; i < list.length; i++) arr.push(list.get(i));
+    return arr;
+  }
+  console.warn('[collab] Unknown list type:', list);
+  return [];
 }
 
 function pullStateFromStorage() {
@@ -258,10 +274,10 @@ function pullStateFromStorage() {
     const livePrompts = storageRoot.get('prompts');
     const liveMeta = storageRoot.get('meta');
 
-    state.cards = liveCards.toArray().map(toLiteral);
-    state.connections = liveConns.toArray().map(toLiteral);
-    state.lanes = liveLanes.toArray().map(toLiteral);
-    state.prompts = livePrompts.toArray().map(toLiteral);
+    state.cards = liveListToArray(liveCards).map(toLiteral);
+    state.connections = liveListToArray(liveConns).map(toLiteral);
+    state.lanes = liveListToArray(liveLanes).map(toLiteral);
+    state.prompts = liveListToArray(livePrompts).map(toLiteral);
 
     console.log('[collab] Pulled cards:', state.cards.length, 'connections:', state.connections.length);
 
