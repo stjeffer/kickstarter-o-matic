@@ -30,6 +30,8 @@ let roomCode = null;
 let localNickname = '';
 let localColor = '';
 let syncing = false; // prevents feedback loops
+let lastPushTime = 0; // debounce: ignore subscription events shortly after pushing
+const PUSH_DEBOUNCE_MS = 500;
 let storageRoot = null;
 
 // ============ Generate / validate room codes ============
@@ -168,7 +170,7 @@ export function joinRoom(code, nickname) {
 
     // Subscribe to storage changes from other users
     room.subscribe(storageRoot, () => {
-      if (!syncing) {
+      if (!syncing && (Date.now() - lastPushTime > PUSH_DEBOUNCE_MS)) {
         console.log('[collab] Remote storage change detected');
         pullStateFromStorage();
       }
@@ -203,6 +205,7 @@ export function disconnect() {
 export function pushStateToStorage() {
   if (!storageRoot) return;
   syncing = true;
+  lastPushTime = Date.now();
   console.log('[collab] Pushing state — cards:', state.cards.length);
 
   try {
@@ -240,8 +243,21 @@ export function pushStateToStorage() {
 // ============ Pull Liveblocks Storage → local state ============
 function toLiteral(item) {
   if (item && typeof item.toImmutable === 'function') return item.toImmutable();
-  if (item && typeof item.toObject === 'function') return { ...item.toObject() };
-  if (item && typeof item === 'object') return { ...item };
+  if (item && typeof item.toObject === 'function') {
+    // toObject() returns {key: LiveValue} — need to recursively extract
+    const obj = item.toObject();
+    const result = {};
+    for (const [k, v] of Object.entries(obj)) {
+      result[k] = (v && typeof v.toImmutable === 'function') ? v.toImmutable() : v;
+    }
+    return result;
+  }
+  if (item && typeof item === 'object' && !Array.isArray(item)) {
+    // Might be a plain object or a LiveObject without the methods exposed
+    // Try to get all own enumerable properties
+    const keys = Object.keys(item);
+    if (keys.length > 0) return { ...item };
+  }
   return item;
 }
 
@@ -279,7 +295,7 @@ function pullStateFromStorage() {
     state.lanes = liveListToArray(liveLanes).map(toLiteral);
     state.prompts = liveListToArray(livePrompts).map(toLiteral);
 
-    console.log('[collab] Pulled cards:', state.cards.length, 'connections:', state.connections.length);
+    console.log('[collab] Pulled cards:', state.cards.length, 'first card:', state.cards[0]);
 
     const ct = liveMeta.get('canvasType');
     if (ct && ct !== state.canvasType) {
