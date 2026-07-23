@@ -347,7 +347,9 @@ function toLiteral(item) {
     // Read known card properties directly
     const knownKeys = ['id', 'type', 'x', 'y', 'w', 'h', 'text', 'color', 'lane',
       'from', 'to', 'fromAnchor', 'toAnchor', 'name', 'orientation', 'size',
-      'label', 'stage', 'prompt', 'collapsed', 'locked', 'tags', 'metadata'];
+      'label', 'stage', 'prompt', 'collapsed', 'locked', 'tags', 'metadata',
+      'painPoint', 'painScoreId', 'painParentId', 'painScoreHidden', 'scores',
+      'groupId', 'promoted', 'why', 'measure', 'emoji', 'subtitle', 'category'];
     const result = {};
     let found = false;
     for (const k of knownKeys) {
