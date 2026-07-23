@@ -6,6 +6,14 @@
 <title>Discovery Canvas</title>
 <!-- Fonts: Segoe UI system stack (no remote fetch) -->
 <link rel="stylesheet" href="css/styles.css" />
+<script type="importmap">
+{
+  "imports": {
+    "yjs": "https://cdn.jsdelivr.net/npm/yjs@13.6.18/+esm",
+    "y-webrtc": "https://cdn.jsdelivr.net/npm/y-webrtc@10.3.0/+esm"
+  }
+}
+</script>
 <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
 <script src="https://unpkg.com/docx@8.5.0/build/index.umd.js"></script>
@@ -23,6 +31,18 @@
         <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/><circle cx="12" cy="12" r="10"/></svg>
       </button>
     </div>
+
+    <!-- Collaboration -->
+    <div class="presence-pills" id="presencePills"></div>
+    <span class="collab-status" id="collabStatus" title="Connection status"></span>
+    <span class="room-code-display" id="roomCodeDisplay" title="Click to copy room code">
+      <span class="room-code-label">Room</span>
+      <span class="room-code-value"></span>
+    </span>
+    <button class="btn-collab" id="btnCollab" title="Collaborate — share this canvas in real time">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      <span>Collaborate</span>
+    </button>
 
     <div class="top-actions">
       <div class="timer" id="timerWidget" title="Session timer">
@@ -304,6 +324,52 @@
     <div class="actions">
       <button class="btn" id="sfCancel">Cancel</button>
       <button class="btn primary" id="sfSave">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Collaboration modal -->
+<div class="modal-backdrop" id="collabModal">
+  <div class="modal">
+    <h2>Real-time Collaboration</h2>
+    <p style="margin:0 0 14px;color:var(--muted);font-size:12px">Share this canvas with others in real time. Create a room or join with a code.</p>
+    <div class="collab-error" id="collabError"></div>
+
+    <div id="collabJoinSection">
+      <div class="collab-form">
+        <label>Your nickname
+          <input id="collabNickname" maxlength="20" placeholder="e.g. Alex" autocomplete="off" />
+        </label>
+
+        <div class="collab-actions">
+          <button class="btn primary" id="collabCreateBtn">Create room</button>
+        </div>
+
+        <div class="collab-divider">or join existing</div>
+
+        <label>Room code
+          <input id="collabCode" class="code-input" maxlength="6" placeholder="ABC123" autocomplete="off" />
+        </label>
+
+        <div class="collab-actions">
+          <button class="btn primary" id="collabJoinBtn">Join room</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="collabActiveSection" style="display:none">
+      <div class="collab-active">
+        <p style="margin:0;color:var(--muted);font-size:12px">Connected to room</p>
+        <div class="collab-active-code" id="collabActiveCode"></div>
+        <p class="collab-active-meta">Nickname: <strong id="collabActiveNick"></strong></p>
+        <p class="collab-active-meta" id="collabActivePeers"></p>
+        <button class="btn" id="collabCopyBtn">Copy room code</button>
+        <button class="btn danger" id="collabDisconnectBtn" style="margin-left:8px">Disconnect</button>
+      </div>
+    </div>
+
+    <div class="actions" style="margin-top:16px">
+      <button class="btn" id="collabClose">Close</button>
     </div>
   </div>
 </div>

@@ -12,12 +12,18 @@ export const state = {
   session: null, // { title, customer, description, stages:[...], activeIndex }
 };
 
+// Hook called after save — set by collab module to sync changes to peers
+let onSaveHook = null;
+export function setOnSaveHook(fn) { onSaveHook = fn; }
+
 export function save() {
   try {
     if (typeof window.__persistCurrentStage === 'function') window.__persistCurrentStage();
     const { selection, view, ...persist } = state;
     localStorage.setItem(STORAGE_KEY, JSON.stringify(persist));
   } catch (e) { /* silent */ }
+  // Notify collab layer of local change
+  if (onSaveHook) onSaveHook();
 }
 
 export function load() {

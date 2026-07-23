@@ -12,6 +12,7 @@ import { initExportUI, updateSmartExportLabel } from './export.js';
 import { renderStageBar, initSessionUI, applyTemplate, persistCurrentStage } from './session.js';
 import { initUI, fitToView } from './ui.js';
 import { LANE_COLORS } from './constants.js';
+import { initCollabUI } from './collab-ui.js';
 
 // Wire tool mode from UI to interactions
 $('#toolMode')?.addEventListener('click', e=>{
@@ -42,6 +43,7 @@ initInteractions();
 initExportUI();
 initSessionUI();
 initUI();
+initCollabUI();
 
 // Clear canvas button
 $('#btnClear')?.addEventListener('click', ()=>{
