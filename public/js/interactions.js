@@ -226,6 +226,7 @@ export function initInteractions() {
     }
     if (!cardEl) return;
     if (e.target.closest('.card-tools')) return;
+    if (e.target.closest('.ps-dot')) return; // let click handler manage pain score dots
     if (e.target.isContentEditable) return;
     e.stopPropagation();
     selectCard(cardEl.dataset.id);
