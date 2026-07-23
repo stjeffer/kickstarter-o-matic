@@ -74,15 +74,17 @@ function openCollabModal() {
   $('#collabError').style.display = 'none';
 
   // Show correct state
-  if (isConnected()) {
-    $('#collabJoinSection').style.display = 'none';
-    $('#collabActiveSection').style.display = 'block';
+  const active = isConnected();
+  $('#collabJoinSection').style.display = active ? 'none' : 'block';
+  $('#collabActiveSection').style.display = active ? 'block' : 'none';
+  $('#collabCreateBtn').style.display = active ? 'none' : '';
+  $('#collabJoinBtn').style.display = active ? 'none' : '';
+  $('#collabCopyBtn').style.display = active ? '' : 'none';
+  $('#collabDisconnectBtn').style.display = active ? '' : 'none';
+  if (active) {
     $('#collabActiveCode').textContent = getRoomCode();
     $('#collabActiveNick').textContent = getNickname();
     $('#collabActivePeers').textContent = getPeers().length + ' connected';
-  } else {
-    $('#collabJoinSection').style.display = 'block';
-    $('#collabActiveSection').style.display = 'none';
   }
 
   modal.classList.add('open');
