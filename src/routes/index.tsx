@@ -7,7 +7,7 @@ export const Route = createFileRoute("/")({
 
 function Index() {
   useEffect(() => {
-    window.location.replace("/discovery.html?v=collab-modal2");
+    window.location.replace("/discovery.html?v=presence-avatars1");
   }, []);
   return null;
 }

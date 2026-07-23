@@ -76,9 +76,9 @@
       </button>
     </div>
 
-    <!-- Collaboration (pushed right via margin-left:auto on .presence-pills / .btn-group.collab) -->
-    <div class="presence-pills" id="presencePills"></div>
+    <!-- Collaboration (pushed right via margin-left:auto on .btn-group.collab) -->
     <div class="btn-group collab" role="group" aria-label="Collaboration" style="margin-left:auto">
+
       <span class="collab-status" id="collabStatus" title="Connection status"></span>
       <span class="room-code-display" id="roomCodeDisplay" title="Click to copy room code">
         <span class="room-code-label">Room</span>
@@ -201,12 +201,14 @@
     </div>
 
     <div class="viewport" id="viewport">
+      <div class="presence-pills" id="presencePills" aria-label="Session participants"></div>
       <div class="world" id="world">
         <div class="lanes-layer" id="lanesLayer"></div>
         <svg class="connections-layer" id="connLayer"></svg>
         <div id="cardsLayer"></div>
       </div>
     </div>
+
 
     <div class="zoom-controls">
       <button class="btn icon" id="btnZoomIn">+</button>
