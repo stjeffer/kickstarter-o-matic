@@ -149,10 +149,12 @@ export function joinRoom(code, nickname) {
 
   // Get storage and set up sync
   room.getStorage().then((storage) => {
-    storageRoot = storage.root;
-    console.log('[collab] Storage loaded');
+    // In some versions getStorage returns { root }, in others it IS the root
+    storageRoot = storage.root || storage;
+    console.log('[collab] Storage loaded, root type:', typeof storageRoot, 'has get:', typeof storageRoot.get);
 
     const liveCards = storageRoot.get('cards');
+    console.log('[collab] liveCards type:', typeof liveCards, 'has toArray:', typeof (liveCards && liveCards.toArray), 'length:', liveCards && liveCards.length);
     const liveLanes = storageRoot.get('lanes');
 
     // If storage is empty and we have local state, push it
