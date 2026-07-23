@@ -1212,6 +1212,35 @@
 }
 .collab-active .btn{ margin-top:16px; }
 
+/* ===== End Session Modal ===== */
+.end-session-modal{ max-width:420px; }
+.end-session-warning{
+  background:rgba(255,59,48,.08); border:1px solid rgba(255,59,48,.25);
+  border-radius:8px; padding:12px 14px; margin:0 0 16px;
+  font-size:12.5px; line-height:1.5; color:#cc2d2d;
+}
+.end-session-export{
+  background:var(--surface,#f5f5f7); border:1px solid var(--border,#e0e0e0);
+  border-radius:8px; padding:14px; margin:0 0 16px;
+}
+.end-session-export-buttons{
+  display:flex; gap:8px; flex-wrap:wrap;
+}
+.end-session-export-buttons .btn{
+  flex:1; min-width:70px; font-size:12px; padding:8px 6px;
+  display:flex; align-items:center; justify-content:center; gap:4px;
+}
+.end-session-actions{
+  display:flex; gap:8px; justify-content:flex-end;
+}
+.end-session-actions .btn.danger{
+  background:rgba(255,59,48,.1); border-color:rgba(255,59,48,.3);
+  font-weight:600;
+}
+.end-session-actions .btn.danger:hover{
+  background:rgba(255,59,48,.2);
+}
+
 /* ===== Launcher (Designer-inspired) ===== */
 #launchScreen{position:fixed;inset:0;z-index:9999;display:none;overflow:auto;
   background:

@@ -183,7 +183,7 @@ export function joinRoom(code, nickname) {
 
     // Subscribe to storage changes from other users
     room.subscribe(storageRoot, () => {
-      if (!syncing && (Date.now() - lastPushTime > PUSH_DEBOUNCE_MS)) {
+      if (!syncing && !pushTimer && (Date.now() - lastPushTime > PUSH_DEBOUNCE_MS)) {
         console.log('[collab] Remote storage change detected');
         pullStateFromStorage();
       }
@@ -212,6 +212,48 @@ export function disconnect() {
   setOnSaveHook(null);
   if (onPeersChange) onPeersChange([]);
   if (onConnectionStatusChange) onConnectionStatusChange(false);
+}
+
+// ============ Delete room data from Liveblocks, then disconnect ============
+export async function deleteRoomAndDisconnect() {
+  if (!storageRoot || !room) {
+    disconnect();
+    return;
+  }
+
+  syncing = true;
+  try {
+    const doDelete = () => {
+      // Clear all LiveLists
+      for (const key of ['cards', 'connections', 'lanes', 'prompts']) {
+        const list = storageRoot.get(key);
+        if (list) {
+          while (list.length > 0) list.delete(0);
+        }
+      }
+      // Reset meta
+      const meta = storageRoot.get('meta');
+      if (meta) {
+        meta.set('canvasType', 'whiteboard');
+        meta.set('session', null);
+      }
+    };
+
+    if (typeof room.batch === 'function') {
+      room.batch(doDelete);
+    } else {
+      doDelete();
+    }
+
+    // Brief pause to let Liveblocks propagate the deletion to other clients
+    await new Promise(r => setTimeout(r, 500));
+    console.log('[collab] Room data deleted');
+  } catch (e) {
+    console.error('[collab] Failed to delete room data:', e);
+  }
+
+  syncing = false;
+  disconnect();
 }
 
 // ============ Push local state → Liveblocks Storage ============
@@ -305,7 +347,9 @@ function toLiteral(item) {
     // Read known card properties directly
     const knownKeys = ['id', 'type', 'x', 'y', 'w', 'h', 'text', 'color', 'lane',
       'from', 'to', 'fromAnchor', 'toAnchor', 'name', 'orientation', 'size',
-      'label', 'stage', 'prompt', 'collapsed', 'locked', 'tags', 'metadata'];
+      'label', 'stage', 'prompt', 'collapsed', 'locked', 'tags', 'metadata',
+      'painPoint', 'painScoreId', 'painParentId', 'painScoreHidden', 'scores',
+      'groupId', 'promoted', 'why', 'measure', 'emoji', 'subtitle', 'category'];
     const result = {};
     let found = false;
     for (const k of knownKeys) {
