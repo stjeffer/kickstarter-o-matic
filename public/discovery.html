@@ -376,46 +376,39 @@
 
 <!-- Collaboration modal -->
 <div class="modal-backdrop" id="collabModal">
-  <div class="modal">
-    <h2>Real-time Collaboration</h2>
+  <div class="modal" style="width:560px">
+    <h2>Real-time collaboration</h2>
     <p style="margin:0 0 14px;color:var(--muted);font-size:12px">Share this canvas with others in real time. Create a room or join with a code.</p>
     <div class="collab-error" id="collabError"></div>
 
     <div id="collabJoinSection">
-      <div class="collab-form">
-        <label>Your nickname
-          <input id="collabNickname" maxlength="20" placeholder="e.g. Alex" autocomplete="off" />
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <label style="grid-column:1/-1;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-2)">Your nickname
+          <input id="collabNickname" maxlength="20" placeholder="e.g. Alex" autocomplete="off" style="margin-top:4px;width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:8px;font:inherit">
         </label>
-
-        <div class="collab-actions">
-          <button class="btn primary" id="collabCreateBtn">Create room</button>
-        </div>
-
-        <div class="collab-divider">or join existing</div>
-
-        <label>Room code
-          <input id="collabCode" class="code-input" maxlength="6" placeholder="ABC123" autocomplete="off" />
+        <label style="grid-column:1/-1;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-2)">Room code <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--muted)">— leave blank to create a new room</span>
+          <input id="collabCode" class="code-input" maxlength="6" placeholder="ABC123" autocomplete="off" style="margin-top:4px;width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:8px;font-family:'JetBrains Mono','SF Mono',monospace;font-size:16px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;text-align:center">
         </label>
-
-        <div class="collab-actions">
-          <button class="btn primary" id="collabJoinBtn">Join room</button>
-        </div>
       </div>
     </div>
 
     <div id="collabActiveSection" style="display:none">
-      <div class="collab-active">
-        <p style="margin:0;color:var(--muted);font-size:12px">Connected to room</p>
-        <div class="collab-active-code" id="collabActiveCode"></div>
-        <p class="collab-active-meta">Nickname: <strong id="collabActiveNick"></strong></p>
-        <p class="collab-active-meta" id="collabActivePeers"></p>
-        <button class="btn" id="collabCopyBtn">Copy room code</button>
-        <button class="btn danger" id="collabDisconnectBtn" style="margin-left:8px">Disconnect</button>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div style="grid-column:1/-1;padding:14px;border:1px solid var(--line);border-radius:10px;background:var(--panel-2, #fafafa);text-align:center">
+          <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;font-weight:600">Connected to room</div>
+          <div class="collab-active-code" id="collabActiveCode" style="margin:6px 0 0"></div>
+        </div>
+        <div style="font-size:12px;color:var(--muted)">Nickname<div style="color:var(--ink);font-weight:600;font-size:13px;margin-top:2px" id="collabActiveNick"></div></div>
+        <div style="font-size:12px;color:var(--muted)">Participants<div style="color:var(--ink);font-weight:600;font-size:13px;margin-top:2px" id="collabActivePeers"></div></div>
       </div>
     </div>
 
-    <div class="actions" style="margin-top:16px">
+    <div class="actions">
       <button class="btn" id="collabClose">Close</button>
+      <button class="btn" id="collabCopyBtn" style="display:none">Copy code</button>
+      <button class="btn danger" id="collabDisconnectBtn" style="display:none">Disconnect</button>
+      <button class="btn" id="collabJoinBtn">Join room</button>
+      <button class="btn primary" id="collabCreateBtn">Create room</button>
     </div>
   </div>
 </div>
