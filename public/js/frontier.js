@@ -212,13 +212,27 @@ function renderMain() {
   const s = currentStep();
   if (!s) {
     main.innerHTML = `
-      <div class="fr-blank">
-        <h2>Frontier Action Plan</h2>
-        <p>Import a customer workshop JSON to load the five-step flow. Everything on screen — prompts, pillars, prompt banks, frontier probes and grounding — is defined in the file.</p>
-        <button class="fr-btn primary" onclick="document.getElementById('frImport').click()">Import JSON</button>
+      <div class="fr-hero">
+        <div class="fr-hero-card">
+          <div class="fr-hero-logo"></div>
+          <h2>Frontier Action Plan</h2>
+          <p>A five-step, fully data-driven workshop: <strong>Future state → Elicitation → Cluster → Initiatives → Vision</strong>. Import a workshop JSON to load prompts, pillars, prompt banks, frontier probes and grounding — everything on screen is defined in the file.</p>
+          <div class="fr-hero-actions">
+            <button class="fr-btn primary large" onclick="document.getElementById('frImport').click()">Import workshop JSON</button>
+            <button class="fr-btn large" onclick="document.getElementById('frNew').click()">Start blank</button>
+          </div>
+          <div class="fr-hero-steps">
+            <div><span>1</span>Future state</div>
+            <div><span>2</span>Elicitation</div>
+            <div><span>3</span>Cluster</div>
+            <div><span>4</span>Initiatives</div>
+            <div><span>5</span>Vision</div>
+          </div>
+        </div>
       </div>`;
     return;
   }
+
   const idx = currentIdx();
   const prev = ws.steps[idx - 1];
   const next = ws.steps[idx + 1];
