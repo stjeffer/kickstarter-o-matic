@@ -1263,7 +1263,7 @@
 .ls-wrap{max-width:1240px;margin:0 auto;padding:44px 40px 80px}
 .ls-topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:28px}
     .ls-brand{display:flex;align-items:center;gap:12px;font-weight:600;font-size:15px;color:#3b3560;letter-spacing:.01em}
-    .ls-brand .logo{width:28px;height:28px;border-radius:9px;background:url('/__l5e/assets-v1/b50abdf0-f22e-4636-b1ec-9050da4c08af/Cat_color.png') center/contain no-repeat;box-shadow:0 4px 12px -4px rgba(120,90,200,.4)}
+    .ls-brand .logo{height:28px;width:auto;aspect-ratio:1920/489;border-radius:9px;background:url('/__l5e/assets-v1/b50abdf0-f22e-4636-b1ec-9050da4c08af/Cat_color.png') center/contain no-repeat;box-shadow:0 4px 12px -4px rgba(120,90,200,.4)}
 .ls-search{flex:1;max-width:520px;margin:0 24px;position:relative}
 .ls-search input{width:100%;padding:11px 16px 11px 42px;border-radius:999px;border:1px solid rgba(90,70,150,.14);
   background:rgba(255,255,255,.72);backdrop-filter:blur(14px);font-size:13.5px;color:#2a2540;
