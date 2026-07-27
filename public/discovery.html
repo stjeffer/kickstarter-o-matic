@@ -6,13 +6,6 @@
 <title>Discovery Canvas</title>
 <!-- Fonts: Segoe UI system stack (no remote fetch) -->
 <link rel="stylesheet" href="css/styles.css?v=collab-pill1" />
-<script type="importmap">
-{
-  "imports": {
-    "@liveblocks/client": "https://esm.sh/@liveblocks/client@3.22.0"
-  }
-}
-</script>
 <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
 <script src="https://unpkg.com/docx@8.5.0/build/index.umd.js"></script>
@@ -420,12 +413,12 @@
     <h2>⚠️ End Collaboration Session</h2>
 
     <div class="end-session-warning">
-      <strong>Warning:</strong> Ending this session will permanently delete all shared data from the collaboration server. This cannot be undone. All connected participants will be disconnected.
+      <strong>Note:</strong> Ending this session will disconnect all participants. No data is stored on any server — once everyone leaves, the room is gone. Your local canvas data will be kept in your browser.
     </div>
 
     <div class="end-session-export">
       <p style="margin:0 0 8px;font-weight:600;font-size:13px">Export your work first?</p>
-      <p style="margin:0 0 12px;color:var(--muted);font-size:12px">Save a copy of the canvas before deleting the session data.</p>
+      <p style="margin:0 0 12px;color:var(--muted);font-size:12px">Save a copy of the canvas before ending the session.</p>
       <div class="end-session-export-buttons">
         <button class="btn" id="endSessionExportJSON" title="Download session data as JSON">📄 JSON</button>
         <button class="btn" id="endSessionExportPNG" title="Download canvas as PNG image">🖼️ PNG</button>
@@ -436,7 +429,7 @@
 
     <div class="end-session-actions">
       <button class="btn" id="endSessionCancel">Cancel</button>
-      <button class="btn danger" id="endSessionConfirm">🗑️ Delete &amp; Disconnect</button>
+      <button class="btn danger" id="endSessionConfirm">🔌 Disconnect</button>
     </div>
   </div>
 </div>

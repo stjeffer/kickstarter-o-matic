@@ -1,33 +1,23 @@
-// Collaboration module: Liveblocks Storage for real-time multi-user sessions
-// Uses a single CDN import — no Yjs, no module deduplication issues
+// Collaboration module: WebSocket relay for real-time multi-user sessions
+// No third-party data storage — all data flows through our relay server
+// and is held in-memory only. When all peers leave, the room is deleted.
 
-import { createClient, LiveList, LiveMap, LiveObject } from '@liveblocks/client';
 import { state, save, setOnSaveHook } from './state.js';
 import { STORAGE_KEY } from './constants.js';
 
-// Helper: wrap a plain object as a LiveObject for storage
-// Only include primitive values (string, number, boolean, null) to avoid nesting issues
-function toLive(obj) {
-  const clean = {};
-  for (const [k, v] of Object.entries(obj)) {
-    if (v === null || typeof v === 'string' || typeof v === 'number' || typeof v === 'boolean') {
-      clean[k] = v;
-    } else if (Array.isArray(v)) {
-      clean[k] = JSON.stringify(v); // serialize arrays as JSON strings
-    } else if (typeof v === 'object' && v !== null) {
-      clean[k] = JSON.stringify(v); // serialize nested objects as JSON strings
-    }
+// ============ Server URL ============
+// In production, set this to your deployed relay server URL
+const RELAY_URL = (() => {
+  const loc = window.location;
+  // Check for an explicit override (set via query param or global)
+  if (window.__RELAY_URL) return window.__RELAY_URL;
+  // Default: use localhost in dev, deployed server in production
+  if (loc.hostname === 'localhost' || loc.hostname === '127.0.0.1') {
+    return 'ws://localhost:8787';
   }
-  return new LiveObject(clean);
-}
-
-// ============ Liveblocks client ============
-const LIVEBLOCKS_PUBLIC_KEY = 'pk_prod_fL8J_IAVOGHuBBReNmSTJt_aNbAAzXIBcOpYm9FufRJYvd5bgs74u1R1Mvpo6IyR';
-const ROOM_PREFIX = 'discovery-canvas-';
-
-const lbClient = createClient({
-  publicApiKey: LIVEBLOCKS_PUBLIC_KEY,
-});
+  // Production — update this when you deploy the relay server
+  return 'wss://discovery-canvas-relay.fly.dev';
+})();
 
 // User colors for presence
 const PRESENCE_COLORS = [
@@ -36,16 +26,14 @@ const PRESENCE_COLORS = [
   '#ff6482', '#63da38', '#ff9f0a', '#bf5af2', '#64d2ff',
 ];
 
-let room = null;
-let leaveRoomFn = null;
+let ws = null;
 let roomCode = null;
 let localNickname = '';
 let localColor = '';
 let syncing = false; // prevents feedback loops
-let lastPushTime = 0; // debounce: ignore subscription events shortly after pushing
-const PUSH_DEBOUNCE_MS = 2000; // 2 seconds — generous to prevent self-trigger
-let storageRoot = null;
 let pushTimer = null; // throttle pushes
+let peers = []; // current peer list from server
+let reconnectTimer = null;
 
 // ============ Generate / validate room codes ============
 export function generateRoomCode() {
@@ -61,35 +49,13 @@ export function isValidRoomCode(code) {
 
 // ============ Get connected peers ============
 export function getPeers() {
-  if (!room) return [];
-  const others = room.getOthers();
-  const self = room.getSelf();
-  const peers = [];
-
-  if (self && self.presence) {
-    peers.push({
-      clientId: self.connectionId,
-      nickname: self.presence.nickname || 'Anonymous',
-      color: self.presence.color || '#888',
-      isLocal: true,
-    });
-  }
-
-  for (const other of others) {
-    if (other.presence) {
-      peers.push({
-        clientId: other.connectionId,
-        nickname: other.presence.nickname || 'Anonymous',
-        color: other.presence.color || '#888',
-        isLocal: false,
-      });
-    }
-  }
-  return peers;
+  if (!ws || ws.readyState !== WebSocket.OPEN) return [];
+  // Add isLocal flag to each peer
+  return peers.map(p => ({ ...p }));
 }
 
 export function getRoomCode() { return roomCode; }
-export function isConnected() { return !!room; }
+export function isConnected() { return !!(ws && ws.readyState === WebSocket.OPEN && roomCode); }
 export function getNickname() { return localNickname; }
 
 // ============ Callbacks ============
@@ -99,6 +65,82 @@ export function setOnPeersChange(fn) { onPeersChange = fn; }
 let onConnectionStatusChange = null;
 export function setOnConnectionStatusChange(fn) { onConnectionStatusChange = fn; }
 
+// ============ WebSocket message handler ============
+function handleMessage(event) {
+  let msg;
+  try { msg = JSON.parse(event.data); } catch { return; }
+
+  switch (msg.type) {
+    case 'room-created':
+      console.log('[collab] Room created:', msg.room);
+      break;
+
+    case 'joined':
+      console.log('[collab] Joined room:', msg.room);
+      // If server has cached state, pull it
+      if (msg.state) {
+        applyRemoteState(msg.state);
+      } else if (state.cards.length > 0) {
+        // First peer — push our local state
+        console.log('[collab] First peer — pushing local state');
+        pushStateToServer();
+      }
+      break;
+
+    case 'presence':
+      peers = (msg.peers || []).map(p => ({
+        clientId: p.clientId,
+        nickname: p.nickname || 'Anonymous',
+        color: p.color || '#888',
+        isLocal: p.nickname === localNickname && p.color === localColor,
+      }));
+      console.log('[collab] Presence update, peers:', peers.length);
+      if (onPeersChange) onPeersChange(peers);
+      break;
+
+    case 'state-update':
+      if (!syncing && !pushTimer) {
+        console.log('[collab] Remote state update from peer', msg.from);
+        applyRemoteState(msg.state);
+      }
+      break;
+  }
+}
+
+// ============ Apply remote state to local ============
+function applyRemoteState(remoteState) {
+  if (!remoteState) return;
+  syncing = true;
+
+  try {
+    if (remoteState.cards) state.cards = remoteState.cards.filter(c => c && c.id && c.x !== undefined);
+    if (remoteState.connections) state.connections = remoteState.connections.filter(c => c && c.id && c.from && c.to);
+    if (remoteState.lanes) state.lanes = remoteState.lanes.filter(l => l && l.id);
+    if (remoteState.prompts) state.prompts = remoteState.prompts.filter(p => p && p.id);
+
+    if (remoteState.canvasType && remoteState.canvasType !== state.canvasType) {
+      state.canvasType = remoteState.canvasType;
+      const sel = document.getElementById('canvasType');
+      if (sel) sel.value = remoteState.canvasType;
+    }
+    if (remoteState.session) state.session = remoteState.session;
+
+    console.log('[collab] Applied remote state — cards:', state.cards.length);
+
+    if (window.__renderAll) window.__renderAll();
+
+    // Save to localStorage WITHOUT triggering the sync hook
+    try {
+      const { selection, view, ...persist } = state;
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(persist));
+    } catch { /* silent */ }
+  } catch (e) {
+    console.error('[collab] Failed to apply remote state:', e);
+  }
+
+  syncing = false;
+}
+
 // ============ Create / Join a room ============
 export function createRoom(nickname) {
   const code = generateRoomCode();
@@ -106,7 +148,7 @@ export function createRoom(nickname) {
 }
 
 export function joinRoom(code, nickname) {
-  if (room) disconnect();
+  if (ws) disconnect();
 
   code = code.toUpperCase().trim();
   if (!isValidRoomCode(code)) {
@@ -117,78 +159,59 @@ export function joinRoom(code, nickname) {
   localNickname = nickname || 'Anonymous';
   localColor = PRESENCE_COLORS[Math.floor(Math.random() * PRESENCE_COLORS.length)];
 
-  const roomId = ROOM_PREFIX + code;
-  console.log('[collab] Entering Liveblocks room:', roomId);
+  console.log('[collab] Connecting to relay:', RELAY_URL);
 
   try {
-    const result = lbClient.enterRoom(roomId, {
-      initialPresence: {
-        nickname: localNickname,
-        color: localColor,
-        joinedAt: Date.now(),
-      },
-      initialStorage: {
-        cards: new LiveList([]),
-        connections: new LiveList([]),
-        lanes: new LiveList([]),
-        prompts: new LiveList([]),
-        meta: new LiveObject({ canvasType: 'whiteboard', session: null }),
-      },
-    });
-    room = result.room;
-    leaveRoomFn = result.leave;
+    ws = new WebSocket(RELAY_URL);
   } catch (e) {
-    console.error('[collab] Failed to enter room:', e);
-    throw new Error('Failed to connect. Check browser console for details.');
+    console.error('[collab] Failed to create WebSocket:', e);
+    throw new Error('Failed to connect to relay server.');
   }
 
-  console.log('[collab] Room entered, waiting for storage...');
+  ws.onopen = () => {
+    console.log('[collab] Connected to relay server');
+    // Send join message
+    ws.send(JSON.stringify({
+      type: 'join',
+      room: code,
+      nickname: localNickname,
+      color: localColor,
+    }));
 
-  // Listen for others joining/leaving (presence)
-  room.subscribe('others', () => {
-    const peers = getPeers();
-    console.log('[collab] Others changed, peers:', peers.length);
-    if (onPeersChange) onPeersChange(peers);
-  });
+    if (onConnectionStatusChange) onConnectionStatusChange(true);
+  };
 
-  // Listen for connection status
-  room.subscribe('status', (status) => {
-    console.log('[collab] Connection status:', status);
-    const connected = status === 'connected';
-    if (onConnectionStatusChange) onConnectionStatusChange(connected);
-  });
+  ws.onmessage = handleMessage;
 
-  // Notify UI immediately
-  if (onConnectionStatusChange) onConnectionStatusChange(true);
-  if (onPeersChange) onPeersChange(getPeers());
-
-  // Get storage and set up sync
-  room.getStorage().then((storage) => {
-    // In some versions getStorage returns { root }, in others it IS the root
-    storageRoot = storage.root || storage;
-    console.log('[collab] Storage loaded, root type:', typeof storageRoot, 'has get:', typeof storageRoot.get);
-
-    const liveCards = storageRoot.get('cards');
-    console.log('[collab] liveCards type:', typeof liveCards, 'has toArray:', typeof (liveCards && liveCards.toArray), 'length:', liveCards && liveCards.length);
-    const liveLanes = storageRoot.get('lanes');
-
-    // If storage is empty and we have local state, push it
-    if (liveCards.length === 0 && state.cards.length > 0) {
-      console.log('[collab] First peer — pushing local state');
-      pushStateToStorage();
-    } else if (liveCards.length > 0) {
-      console.log('[collab] Existing state in room — pulling');
-      pullStateFromStorage();
+  ws.onclose = () => {
+    console.log('[collab] WebSocket closed');
+    if (onConnectionStatusChange) onConnectionStatusChange(false);
+    // Auto-reconnect if we still have a room code
+    if (roomCode) {
+      console.log('[collab] Scheduling reconnect...');
+      reconnectTimer = setTimeout(() => {
+        if (roomCode) {
+          console.log('[collab] Reconnecting...');
+          try {
+            const savedCode = roomCode;
+            const savedNick = localNickname;
+            roomCode = null; // prevent disconnect() from clearing
+            ws = null;
+            joinRoom(savedCode, savedNick);
+          } catch (e) {
+            console.error('[collab] Reconnect failed:', e);
+          }
+        }
+      }, 2000);
     }
+  };
 
-    // Subscribe to storage changes from other users
-    room.subscribe(storageRoot, () => {
-      if (!syncing && !pushTimer && (Date.now() - lastPushTime > PUSH_DEBOUNCE_MS)) {
-        console.log('[collab] Remote storage change detected');
-        pullStateFromStorage();
-      }
-    }, { isDeep: true });
-  });
+  ws.onerror = (e) => {
+    console.error('[collab] WebSocket error:', e);
+  };
+
+  // Notify UI
+  if (onPeersChange) onPeersChange(getPeers());
 
   // Save room info to localStorage for reconnect
   localStorage.setItem('collab-room', JSON.stringify({ code, nickname: localNickname }));
@@ -201,110 +224,55 @@ export function joinRoom(code, nickname) {
 
 // ============ Disconnect ============
 export function disconnect() {
-  if (leaveRoomFn) {
-    leaveRoomFn();
-    leaveRoomFn = null;
+  if (reconnectTimer) {
+    clearTimeout(reconnectTimer);
+    reconnectTimer = null;
   }
-  room = null;
-  storageRoot = null;
+  if (pushTimer) {
+    clearTimeout(pushTimer);
+    pushTimer = null;
+  }
+  if (ws) {
+    ws.onclose = null; // prevent auto-reconnect
+    ws.close();
+    ws = null;
+  }
   roomCode = null;
+  peers = [];
   localStorage.removeItem('collab-room');
   setOnSaveHook(null);
   if (onPeersChange) onPeersChange([]);
   if (onConnectionStatusChange) onConnectionStatusChange(false);
 }
 
-// ============ Delete room data from Liveblocks, then disconnect ============
+// ============ End session (just disconnect — nothing to delete!) ============
 export async function deleteRoomAndDisconnect() {
-  if (!storageRoot || !room) {
-    disconnect();
-    return;
-  }
-
-  syncing = true;
-  try {
-    const doDelete = () => {
-      // Clear all LiveLists
-      for (const key of ['cards', 'connections', 'lanes', 'prompts']) {
-        const list = storageRoot.get(key);
-        if (list) {
-          while (list.length > 0) list.delete(0);
-        }
-      }
-      // Reset meta
-      const meta = storageRoot.get('meta');
-      if (meta) {
-        meta.set('canvasType', 'whiteboard');
-        meta.set('session', null);
-      }
-    };
-
-    if (typeof room.batch === 'function') {
-      room.batch(doDelete);
-    } else {
-      doDelete();
-    }
-
-    // Brief pause to let Liveblocks propagate the deletion to other clients
-    await new Promise(r => setTimeout(r, 500));
-    console.log('[collab] Room data deleted');
-  } catch (e) {
-    console.error('[collab] Failed to delete room data:', e);
-  }
-
-  syncing = false;
+  // With WebSocket relay, there's no persistent data to delete.
+  // Just disconnect — the server drops the room when all peers leave.
   disconnect();
 }
 
-// ============ Push local state → Liveblocks Storage ============
+// ============ Push local state → server ============
 function doPush() {
-  if (!storageRoot || !room) return;
+  if (!ws || ws.readyState !== WebSocket.OPEN) return;
   syncing = true;
-  lastPushTime = Date.now();
-  console.log('[collab] Pushing state — cards:', state.cards.length, 'first:', JSON.stringify(state.cards[0]));
 
   try {
-    const doMutations = () => {
-      // Replace cards
-      const liveCards = storageRoot.get('cards');
-      while (liveCards.length > 0) liveCards.delete(0);
-      for (const c of state.cards) {
-        if (c && c.id) liveCards.push(toLive(c));
-      }
-
-      // Replace connections
-      const liveConns = storageRoot.get('connections');
-      while (liveConns.length > 0) liveConns.delete(0);
-      for (const c of state.connections) {
-        if (c && c.id) liveConns.push(toLive(c));
-      }
-
-      // Replace lanes
-      const liveLanes = storageRoot.get('lanes');
-      while (liveLanes.length > 0) liveLanes.delete(0);
-      for (const l of state.lanes) {
-        if (l && l.id) liveLanes.push(toLive(l));
-      }
-
-      // Replace prompts
-      const livePrompts = storageRoot.get('prompts');
-      while (livePrompts.length > 0) livePrompts.delete(0);
-      for (const p of state.prompts) {
-        if (p && p.id) livePrompts.push(toLive(p));
-      }
-
-      // Meta
-      const liveMeta = storageRoot.get('meta');
-      liveMeta.set('canvasType', state.canvasType);
-      liveMeta.set('session', state.session ? JSON.parse(JSON.stringify(state.session)) : null);
+    const payload = {
+      cards: state.cards,
+      connections: state.connections,
+      lanes: state.lanes,
+      prompts: state.prompts,
+      canvasType: state.canvasType,
+      session: state.session,
     };
 
-    // Use batch if available, otherwise run directly
-    if (typeof room.batch === 'function') {
-      room.batch(doMutations);
-    } else {
-      doMutations();
-    }
+    ws.send(JSON.stringify({
+      type: 'state-update',
+      state: payload,
+    }));
+
+    console.log('[collab] Pushed state — cards:', state.cards.length);
   } catch (e) {
     console.error('[collab] Push failed:', e);
   }
@@ -312,135 +280,23 @@ function doPush() {
   syncing = false;
 }
 
-// Throttled push: coalesce rapid save() calls into one push
+// Throttled push: coalesce rapid save() calls
 export function pushStateToStorage() {
   if (pushTimer) clearTimeout(pushTimer);
   pushTimer = setTimeout(() => {
     pushTimer = null;
     doPush();
-  }, 300); // wait 300ms for rapid saves to settle
+  }, 300);
 }
 
-// ============ Pull Liveblocks Storage → local state ============
-function toLiteral(item) {
-  if (!item || typeof item !== 'object') return item;
-
-  // Try toImmutable first (returns plain deep copy)
-  if (typeof item.toImmutable === 'function') return item.toImmutable();
-
-  // Try toObject (returns shallow {key: value} or {key: LiveValue})
-  if (typeof item.toObject === 'function') {
-    const obj = item.toObject();
-    const result = {};
-    for (const [k, v] of Object.entries(obj)) {
-      result[k] = (v && typeof v === 'object' && typeof v.toImmutable === 'function')
-        ? v.toImmutable() : v;
-    }
-    return result;
-  }
-
-  // Try .get() method — LiveObjects in Liveblocks use .get(key)
-  if (typeof item.get === 'function') {
-    // We need to know the keys — try toJSON first
-    if (typeof item.toJSON === 'function') return item.toJSON();
-
-    // Read known card properties directly
-    const knownKeys = ['id', 'type', 'x', 'y', 'w', 'h', 'text', 'color', 'lane',
-      'from', 'to', 'fromAnchor', 'toAnchor', 'name', 'orientation', 'size',
-      'label', 'stage', 'prompt', 'collapsed', 'locked', 'tags', 'metadata',
-      'painPoint', 'painScoreId', 'painParentId', 'painScoreHidden', 'scores',
-      'groupId', 'promoted', 'why', 'measure', 'emoji', 'subtitle', 'category'];
-    const result = {};
-    let found = false;
-    for (const k of knownKeys) {
-      const v = item.get(k);
-      if (v !== undefined) {
-        // Try parsing JSON-encoded arrays/objects
-        if (typeof v === 'string' && (v.startsWith('[') || v.startsWith('{'))) {
-          try { result[k] = JSON.parse(v); } catch { result[k] = v; }
-        } else {
-          result[k] = v;
-        }
-        found = true;
-      }
-    }
-    if (found) return result;
-  }
-
-  // Plain object fallback
-  const keys = Object.keys(item);
-  if (keys.length > 0) return { ...item };
-
-  // Last resort: try JSON
-  if (typeof item.toJSON === 'function') return item.toJSON();
-
-  console.warn('[collab] Cannot extract data from item:', item, 'proto:', Object.getPrototypeOf(item));
-  return {};
-}
-
-function liveListToArray(list) {
-  // Handle different LiveList API versions
-  if (typeof list.toArray === 'function') return list.toArray();
-  if (typeof list.toImmutable === 'function') return [...list.toImmutable()];
-  // It might already be iterable or array-like
-  if (Array.isArray(list)) return list;
-  if (typeof list[Symbol.iterator] === 'function') return [...list];
-  // Last resort: read by index using .get()
-  if (typeof list.get === 'function' && typeof list.length === 'number') {
-    const arr = [];
-    for (let i = 0; i < list.length; i++) arr.push(list.get(i));
-    return arr;
-  }
-  console.warn('[collab] Unknown list type:', list);
-  return [];
-}
-
-function pullStateFromStorage() {
-  if (!storageRoot) return;
-  syncing = true;
-  console.log('[collab] Pulling state from storage');
-
-  try {
-    const liveCards = storageRoot.get('cards');
-    const liveConns = storageRoot.get('connections');
-    const liveLanes = storageRoot.get('lanes');
-    const livePrompts = storageRoot.get('prompts');
-    const liveMeta = storageRoot.get('meta');
-
-    state.cards = liveListToArray(liveCards).map(toLiteral).filter(c => c && c.id && c.x !== undefined);
-    state.connections = liveListToArray(liveConns).map(toLiteral).filter(c => c && c.id && c.from && c.to);
-    state.lanes = liveListToArray(liveLanes).map(toLiteral).filter(l => l && l.id);
-    state.prompts = liveListToArray(livePrompts).map(toLiteral).filter(p => p && p.id);
-
-    console.log('[collab] Pulled cards:', state.cards.length, 'first card:', JSON.stringify(state.cards[0]));
-
-    const ct = liveMeta.get('canvasType');
-    if (ct && ct !== state.canvasType) {
-      state.canvasType = ct;
-      const sel = document.getElementById('canvasType');
-      if (sel) sel.value = ct;
-    }
-    const sess = liveMeta.get('session');
-    if (sess) state.session = JSON.parse(JSON.stringify(sess));
-
-    if (window.__renderAll) window.__renderAll();
-
-    // Save to localStorage WITHOUT triggering the sync hook
-    // (otherwise we'd push back what we just pulled → infinite loop)
-    try {
-      const { selection, view, ...persist } = state;
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(persist));
-    } catch (e) { /* silent */ }
-  } catch (e) {
-    console.error('[collab] Pull failed:', e);
-  }
-
-  syncing = false;
+// Alias for compatibility
+function pushStateToServer() {
+  pushStateToStorage();
 }
 
 // ============ Sync local changes ============
 export function syncLocalChange() {
-  if (!storageRoot || syncing) return;
+  if (!ws || ws.readyState !== WebSocket.OPEN || syncing) return;
   pushStateToStorage();
 }
 

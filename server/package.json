@@ -1,0 +1,13 @@
+{
+  "name": "discovery-canvas-relay",
+  "version": "1.0.0",
+  "description": "WebSocket relay server for Discovery Canvas collaboration — no data persistence",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "ws": "^8.18.0"
+  }
+}
