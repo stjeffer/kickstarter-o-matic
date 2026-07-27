@@ -274,67 +274,44 @@ export const TEMPLATE_PACKS = {
     view:{x:20,y:20,scale:.45},
   }),
 
-  frontier: () => ({
-    multi:true,
-    session:{
-      title:'Frontier Action Plan',
-      customer:'', date:new Date().toISOString().slice(0,10),
-      sessionType:'Strategy workshop',
-      description:'Diverge on the future, cluster ideas, form objectives, define initiatives, then sequence a plan on a page.',
-    },
-    stages:[
-      {
-        name:'1. Future', stageKind:'future', canvasType:'backcast',
-        description:'Envision the future state and work back to what has to be true.',
-        lanes:[], prompts:[
-          {id:'fp1', category:'Future', text:'A year from now, what does success look like? What is different?', notes:'Encourage bold, specific statements. Multiple ideas welcome — no need to reconcile yet.'},
-          {id:'fp2', category:'Signals',text:'What signals or evidence would prove we\'re there?', notes:'Prompts observable outcomes rather than activity.'},
-        ],
-        cards:[
-          {id:'ft_title', type:'title', x:800, y:60, text:'Frontier Action Plan', subtitle:'Stage 1 — Envision the future state'},
-        ],
-        connections:[], view:{x:20,y:20,scale:.5},
-      },
-      {
-        name:'2. Cluster', stageKind:'cluster', canvasType:'cluster',
-        description:'Group related ideas. Drag stickies into a Group frame to associate them.',
-        lanes:[], prompts:[
-          {id:'cp1', category:'Cluster', text:'What themes emerge across the future-state ideas?', notes:'Aim for 3–6 groups. Name each group in a short verb phrase.'},
-        ],
-        cards:[
-          {id:'cl_g1', type:'group', x:120,  y:160, text:'Theme A', color:'#0a84ff', w:360, h:260},
-          {id:'cl_g2', type:'group', x:520,  y:160, text:'Theme B', color:'#5856d6', w:360, h:260},
-          {id:'cl_g3', type:'group', x:920,  y:160, text:'Theme C', color:'#ff9500', w:360, h:260},
-        ],
-        connections:[], view:{x:20,y:20,scale:.7},
-      },
-      {
-        name:'3. Objectives', stageKind:'objectives', canvasType:'objectives',
-        description:'Turn each group into a clear outcome statement with a measure.',
-        lanes:[], prompts:[
-          {id:'op1', category:'Objectives', text:'For each group, what outcome do we commit to? How will we know?', notes:'Format: verb + outcome + measure. Promote the ones that make the plan.'},
-        ],
-        cards:[], connections:[], view:{x:20,y:20,scale:.7},
-      },
-      {
-        name:'4. Initiatives', stageKind:'initiatives', canvasType:'initiatives',
-        description:'Under each promoted objective, define initiatives that move the needle.',
-        lanes:[], prompts:[
-          {id:'ip1', category:'Initiatives', text:'What are the 2–4 initiatives that most credibly deliver each objective?', notes:'Capture owner, effort (S/M/L), impact (1–5) and horizon (now/next/later).'},
-        ],
-        cards:[], connections:[], view:{x:20,y:20,scale:.7},
-      },
-      {
-        name:'5. Plan', stageKind:'plan', canvasType:'plan',
-        description:'Sequence the initiatives across Now / Next / Later.',
-        lanes:[], prompts:[
-          {id:'pp1', category:'Plan', text:'What must we start now to unlock next and later?', notes:'Highlight dependencies. Anything without an owner is a wish, not a plan.'},
-        ],
-        cards:[
-          {id:'pl_title', type:'title', x:600, y:20, text:'Plan on a Page', subtitle:'Now · Next · Later'},
-        ],
-        connections:[], view:{x:20,y:20,scale:.5},
-      },
-    ],
-  }),
+  frontier: () => {
+    // Single-canvas Frontier Action Plan.
+    // Five side-by-side stage zones so sticky notes can be dragged
+    // from Future State → Cluster → Objectives → Initiatives → Plan
+    // without ever leaving the canvas.
+    const zoneW = 440, zoneH = 1180, gap = 40, top = 180;
+    const zones = [
+      {id:'fz_future',      title:'1 · Future State', color:'#0a84ff', hint:'Diverge. What does success look like a year out? One idea per sticky.'},
+      {id:'fz_cluster',     title:'2 · Cluster',      color:'#5856d6', hint:'Drag related stickies together. Rename this zone or add sub-groups per theme.'},
+      {id:'fz_objectives',  title:'3 · Objectives',   color:'#af52de', hint:'For each cluster, drop an Objective card: verb + outcome + measure.'},
+      {id:'fz_initiatives', title:'4 · Initiatives',  color:'#ff9500', hint:'Under each objective, add 2–4 Initiative cards. Owner, effort, impact.'},
+      {id:'fz_plan',        title:'5 · Plan',         color:'#34c759', hint:'Sequence initiatives across Now / Next / Later. Drag pills to reorder.'},
+    ];
+    const cards = [
+      {id:'ft_title', type:'title', x: 40, y: 40, text:'Frontier Action Plan', subtitle:'Diverge → Cluster → Objectives → Initiatives → Plan · drag stickies across the zones as the workshop progresses'},
+    ];
+    zones.forEach((z, i) => {
+      const x = 40 + i * (zoneW + gap);
+      cards.push({id:z.id, type:'group', x, y: top, w: zoneW, h: zoneH, text: z.title, color: z.color});
+      cards.push({id:z.id+'_hint', type:'prompt', x: x + 16, y: top + 56, w: zoneW - 32, h: 90, category: z.title.split('·')[1].trim(), text: z.hint});
+    });
+    // Seed a couple of starter stickies in the Future zone to invite input.
+    cards.push({id:'ft_seed1', type:'sticky', x: 60,  y: top + 180, text:'A year from now, what has changed for our customers?', color:'#fff59d', groupId:'fz_future'});
+    cards.push({id:'ft_seed2', type:'sticky', x: 250, y: top + 180, text:'What proof would show we got there?',                 color:'#bbdefb', groupId:'fz_future'});
+    return {
+      canvasType:'whiteboard',
+      lanes:[],
+      prompts:[
+        {id:'fp1', category:'Future',      text:'A year from now, what does success look like? What is different?', notes:'Bold and specific. No need to reconcile ideas yet — capture everything.'},
+        {id:'fp2', category:'Cluster',     text:'What themes are emerging across the future-state ideas?',          notes:'Aim for 3–6 clusters. Name each with a short verb phrase.'},
+        {id:'fp3', category:'Objectives',  text:'For each cluster, what outcome do we commit to and how will we know?', notes:'Format: verb + outcome + measure.'},
+        {id:'fp4', category:'Initiatives', text:'What are the 2–4 initiatives that most credibly deliver each objective?', notes:'Capture owner, effort (S/M/L), impact (1–5).'},
+        {id:'fp5', category:'Plan',        text:'What must we start now to unlock next and later?',                 notes:'Highlight dependencies. Anything without an owner is a wish, not a plan.'},
+      ],
+      cards,
+      connections:[],
+      view:{x:20, y:20, scale:.42},
+    };
+  },
+
 };
