@@ -129,7 +129,7 @@ function shellHtml() {
         <button class="fr-btn ghost" id="frExit" title="Back to canvas">Exit</button>
       </div>
     </header>
-    <div class="fr-body">
+    <div class="fr-body" id="frBody">
       <aside class="fr-rail" id="frRail"></aside>
       <main class="fr-main" id="frMain"></main>
       <aside class="fr-grounding" id="frGrounding"></aside>
@@ -168,14 +168,16 @@ function wireShell(el) {
 function render() {
   const app = document.getElementById('frontierApp');
   if (!app) return;
-  // meta line
   const m = ws.meta || {};
   const metaBits = [m.customer, m.scope].filter(Boolean).join(' · ');
   app.querySelector('#frMetaLine').textContent = metaBits || 'No workshop loaded — Import a JSON to begin';
+  const loaded = !!(ws && ws.steps && ws.steps.length);
+  app.querySelector('#frBody').classList.toggle('empty', !loaded);
   renderRail();
   renderMain();
   renderGrounding();
 }
+
 
 function renderRail() {
   const rail = document.getElementById('frRail');
