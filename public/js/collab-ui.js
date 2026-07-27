@@ -155,7 +155,7 @@ async function handleEndSessionConfirm() {
   const btn = $('#endSessionConfirm');
   if (btn) {
     btn.disabled = true;
-    btn.textContent = '⏳ Cleaning up…';
+    btn.textContent = '⏳ Disconnecting…';
   }
 
   await deleteRoomAndDisconnect();
@@ -167,7 +167,7 @@ async function handleEndSessionConfirm() {
 
   if (btn) {
     btn.disabled = false;
-    btn.textContent = '🗑️ Delete & Disconnect';
+    btn.textContent = '🔌 Disconnect';
   }
 }
 
