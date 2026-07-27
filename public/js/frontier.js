@@ -709,7 +709,7 @@ function frontierCss() {
     }
     .fr-brand { display: flex; align-items: center; gap: 12px; flex: 1; min-width: 0; }
     .fr-logo { width: 34px; height: 34px; border-radius: 10px;
-      background: linear-gradient(135deg, #a78bfa, #f0abfc 55%, #fda4af);
+      background: url('/__l5e/assets-v1/b50abdf0-f22e-4636-b1ec-9050da4c08af/Cat_color.png') center/contain no-repeat;
       box-shadow: 0 6px 16px -6px rgba(167,139,250,.55), inset 0 1px 0 rgba(255,255,255,.6); }
     .fr-brand-title { font-weight: 600; font-size: 15px; letter-spacing: -0.01em; }
     .fr-brand-sub { font-size: 12px; color: #6b7280; margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 60ch; }
@@ -758,7 +758,7 @@ function frontierCss() {
       box-shadow: 0 30px 60px -30px rgba(76,29,149,.25), 0 2px 6px rgba(15,23,42,.04);
     }
     .fr-hero-logo { width: 64px; height: 64px; margin: 0 auto 20px; border-radius: 18px;
-      background: linear-gradient(135deg, #a78bfa, #f0abfc 55%, #fda4af);
+      background: url('/__l5e/assets-v1/b50abdf0-f22e-4636-b1ec-9050da4c08af/Cat_color.png') center/contain no-repeat;
       box-shadow: 0 16px 30px -12px rgba(167,139,250,.6), inset 0 1px 0 rgba(255,255,255,.6); }
     .fr-hero-card h2 { font-weight: 600; font-size: 30px; margin: 0 0 12px; letter-spacing: -0.02em; }
     .fr-hero-card p { color: #4b5563; line-height: 1.55; font-size: 14.5px; margin: 0 0 28px; }
