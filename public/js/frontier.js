@@ -129,7 +129,7 @@ function shellHtml() {
         <button class="fr-btn ghost" id="frExit" title="Back to canvas">Exit</button>
       </div>
     </header>
-    <div class="fr-body">
+    <div class="fr-body" id="frBody">
       <aside class="fr-rail" id="frRail"></aside>
       <main class="fr-main" id="frMain"></main>
       <aside class="fr-grounding" id="frGrounding"></aside>
@@ -168,14 +168,16 @@ function wireShell(el) {
 function render() {
   const app = document.getElementById('frontierApp');
   if (!app) return;
-  // meta line
   const m = ws.meta || {};
   const metaBits = [m.customer, m.scope].filter(Boolean).join(' · ');
   app.querySelector('#frMetaLine').textContent = metaBits || 'No workshop loaded — Import a JSON to begin';
+  const loaded = !!(ws && ws.steps && ws.steps.length);
+  app.querySelector('#frBody').classList.toggle('empty', !loaded);
   renderRail();
   renderMain();
   renderGrounding();
 }
+
 
 function renderRail() {
   const rail = document.getElementById('frRail');
@@ -210,13 +212,27 @@ function renderMain() {
   const s = currentStep();
   if (!s) {
     main.innerHTML = `
-      <div class="fr-blank">
-        <h2>Frontier Action Plan</h2>
-        <p>Import a customer workshop JSON to load the five-step flow. Everything on screen — prompts, pillars, prompt banks, frontier probes and grounding — is defined in the file.</p>
-        <button class="fr-btn primary" onclick="document.getElementById('frImport').click()">Import JSON</button>
+      <div class="fr-hero">
+        <div class="fr-hero-card">
+          <div class="fr-hero-logo"></div>
+          <h2>Frontier Action Plan</h2>
+          <p>A five-step, fully data-driven workshop: <strong>Future state → Elicitation → Cluster → Initiatives → Vision</strong>. Import a workshop JSON to load prompts, pillars, prompt banks, frontier probes and grounding — everything on screen is defined in the file.</p>
+          <div class="fr-hero-actions">
+            <button class="fr-btn primary large" onclick="document.getElementById('frImport').click()">Import workshop JSON</button>
+            <button class="fr-btn large" onclick="document.getElementById('frNew').click()">Start blank</button>
+          </div>
+          <div class="fr-hero-steps">
+            <div><span>1</span>Future state</div>
+            <div><span>2</span>Elicitation</div>
+            <div><span>3</span>Cluster</div>
+            <div><span>4</span>Initiatives</div>
+            <div><span>5</span>Vision</div>
+          </div>
+        </div>
       </div>`;
     return;
   }
+
   const idx = currentIdx();
   const prev = ws.steps[idx - 1];
   const next = ws.steps[idx + 1];
@@ -675,55 +691,92 @@ function frontierCss() {
     body.frontier-open { overflow: hidden; }
     #frontierApp {
       position: fixed; inset: 0; z-index: 9000;
-      background: linear-gradient(180deg, #f6f7fb 0%, #eef1f7 100%);
+      background:
+        radial-gradient(1200px 700px at 15% -10%, rgba(196,181,253,.55), transparent 60%),
+        radial-gradient(1000px 600px at 110% 10%, rgba(255,214,197,.45), transparent 55%),
+        radial-gradient(900px 700px at 50% 110%, rgba(191,219,254,.55), transparent 60%),
+        linear-gradient(180deg, #f7f6fb 0%, #eef1f9 100%);
       display: flex; flex-direction: column;
       font-family: "Segoe UI", -apple-system, BlinkMacSystemFont, sans-serif;
       color: #1d1d1f;
     }
     .fr-top {
       display: flex; align-items: center; gap: 16px;
-      padding: 12px 20px; background: rgba(255,255,255,.85); backdrop-filter: blur(14px);
-      border-bottom: 1px solid rgba(0,0,0,.06);
+      padding: 14px 22px;
+      background: rgba(255,255,255,.7); backdrop-filter: saturate(140%) blur(18px); -webkit-backdrop-filter: saturate(140%) blur(18px);
+      border-bottom: 1px solid rgba(255,255,255,.6);
+      box-shadow: 0 1px 0 rgba(15,23,42,.04), 0 6px 20px -12px rgba(76,29,149,.15);
     }
     .fr-brand { display: flex; align-items: center; gap: 12px; flex: 1; min-width: 0; }
-    .fr-logo { width: 32px; height: 32px; border-radius: 8px;
-      background: linear-gradient(135deg, #6366f1, #a855f7 50%, #ec4899); }
-    .fr-brand-title { font-weight: 600; font-size: 15px; }
+    .fr-logo { width: 34px; height: 34px; border-radius: 10px;
+      background: linear-gradient(135deg, #a78bfa, #f0abfc 55%, #fda4af);
+      box-shadow: 0 6px 16px -6px rgba(167,139,250,.55), inset 0 1px 0 rgba(255,255,255,.6); }
+    .fr-brand-title { font-weight: 600; font-size: 15px; letter-spacing: -0.01em; }
     .fr-brand-sub { font-size: 12px; color: #6b7280; margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 60ch; }
     .fr-actions { display: flex; gap: 8px; }
     .fr-btn {
-      appearance: none; border: 1px solid rgba(0,0,0,.08); background: #fff;
-      padding: 7px 14px; border-radius: 8px; font: 500 13px "Segoe UI", sans-serif; color: #1d1d1f;
-      cursor: pointer; transition: all .15s;
+      appearance: none; border: 1px solid rgba(15,23,42,.08); background: rgba(255,255,255,.85);
+      padding: 8px 14px; border-radius: 999px; font: 600 13px "Segoe UI", sans-serif; color: #1d1d1f;
+      cursor: pointer; transition: all .15s; backdrop-filter: blur(8px);
     }
-    .fr-btn:hover { background: #f4f4f7; border-color: rgba(0,0,0,.14); }
-    .fr-btn.primary { background: #0a84ff; color: #fff; border-color: #0a84ff; }
-    .fr-btn.primary:hover { background: #0969d9; }
-    .fr-btn.ghost { background: transparent; }
-    .fr-btn.small { padding: 4px 10px; font-size: 12px; }
+    .fr-btn:hover { background: #fff; border-color: rgba(15,23,42,.14); transform: translateY(-1px); box-shadow: 0 4px 12px -6px rgba(15,23,42,.15); }
+    .fr-btn.primary { background: linear-gradient(180deg, #7c6ff0, #6d5ee6); color: #fff; border-color: transparent; box-shadow: 0 6px 16px -6px rgba(109,94,230,.6); }
+    .fr-btn.primary:hover { background: linear-gradient(180deg, #8a7df3, #7466e8); }
+    .fr-btn.ghost { background: transparent; border-color: transparent; }
+    .fr-btn.ghost:hover { background: rgba(15,23,42,.05); border-color: transparent; }
+    .fr-btn.small { padding: 5px 12px; font-size: 12px; }
+    .fr-btn.large { padding: 12px 22px; font-size: 14px; border-radius: 999px; }
 
-    .fr-body { flex: 1; display: grid; grid-template-columns: 260px 1fr 300px; min-height: 0; }
-    body.frontier-open #frontierApp .fr-grounding.collapsed { width: 30px; }
-    .fr-body:has(.fr-grounding.collapsed) { grid-template-columns: 260px 1fr 30px; }
+    .fr-body { flex: 1; display: grid; grid-template-columns: 260px 1fr 300px; min-height: 0; gap: 0; }
+    .fr-body.empty { grid-template-columns: 1fr; }
+    .fr-body.empty .fr-rail, .fr-body.empty .fr-grounding { display: none; }
+    .fr-grounding.collapsed { width: auto; }
+    .fr-body:has(.fr-grounding.collapsed) { grid-template-columns: 260px 1fr 42px; }
 
-    .fr-rail { background: rgba(255,255,255,.55); border-right: 1px solid rgba(0,0,0,.06); overflow: auto; padding: 16px 10px; }
-    .fr-rail-hd { text-transform: uppercase; letter-spacing: .08em; font-size: 11px; font-weight: 600; color: #6b7280; padding: 0 8px 10px; }
-    .fr-steps { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
-    .fr-step { display: flex; gap: 12px; padding: 10px 12px; border-radius: 10px; cursor: pointer; align-items: flex-start; }
-    .fr-step:hover { background: rgba(0,0,0,.03); }
-    .fr-step.active { background: #fff; box-shadow: 0 1px 2px rgba(0,0,0,.06), 0 4px 12px rgba(0,0,0,.04); }
-    .fr-step-num { width: 24px; height: 24px; border-radius: 50%; background: #eef1f7; color: #4b5563; display:flex; align-items:center; justify-content:center; font-weight: 600; font-size: 12px; flex-shrink: 0; }
-    .fr-step.active .fr-step-num { background: linear-gradient(135deg, #6366f1, #a855f7); color: #fff; }
+    .fr-rail { background: rgba(255,255,255,.55); border-right: 1px solid rgba(255,255,255,.7); overflow: auto; padding: 18px 12px; backdrop-filter: blur(10px); }
+    .fr-rail-hd { text-transform: uppercase; letter-spacing: .08em; font-size: 11px; font-weight: 700; color: #6b7280; padding: 0 10px 12px; }
+    .fr-steps { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
+    .fr-step { display: flex; gap: 12px; padding: 10px 12px; border-radius: 12px; cursor: pointer; align-items: flex-start; border: 1px solid transparent; }
+    .fr-step:hover { background: rgba(255,255,255,.6); border-color: rgba(15,23,42,.05); }
+    .fr-step.active { background: #fff; border-color: rgba(15,23,42,.06); box-shadow: 0 1px 2px rgba(15,23,42,.04), 0 10px 24px -14px rgba(76,29,149,.25); }
+    .fr-step-num { width: 26px; height: 26px; border-radius: 50%; background: #eef1f7; color: #4b5563; display:flex; align-items:center; justify-content:center; font-weight: 700; font-size: 12px; flex-shrink: 0; }
+    .fr-step.active .fr-step-num { background: linear-gradient(135deg, #a78bfa, #f0abfc); color: #fff; box-shadow: 0 4px 10px -4px rgba(167,139,250,.6); }
     .fr-step-title { font-weight: 600; font-size: 13px; line-height: 1.3; }
     .fr-step-meta { font-size: 11px; color: #6b7280; margin-top: 2px; }
     .fr-step-type { text-transform: none; }
 
-    .fr-main { overflow: auto; padding: 24px 32px; }
+    .fr-main { overflow: auto; padding: 28px 36px; }
     .fr-empty { color: #6b7280; padding: 24px; text-align: center; }
     .fr-empty.small { padding: 12px; font-size: 12px; }
-    .fr-blank { max-width: 520px; margin: 80px auto; text-align: center; }
-    .fr-blank h2 { font-weight: 600; font-size: 28px; margin: 0 0 12px; }
-    .fr-blank p { color: #6b7280; line-height: 1.5; margin-bottom: 24px; }
+
+    .fr-hero { min-height: 100%; display: grid; place-items: center; padding: 40px 20px; }
+    .fr-hero-card {
+      max-width: 640px; width: 100%; text-align: center;
+      background: rgba(255,255,255,.75); backdrop-filter: saturate(140%) blur(20px);
+      border: 1px solid rgba(255,255,255,.8); border-radius: 24px;
+      padding: 48px 44px;
+      box-shadow: 0 30px 60px -30px rgba(76,29,149,.25), 0 2px 6px rgba(15,23,42,.04);
+    }
+    .fr-hero-logo { width: 64px; height: 64px; margin: 0 auto 20px; border-radius: 18px;
+      background: linear-gradient(135deg, #a78bfa, #f0abfc 55%, #fda4af);
+      box-shadow: 0 16px 30px -12px rgba(167,139,250,.6), inset 0 1px 0 rgba(255,255,255,.6); }
+    .fr-hero-card h2 { font-weight: 600; font-size: 30px; margin: 0 0 12px; letter-spacing: -0.02em; }
+    .fr-hero-card p { color: #4b5563; line-height: 1.55; font-size: 14.5px; margin: 0 0 28px; }
+    .fr-hero-card p strong { color: #1d1d1f; font-weight: 600; }
+    .fr-hero-actions { display: flex; gap: 10px; justify-content: center; margin-bottom: 32px; flex-wrap: wrap; }
+    .fr-hero-steps { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
+    .fr-hero-steps > div { background: rgba(255,255,255,.7); border: 1px solid rgba(15,23,42,.06); border-radius: 12px; padding: 12px 6px; font-size: 11.5px; font-weight: 600; color: #4b5563; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+    .fr-hero-steps > div span { width: 22px; height: 22px; border-radius: 50%; background: linear-gradient(135deg,#a78bfa,#f0abfc); color: #fff; display: grid; place-items: center; font-size: 11px; font-weight: 700; }
+
+    .fr-step-hd { margin-bottom: 24px; }
+    .fr-step-hd-top { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 12px; flex-wrap: wrap; }
+    .fr-step-chip { background: rgba(167,139,250,.15); color: #6d28d9; padding: 5px 12px; border-radius: 999px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; }
+    .fr-nav { display: flex; gap: 8px; }
+    .fr-step-hd h1 { font-weight: 600; font-size: 26px; margin: 0 0 12px; letter-spacing: -0.02em; }
+    .fr-prompt { font-size: 16px; line-height: 1.55; color: #1d1d1f; margin: 0 0 10px; padding: 18px 20px; background: rgba(255,255,255,.85); border-radius: 14px; border: 1px solid rgba(15,23,42,.06); box-shadow: 0 10px 30px -20px rgba(76,29,149,.2); }
+    .fr-guidance { font-size: 13px; color: #4b5563; margin: 0 0 6px; }
+    .fr-capture { font-size: 12px; color: #6b7280; margin: 0; }
+
 
     .fr-step-hd { margin-bottom: 24px; }
     .fr-step-hd-top { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 12px; flex-wrap: wrap; }
