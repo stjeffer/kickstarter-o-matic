@@ -7,7 +7,7 @@ export const Route = createFileRoute("/")({
 
 function Index() {
   useEffect(() => {
-    window.location.replace("/discovery.html?v=frontier-mode1");
+    window.location.replace("/discovery.html?v=frontier-polish1");
   }, []);
   return null;
 }
