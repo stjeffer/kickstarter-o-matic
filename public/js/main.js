@@ -14,9 +14,8 @@ import { initUI, fitToView } from './ui.js';
 import { LANE_COLORS } from './constants.js';
 import { initCollabUI } from './collab-ui.js';
 import { initLauncher, openLauncher } from './launcher.js';
-import { openFrontier } from './frontier.js';
 
-$('#btnFrontier')?.addEventListener('click', () => openFrontier());
+
 
 // Wire tool mode from UI to interactions
 $('#toolMode')?.addEventListener('click', e=>{
