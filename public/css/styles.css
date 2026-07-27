@@ -55,8 +55,8 @@
      box-shadow:0 1px 0 rgba(255,255,255,.9) inset, 0 4px 20px -12px rgba(80,60,160,.18);
    }
     .brand{display:flex;align-items:center;gap:10px;font-family:'Segoe UI Semibold','Segoe UI',var(--font-heading);font-weight:600;font-size:14px;letter-spacing:-.01em;color:#1c1c1e;}
-    .brand .logo{box-shadow:0 4px 14px -4px rgba(120,90,200,.45), inset 0 0 0 1px rgba(255,255,255,.6)}
-    .logo{height:26px;width:auto;aspect-ratio:1920/489;border-radius:9px;background:url('/__l5e/assets-v1/b50abdf0-f22e-4636-b1ec-9050da4c08af/Cat_color.png') center/contain no-repeat;}
+    .brand .logo{box-shadow:0 4px 14px -4px rgba(120,90,200,.45)}
+    .logo{height:26px;width:auto;aspect-ratio:1920/489;background:url('/__l5e/assets-v1/b50abdf0-f22e-4636-b1ec-9050da4c08af/Cat_color.png') center/contain no-repeat;}
     .brand .brand-name{background:linear-gradient(180deg,#1c1c1e,#3a2a72);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
    .top-actions{margin-left:auto;display:flex;gap:10px;align-items:center}
    .btn-group{
@@ -1263,7 +1263,7 @@
 .ls-wrap{max-width:1240px;margin:0 auto;padding:44px 40px 80px}
 .ls-topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:28px}
     .ls-brand{display:flex;align-items:center;gap:12px;font-weight:600;font-size:15px;color:#3b3560;letter-spacing:.01em}
-    .ls-brand .logo{height:28px;width:auto;aspect-ratio:1920/489;border-radius:9px;background:url('/__l5e/assets-v1/b50abdf0-f22e-4636-b1ec-9050da4c08af/Cat_color.png') center/contain no-repeat;box-shadow:0 4px 12px -4px rgba(120,90,200,.4)}
+    .ls-brand .logo{height:28px;width:auto;aspect-ratio:1920/489;background:url('/__l5e/assets-v1/b50abdf0-f22e-4636-b1ec-9050da4c08af/Cat_color.png') center/contain no-repeat;box-shadow:0 4px 12px -4px rgba(120,90,200,.4)}
 .ls-search{flex:1;max-width:520px;margin:0 24px;position:relative}
 .ls-search input{width:100%;padding:11px 16px 11px 42px;border-radius:999px;border:1px solid rgba(90,70,150,.14);
   background:rgba(255,255,255,.72);backdrop-filter:blur(14px);font-size:13.5px;color:#2a2540;

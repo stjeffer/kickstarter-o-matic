@@ -708,9 +708,9 @@ function frontierCss() {
       box-shadow: 0 1px 0 rgba(15,23,42,.04), 0 6px 20px -12px rgba(76,29,149,.15);
     }
     .fr-brand { display: flex; align-items: center; gap: 12px; flex: 1; min-width: 0; }
-    .fr-logo { height: 34px; width: auto; aspect-ratio: 1920/489; border-radius: 10px;
+    .fr-logo { height: 34px; width: auto; aspect-ratio: 1920/489;
       background: url('/__l5e/assets-v1/b50abdf0-f22e-4636-b1ec-9050da4c08af/Cat_color.png') center/contain no-repeat;
-      box-shadow: 0 6px 16px -6px rgba(167,139,250,.55), inset 0 1px 0 rgba(255,255,255,.6); }
+      box-shadow: 0 6px 16px -6px rgba(167,139,250,.55); }
     .fr-brand-title { font-weight: 600; font-size: 15px; letter-spacing: -0.01em; }
     .fr-brand-sub { font-size: 12px; color: #6b7280; margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 60ch; }
     .fr-actions { display: flex; gap: 8px; }
@@ -757,9 +757,9 @@ function frontierCss() {
       padding: 48px 44px;
       box-shadow: 0 30px 60px -30px rgba(76,29,149,.25), 0 2px 6px rgba(15,23,42,.04);
     }
-    .fr-hero-logo { height: 64px; width: auto; aspect-ratio: 1920/489; margin: 0 auto 20px; border-radius: 18px;
+    .fr-hero-logo { height: 64px; width: auto; aspect-ratio: 1920/489; margin: 0 auto 20px;
       background: url('/__l5e/assets-v1/b50abdf0-f22e-4636-b1ec-9050da4c08af/Cat_color.png') center/contain no-repeat;
-      box-shadow: 0 16px 30px -12px rgba(167,139,250,.6), inset 0 1px 0 rgba(255,255,255,.6); }
+      box-shadow: 0 16px 30px -12px rgba(167,139,250,.6); }
     .fr-hero-card h2 { font-weight: 600; font-size: 30px; margin: 0 0 12px; letter-spacing: -0.02em; }
     .fr-hero-card p { color: #4b5563; line-height: 1.55; font-size: 14.5px; margin: 0 0 28px; }
     .fr-hero-card p strong { color: #1d1d1f; font-weight: 600; }
