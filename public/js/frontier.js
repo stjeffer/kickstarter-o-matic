@@ -708,7 +708,7 @@ function frontierCss() {
       box-shadow: 0 1px 0 rgba(15,23,42,.04), 0 6px 20px -12px rgba(76,29,149,.15);
     }
     .fr-brand { display: flex; align-items: center; gap: 12px; flex: 1; min-width: 0; }
-    .fr-logo { width: 34px; height: 34px; border-radius: 10px;
+    .fr-logo { height: 34px; width: auto; aspect-ratio: 1920/489; border-radius: 10px;
       background: url('/__l5e/assets-v1/b50abdf0-f22e-4636-b1ec-9050da4c08af/Cat_color.png') center/contain no-repeat;
       box-shadow: 0 6px 16px -6px rgba(167,139,250,.55), inset 0 1px 0 rgba(255,255,255,.6); }
     .fr-brand-title { font-weight: 600; font-size: 15px; letter-spacing: -0.01em; }
