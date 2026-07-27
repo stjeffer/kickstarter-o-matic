@@ -757,7 +757,7 @@ function frontierCss() {
       padding: 48px 44px;
       box-shadow: 0 30px 60px -30px rgba(76,29,149,.25), 0 2px 6px rgba(15,23,42,.04);
     }
-    .fr-hero-logo { width: 64px; height: 64px; margin: 0 auto 20px; border-radius: 18px;
+    .fr-hero-logo { height: 64px; width: auto; aspect-ratio: 1920/489; margin: 0 auto 20px; border-radius: 18px;
       background: url('/__l5e/assets-v1/b50abdf0-f22e-4636-b1ec-9050da4c08af/Cat_color.png') center/contain no-repeat;
       box-shadow: 0 16px 30px -12px rgba(167,139,250,.6), inset 0 1px 0 rgba(255,255,255,.6); }
     .fr-hero-card h2 { font-weight: 600; font-size: 30px; margin: 0 0 12px; letter-spacing: -0.02em; }
