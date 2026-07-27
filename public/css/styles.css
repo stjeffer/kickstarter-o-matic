@@ -1085,17 +1085,18 @@
   margin-left:auto; padding:2px 0;
 }
 .presence-pill{
-  display:inline-flex; align-items:center; gap:6px;
-  padding:3px 10px 3px 3px; border-radius:999px;
+  display:inline-flex; align-items:center; gap:0;
+  padding:3px; border-radius:999px;
   background:rgba(255,255,255,.7);
   border:1px solid var(--line);
   box-shadow:var(--shadow-1);
   font-size:11px; font-weight:600; color:var(--ink);
-  transition:transform .15s, box-shadow .15s;
+  transition:transform .15s, box-shadow .15s, padding .2s, gap .2s;
   cursor:default; white-space:nowrap;
   backdrop-filter:blur(10px);
+  position:relative;
 }
-.presence-pill:hover{ transform:translateY(-1px); box-shadow:0 2px 8px -2px rgba(0,0,0,.12); }
+.presence-pill:hover{ transform:translateY(-1px); box-shadow:0 2px 8px -2px rgba(0,0,0,.12); padding:3px 10px 3px 3px; gap:6px; }
 .presence-pill.local{ box-shadow:0 0 0 2px color-mix(in srgb, var(--pill-color) 35%, transparent), var(--shadow-1); }
 .pill-avatar{
   width:20px; height:20px; border-radius:50%;
@@ -1103,7 +1104,8 @@
   background:var(--pill-color); color:#fff;
   font-size:9px; font-weight:700; letter-spacing:.02em;
 }
-.pill-name{ max-width:90px; overflow:hidden; text-overflow:ellipsis; }
+.pill-name{ max-width:0; overflow:hidden; text-overflow:ellipsis; opacity:0; transition:max-width .2s, opacity .2s; }
+.presence-pill:hover .pill-name{ max-width:90px; opacity:1; }
 
 /* Connection status badge */
 .collab-status{
