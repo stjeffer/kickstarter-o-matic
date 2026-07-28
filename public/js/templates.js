@@ -343,8 +343,48 @@ export const TEMPLATE_PACKS = {
       cards.push({id:z.id, type:'group', x, y: top, w: zoneW, h: zoneH, text: z.title, color: z.color});
       cards.push({id:z.id+'_hint', type:'prompt', x: x + 16, y: top + 56, w: zoneW - 32, h: 90, category: z.title.split('·')[1].trim(), text: z.hint});
     });
-    cards.push({id:'ft_seed1', type:'sticky', x: 60,  y: top + 180, text:'A year from now, most Tier-1 tickets are resolved by an agent — humans handle exceptions.', color:'#fff59d', groupId:'fz_future'});
-    cards.push({id:'ft_seed2', type:'sticky', x: 250, y: top + 180, text:'CSAT holds vs human-only, and every agent action is auditable.',                 color:'#bbdefb', groupId:'fz_future'});
+    // Zone x positions: 40 + i*(440+40)
+    const zx = i => 40 + i * (zoneW + gap);
+    const inner = i => zx(i) + 20;
+    const yTop = top + 170;
+    const stick = (id, i, row, text, color, extra={}) => cards.push({
+      id, type:'sticky',
+      x: inner(i) + (row % 2) * 200,
+      y: yTop + Math.floor(row / 2) * 130,
+      w: 180, h: 110,
+      text, color, groupId: zones[i].id, ...extra,
+    });
+    // 1 · Future State — diverged ideas
+    stick('ft_f1', 0, 0, 'Tier-1 tickets resolved by an agent in <60s, humans handle exceptions.', SC.yellow);
+    stick('ft_f2', 0, 1, 'Every agent action carries a full audit trail customers can request.', SC.blue);
+    stick('ft_f3', 0, 2, 'Customers say "it felt like talking to your best rep."', SC.green);
+    stick('ft_f4', 0, 3, 'One "explain-my-invoice" agent kills our #1 ticket driver.', SC.pink);
+    stick('ft_f5', 0, 4, 'Support cost per contact ↓ 40% without CSAT drop.', SC.orange);
+    stick('ft_f6', 0, 5, 'Humans do coaching + edge cases, not password resets.', SC.purple);
+    // 2 · Cluster — theme cards
+    stick('ft_c1', 1, 0, 'CLUSTER · Deflection\nInvoice explainer, refund drafts, password resets.', SC.blue);
+    stick('ft_c2', 1, 1, 'CLUSTER · Trust + audit\nCitations, audit trails, kill switches.', SC.blue);
+    stick('ft_c3', 1, 2, 'CLUSTER · Agent-assist\nNext-best-reply, unified answer view, L2 handoff brief.', SC.blue);
+    stick('ft_c4', 1, 3, 'CLUSTER · Ops + evals\nGolden sets, cost budgets, prompt registry.', SC.blue);
+    // 3 · Objectives
+    stick('ft_o1', 2, 0, 'OBJECTIVE\nDeflect 40% of Tier-1 by Q2, CSAT ≥ human baseline.', SC.purple);
+    stick('ft_o2', 2, 1, 'OBJECTIVE\nEvery agent action auditable + explainable to customers.', SC.purple);
+    stick('ft_o3', 2, 2, 'OBJECTIVE\nCut avg handle time 30% for human-assisted contacts.', SC.purple);
+    stick('ft_o4', 2, 3, 'OBJECTIVE\nZero policy violations attributable to the agent.', SC.purple);
+    // 4 · Initiatives
+    stick('ft_i1', 3, 0, 'INITIATIVE · Invoice explainer\nOwner: Rahul · Effort M · Impact 5', SC.orange);
+    stick('ft_i2', 3, 1, 'INITIATIVE · Refund draft agent\nOwner: Priya · Effort L · Impact 4', SC.orange);
+    stick('ft_i3', 3, 2, 'INITIATIVE · Next-best-reply copilot\nOwner: Maya · Effort S · Impact 5', SC.orange);
+    stick('ft_i4', 3, 3, 'INITIATIVE · Eval + prompt registry\nOwner: Sam · Effort M · Impact 4', SC.orange);
+    stick('ft_i5', 3, 4, 'INITIATIVE · Audit trail + citations UI\nOwner: Lin · Effort M · Impact 3', SC.orange);
+    stick('ft_i6', 3, 5, 'INITIATIVE · Cost + kill-switch guardrails\nOwner: Sam · Effort S · Impact 3', SC.orange);
+    // 5 · Plan (Now / Next / Later)
+    stick('ft_p1', 4, 0, 'NOW · Next-best-reply copilot behind flag for 5 agents.', SC.green);
+    stick('ft_p2', 4, 1, 'NOW · Eval + prompt registry v1, "golden set" of 200 tickets.', SC.green);
+    stick('ft_p3', 4, 2, 'NEXT · Invoice explainer GA to 100% of self-serve.', SC.yellow);
+    stick('ft_p4', 4, 3, 'NEXT · Audit trail + citations UI shipped.', SC.yellow);
+    stick('ft_p5', 4, 4, 'LATER · Refund draft agent pilot (policy sign-off first).', SC.pink);
+    stick('ft_p6', 4, 5, 'LATER · Cost + kill-switch guardrails GA across all agents.', SC.pink);
     return {
       canvasType:'whiteboard',
       lanes:[],
