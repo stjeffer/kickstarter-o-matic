@@ -268,7 +268,7 @@ export function initLauncher(){
         state.lanes=[]; state.prompts=[]; state.cards=[]; state.connections=[];
         state.view={x:40,y:40,scale:1};
       } else {
-        applyTemplate(mode.key);
+        applyTemplate(mode.key, { withDemo: $('#lsDemoToggle')?.checked !== false });
       }
     } else {
       state.session=null; state.canvasType='whiteboard';
