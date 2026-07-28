@@ -470,18 +470,24 @@ export function openBrief(prompt){
 }
 
 // ============ Templates application ============
-export function applyTemplate(key){
+export function applyTemplate(key, opts = {}){
+  const withDemo = opts.withDemo !== false; // default true
   const build = TEMPLATE_PACKS[key];
   if(!build) return;
   const t = build();
   if(t.multi){
+    const stages = withDemo ? t.stages : (t.stages || []).map(s => ({
+      ...s,
+      cards: [],
+      connections: [],
+    }));
     state.session = {
       title: t.session?.title || 'Session',
       customer: t.session?.customer || '',
       date: t.session?.date || '',
       sessionType: t.session?.sessionType || '',
       description: t.session?.description || '',
-      stages: t.stages,
+      stages,
       activeIndex: 0,
     };
     loadStage(0);
@@ -490,8 +496,8 @@ export function applyTemplate(key){
   state.canvasType = t.canvasType || 'whiteboard';
   state.lanes = t.lanes || [];
   state.prompts = t.prompts || [];
-  state.cards = t.cards || [];
-  state.connections = t.connections || [];
+  state.cards = withDemo ? (t.cards || []) : [];
+  state.connections = withDemo ? (t.connections || []) : [];
   state.view = t.view || {x:40,y:40,scale:1};
   clearSelection();
   $('#canvasType').value = state.canvasType;
