@@ -122,6 +122,34 @@ function initContextMenu(){
     });
     sw.appendChild(b);
   });
+
+  // Build "Add card" section dynamically from CARD_TYPES (grouped)
+  const addHost = $('#ctxAddCards');
+  if(addHost){
+    const groups = {};
+    Object.entries(CARD_TYPES).forEach(([key, def])=>{
+      if(!def.group || def.group.startsWith('_')) return;
+      (groups[def.group] = groups[def.group] || []).push([key, def]);
+    });
+    Object.entries(groups).forEach(([groupName, entries])=>{
+      const lbl = document.createElement('div');
+      lbl.className = 'ctx-label';
+      lbl.textContent = groupName;
+      addHost.appendChild(lbl);
+      entries.forEach(([key, def])=>{
+        const b = document.createElement('button');
+        b.dataset.ctx = key;
+        const ico = document.createElement('span');
+        ico.className = 'ico';
+        if(typeof def.icon === 'function'){ ico.innerHTML = def.icon(); }
+        else { ico.textContent = '•'; }
+        b.appendChild(ico);
+        b.appendChild(document.createTextNode(def.label || key));
+        addHost.appendChild(b);
+      });
+    });
+  }
+
   let shownAt = 0;
   function show(x,y){
     menu.style.left = Math.min(x, window.innerWidth-240)+'px';
