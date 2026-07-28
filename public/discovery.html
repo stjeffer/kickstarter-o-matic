@@ -46,7 +46,12 @@
 
     <div class="ls-launchbar">
       <div class="ls-selected-lbl" id="lsPickedHint">Pick a canvas to continue</div>
-      <div style="display:flex;gap:10px">
+      <div style="display:flex;gap:14px;align-items:center">
+        <label class="ls-toggle" for="lsDemoToggle" title="Load the template pre-populated with a real-world AI / agentic example">
+          <input type="checkbox" id="lsDemoToggle" checked />
+          <span class="ls-toggle-track"><span class="ls-toggle-thumb"></span></span>
+          <span class="ls-toggle-lbl">Populate with demo data</span>
+        </label>
         <button class="ls-btn ghost" id="lsSkip" type="button">Skip — blank canvas</button>
         <button class="ls-btn" id="lsLaunch" type="button" disabled>Select a canvas →</button>
       </div>
