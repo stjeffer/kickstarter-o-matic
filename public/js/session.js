@@ -729,4 +729,5 @@ export function initSessionUI(){
   window.__persistCurrentStage = persistCurrentStage;
   window.__renderStageBar = renderStageBar;
   window.__loadSessionFromSchema = loadSessionFromSchema;
+  window.__loadFrontierPlanFromSchema = loadFrontierPlanFromSchema;
 }
