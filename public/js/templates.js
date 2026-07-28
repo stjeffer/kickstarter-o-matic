@@ -248,10 +248,26 @@ export const TEMPLATE_PACKS = {
       {category:'Retro', text:'What surprised us about how users treated the agent?'},
     ],
     cards: [
-      {id:'r_a', type:'sticky', x:120,  y:120, text:'Human-in-the-loop kept trust high', color:SC.green},
-      {id:'r_b', type:'sticky', x:120,  y:520, text:'Eval harness was an afterthought — bit us', color:SC.pink},
-      {id:'r_c', type:'sticky', x:120,  y:920, text:'Try tool-call tracing dashboards for support', color:SC.yellow},
-      {id:'r_d', type:'sticky', x:120,  y:1320,text:'Own an evals-first workflow before next pilot', color:SC.blue},
+      // Went well
+      {id:'r_w1', type:'sticky', x:120, y:120,  text:'Human-in-the-loop kept trust high — zero customer-visible bad outputs.', color:SC.green},
+      {id:'r_w2', type:'sticky', x:120, y:300,  text:'Prompt + tool changes reviewed like code (PRs, owners, tests).', color:SC.green},
+      {id:'r_w3', type:'sticky', x:120, y:480,  text:'Deflection lifted 22% on Tier-1 refund questions.', color:SC.green},
+      {id:'r_w4', type:'sticky', x:120, y:660,  text:'Weekly "agent office hours" surfaced real user quotes fast.', color:SC.green},
+      // Didn\'t go well
+      {id:'r_b1', type:'sticky', x:120, y:900,  text:'Eval harness was an afterthought — regressions caught by users, not us.', color:SC.pink},
+      {id:'r_b2', type:'sticky', x:120, y:1080, text:'No shared view of tool-call cost — spend surprised finance.', color:SC.pink},
+      {id:'r_b3', type:'sticky', x:120, y:1260, text:'Escalation path to L2 was ambiguous; agents dropped context.', color:SC.pink},
+      {id:'r_b4', type:'sticky', x:120, y:1440, text:'Prompt sprawl — 6 near-duplicate refund prompts across teams.', color:SC.pink},
+      // Ideas
+      {id:'r_i1', type:'sticky', x:120, y:1680, text:'Tool-call tracing dashboard shared with support + eng.', color:SC.yellow},
+      {id:'r_i2', type:'sticky', x:120, y:1860, text:'"Golden set" of 200 real tickets, run nightly against every prompt change.', color:SC.yellow},
+      {id:'r_i3', type:'sticky', x:120, y:2040, text:'Prompt registry — one canonical prompt per intent, owned by a person.', color:SC.yellow},
+      {id:'r_i4', type:'sticky', x:120, y:2220, text:'Per-agent cost budget with a soft kill-switch.', color:SC.yellow},
+      // Actions
+      {id:'r_a1', type:'sticky', x:120, y:2460, text:'ACTION · Stand up evals-first workflow before next pilot. Owner: Priya. Due: Aug 15.', color:SC.blue},
+      {id:'r_a2', type:'sticky', x:120, y:2640, text:'ACTION · Ship tool-call tracing v1. Owner: Sam. Due: end of month.', color:SC.blue},
+      {id:'r_a3', type:'sticky', x:120, y:2820, text:'ACTION · Publish escalation runbook + rehearse with L2. Owner: Maya. Due: next Friday.', color:SC.blue},
+      {id:'r_a4', type:'sticky', x:120, y:3000, text:'DECISION · Freeze new prompts until registry lands.', color:SC.blue},
     ],
     connections: [],
     view:{x:40,y:40,scale:.9},
