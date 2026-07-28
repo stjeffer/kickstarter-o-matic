@@ -203,12 +203,30 @@ export const TEMPLATE_PACKS = {
       {category:'Gains',  text:'What do they hope to achieve if the agent actually works?'},
     ],
     cards: [
-      {id:'em1', type:'sticky', x:260,  y:140, text:'"I still re-read every line it writes."', color:SC.blue},
-      {id:'em2', type:'sticky', x:900,  y:140, text:'"Am I becoming a reviewer instead of an engineer?"', color:SC.purple},
-      {id:'em3', type:'sticky', x:260,  y:600, text:'Turns the agent off in sensitive repos', color:SC.green},
-      {id:'em4', type:'sticky', x:900,  y:600, text:'Anxious before shipping AI-written code', color:SC.pink},
-      {id:'em5', type:'sticky', x:260,  y:1060,text:'Fear of subtle bugs slipping past review', color:SC.pink},
-      {id:'em6', type:'sticky', x:900,  y:1060,text:'Wants to ship 2× without losing craft', color:SC.yellow},
+      // Says
+      {id:'em_s1', type:'sticky', x:260,  y:140, text:'"I still re-read every line it writes."', color:SC.blue},
+      {id:'em_s2', type:'sticky', x:260,  y:290, text:'"It saved me an hour — then I spent an hour double-checking it."', color:SC.blue},
+      {id:'em_s3', type:'sticky', x:260,  y:440, text:'"I don\'t use it in the payments repo. Full stop."', color:SC.blue},
+      // Thinks
+      {id:'em_t1', type:'sticky', x:900,  y:140, text:'"Am I becoming a reviewer instead of an engineer?"', color:SC.purple},
+      {id:'em_t2', type:'sticky', x:900,  y:290, text:'"If this leaks our code, my name is on the PR."', color:SC.purple},
+      {id:'em_t3', type:'sticky', x:900,  y:440, text:'"Do I still understand this codebase, or just the agent\'s version of it?"', color:SC.purple},
+      // Does
+      {id:'em_d1', type:'sticky', x:260,  y:600, text:'Turns the agent off in sensitive repos', color:SC.green},
+      {id:'em_d2', type:'sticky', x:260,  y:750, text:'Accepts small completions, rejects big refactors', color:SC.green},
+      {id:'em_d3', type:'sticky', x:260,  y:900, text:'Copies suggestions into a scratch file to sanity-check', color:SC.green},
+      // Feels
+      {id:'em_f1', type:'sticky', x:900,  y:600, text:'Anxious before shipping AI-written code', color:SC.pink},
+      {id:'em_f2', type:'sticky', x:900,  y:750, text:'Quietly proud when a copilot-drafted PR lands clean', color:SC.green},
+      {id:'em_f3', type:'sticky', x:900,  y:900, text:'Frustrated when it invents an API that doesn\'t exist', color:SC.pink},
+      // Pains
+      {id:'em_p1', type:'sticky', x:260,  y:1060, text:'Fear of subtle bugs slipping past review', color:SC.pink},
+      {id:'em_p2', type:'sticky', x:260,  y:1210, text:'Unclear IP + licensing story with generated code', color:SC.pink},
+      {id:'em_p3', type:'sticky', x:260,  y:1360, text:'No way to see which tools/data the agent used', color:SC.orange},
+      // Gains
+      {id:'em_g1', type:'sticky', x:900,  y:1060, text:'Wants to ship 2× without losing craft', color:SC.yellow},
+      {id:'em_g2', type:'sticky', x:900,  y:1210, text:'Wants boilerplate + tests written for them', color:SC.yellow},
+      {id:'em_g3', type:'sticky', x:900,  y:1360, text:'Wants a trusted teammate for the boring 80%', color:SC.yellow},
     ],
     connections: [],
     view:{x:40,y:40,scale:.7},
