@@ -2,7 +2,7 @@
 import { state, save } from './state.js';
 import { $ } from './utils.js';
 import { renderAll } from './render.js';
-import { applyTemplate, loadSessionFromSchema } from './session.js';
+import { applyTemplate, loadSessionFromSchema, loadFrontierPlanFromSchema } from './session.js';
 
 const LS_PREVIEWS = {
   whiteboard: `<svg viewBox="0 0 200 125" xmlns="http://www.w3.org/2000/svg">
