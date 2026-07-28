@@ -3,6 +3,7 @@ import { state, save } from './state.js';
 import { $, isEditing } from './utils.js';
 import { addCard, clearSelection, deleteCard, selectCard, applyView, clientToWorld, getCardSize, fitToView } from './render.js';
 import { zoomAt, getClipboardCard, setClipboardCard } from './interactions.js';
+import { CARD_TYPES } from './card-types.js';
 
 // ============ Flyout Panels ============
 function initFlyouts(){
