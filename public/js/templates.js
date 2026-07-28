@@ -48,23 +48,33 @@ export const TEMPLATE_PACKS = {
 
   // Real-world scenario: brainstorming agentic AI ideas for customer support
   ideation: () => {
-    const colors = [SC.yellow, SC.pink, SC.blue, SC.green, SC.orange, SC.purple];
-    const seeds = [
-      'Agent that drafts refund decisions with policy citations',
-      'Auto-triage inbound tickets by intent + urgency',
-      'Voice agent that handles password resets end-to-end',
-      'Copilot that suggests the next best reply to the human agent',
-      'Proactive outreach when a customer\'s usage drops',
-      'Agent that stitches CRM + billing + logs into one answer',
-      'Self-serve "explain my invoice" agent',
-      'Post-call QA agent that scores empathy and accuracy',
-      'Escalation agent that writes the handoff brief for L2',
+    const LX = { brain: 80, cluster: 420, prio: 760, next: 1100 };
+    const cards = [
+      // 1. Brainstorm — raw agentic ideas
+      {id:'id_b1', type:'sticky', x:LX.brain, y:120,  text:'Agent drafts refund decisions with policy citations', color:SC.yellow},
+      {id:'id_b2', type:'sticky', x:LX.brain, y:280,  text:'Auto-triage inbound tickets by intent + urgency', color:SC.yellow},
+      {id:'id_b3', type:'sticky', x:LX.brain, y:440,  text:'Voice agent handles password resets end-to-end', color:SC.yellow},
+      {id:'id_b4', type:'sticky', x:LX.brain, y:600,  text:'Copilot suggests next-best reply to the human agent', color:SC.yellow},
+      {id:'id_b5', type:'sticky', x:LX.brain, y:760,  text:'Proactive outreach when a customer\'s usage drops', color:SC.yellow},
+      {id:'id_b6', type:'sticky', x:LX.brain, y:920,  text:'Agent stitches CRM + billing + logs into one answer', color:SC.yellow},
+      {id:'id_b7', type:'sticky', x:LX.brain, y:1080, text:'Self-serve "explain my invoice" agent', color:SC.yellow},
+      {id:'id_b8', type:'sticky', x:LX.brain, y:1240, text:'Post-call QA agent scores empathy + accuracy', color:SC.yellow},
+      {id:'id_b9', type:'sticky', x:LX.brain, y:1400, text:'Escalation agent writes the handoff brief for L2', color:SC.yellow},
+      // 2. Cluster — themed groupings
+      {id:'id_c1', type:'sticky', x:LX.cluster, y:120, text:'CLUSTER · Deflection\n• Refund drafts\n• Password resets\n• Invoice explainer', color:SC.blue},
+      {id:'id_c2', type:'sticky', x:LX.cluster, y:420, text:'CLUSTER · Agent-assist\n• Next-best reply\n• Unified answer view\n• L2 handoff brief', color:SC.blue},
+      {id:'id_c3', type:'sticky', x:LX.cluster, y:720, text:'CLUSTER · Quality + trust\n• Post-call QA\n• Intent triage\n• Proactive outreach', color:SC.blue},
+      // 3. Prioritise
+      {id:'id_p1', type:'sticky', x:LX.prio, y:120, text:'HIGH impact / LOW effort → Next-best-reply copilot. Human still in the seat.', color:SC.green},
+      {id:'id_p2', type:'sticky', x:LX.prio, y:340, text:'HIGH / MED → Invoice explainer. Bounded, rich data, safe to ship.', color:SC.green},
+      {id:'id_p3', type:'sticky', x:LX.prio, y:560, text:'MED / HIGH → Refund decisions. Policy risk, needs eval harness.', color:SC.orange},
+      {id:'id_p4', type:'sticky', x:LX.prio, y:780, text:'LOW / HIGH → Voice password reset. Auth risk, defer.', color:SC.pink},
+      // 4. Next steps
+      {id:'id_n1', type:'sticky', x:LX.next, y:120, text:'THIS WEEK · Ship next-best-reply behind a flag for 5 agents. Owner: Maya.', color:SC.purple},
+      {id:'id_n2', type:'sticky', x:LX.next, y:340, text:'THIS SPRINT · Prototype invoice explainer with citations. Owner: Rahul.', color:SC.purple},
+      {id:'id_n3', type:'sticky', x:LX.next, y:560, text:'THIS QUARTER · Stand up evals + policy corpus for refund agent. Owner: Priya.', color:SC.purple},
+      {id:'id_n4', type:'sticky', x:LX.next, y:780, text:'DECISION · Park voice reset until IVR auth story lands.', color:SC.pink},
     ];
-    const cards = seeds.map((t,i)=>({
-      id:'i'+i, type:'sticky',
-      x: 120 + (i%3)*260, y: 100 + Math.floor(i/3)*180,
-      text:t, color: colors[i%colors.length],
-    }));
     return {
       canvasType:'vswimlanes',
       lanes: [
@@ -84,7 +94,7 @@ export const TEMPLATE_PACKS = {
       ],
       cards,
       connections: [],
-      view: {x:40,y:40,scale:.9},
+      view: {x:20,y:20,scale:.55},
     };
   },
 
