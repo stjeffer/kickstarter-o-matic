@@ -278,6 +278,9 @@ export function initLauncher(){
     if(data){
       try{
         if(Array.isArray(data.stages)) loadSessionFromSchema(data);
+        else if(data.oneYearFutureState || data.workbackPlan || data.opportunityAreas || (typeof data.scopeType === 'string' && data.scopeType.toLowerCase().includes('frontier'))){
+          loadFrontierPlanFromSchema(data);
+        }
         else{
           state.session=null;
           if(data.canvasType) state.canvasType=data.canvasType;
