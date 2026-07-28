@@ -33,6 +33,156 @@ function normalizeCanvasType(t){
 }
 
 // ============ Load / persist stages ============
+// ============ Frontier Action Plan schema loader ============
+const FZ_COLORS = { future:'#0a84ff', cluster:'#5856d6', obj:'#af52de', init:'#ff9500', plan:'#34c759' };
+const FZ_STICKY = { future:'#bbdefb', cluster:'#e1bee7', obj:'#e1bee7', init:'#ffe0b2', plan:'#c8e6c9' };
+
+function _fzWrap(text, max=180){
+  const s = String(text||'');
+  return s.length > max ? s.slice(0, max-1).trimEnd()+'…' : s;
+}
+
+export function loadFrontierPlanFromSchema(data){
+  const zoneW = 460, gap = 40, top = 180, headerH = 56, hintH = 100, padTop = 24;
+  const contentTop = top + headerH + hintH + padTop;
+  const stickyW = zoneW - 60, stickyStep = 168;
+
+  // Collect items per zone
+  const futureItems = [];
+  if(data.oneYearFutureState?.headline) futureItems.push({title:'Headline', text:data.oneYearFutureState.headline});
+  (data.oneYearFutureState?.lenses||[]).forEach(l => futureItems.push({title:l.lens, text:l.future}));
+
+  const clusterItems = (data.blockers||[]).map(b => ({
+    title: b.classification + (b.confidence?` · ${b.confidence} confidence`:''),
+    text: (b.blocker||'') + (b.impact?`\n\nImpact: ${b.impact}`:''),
+  }));
+
+  const objItems = (data.opportunityAreas||[]).map(o => ({
+    title: o.title,
+    text: (o.description||'') + (o.sequence?`\n\nSequence: ${o.sequence}`:'') + (o.connectsTo?`\n${o.connectsTo}`:''),
+  }));
+
+  const initItems = [
+    ...(data.agentPortfolio||[]).map(a => ({
+      title:'Agent · '+a.agent,
+      text: (a.purpose||'') + (a.users?`\n\nUsers: ${a.users}`:'') + (a.outcomeImproved?`\nOutcome: ${a.outcomeImproved}`:''),
+    })),
+    ...(data.enablers||[]).map(e => ({
+      title:'Enabler'+(e.priority?` · ${e.priority}`:''),
+      text: (e.change||'') + (e.enabledBy?`\n\nEnabled by: ${e.enabledBy}`:'') + (e.lens?`\nLens: ${e.lens}`:''),
+    })),
+  ];
+
+  const planItems = (data.workbackPlan||[]).map(p => ({
+    title: p.phase + (p.window?` (${p.window})`:''),
+    text: (Array.isArray(p.actions)?p.actions.map(a=>'• '+a).join('\n'):'') +
+          (p.output?`\n\nOutput: ${p.output}`:'') + (p.measure?`\nMeasure: ${p.measure}`:''),
+  }));
+  if(data.recommendedNextStep){
+    planItems.unshift({
+      title:'Recommended next step',
+      text: (data.recommendedNextStep.engagement||'') + (data.recommendedNextStep.rationale?`\n\n${data.recommendedNextStep.rationale}`:''),
+    });
+  }
+
+  const zoneDefs = [
+    {id:'fz_future',      title:'1 · Future State', color:FZ_COLORS.future,  sticky:FZ_STICKY.future,  hint:'Envision the future — 12 months from now, at its best.', items:futureItems},
+    {id:'fz_cluster',     title:'2 · Cluster',      color:FZ_COLORS.cluster, sticky:FZ_STICKY.cluster, hint:'Blockers and themes to group and address.',              items:clusterItems},
+    {id:'fz_objectives',  title:'3 · Objectives',   color:FZ_COLORS.obj,     sticky:FZ_STICKY.obj,     hint:'Opportunity areas — what we commit to and why.',        items:objItems},
+    {id:'fz_initiatives', title:'4 · Initiatives',  color:FZ_COLORS.init,    sticky:FZ_STICKY.init,    hint:'Agents and enablers that deliver the objectives.',      items:initItems},
+    {id:'fz_plan',        title:'5 · Plan',         color:FZ_COLORS.plan,    sticky:FZ_STICKY.plan,    hint:'Sequenced workback — now, next, later.',                items:planItems},
+  ];
+
+  const maxCount = Math.max(1, ...zoneDefs.map(z => z.items.length));
+  const zoneH = Math.max(1180, headerH + hintH + padTop + maxCount * stickyStep + 40);
+
+  const cards = [];
+  const titleText = 'Frontier Action Plan' + (data.customer?` · ${data.customer}`:'');
+  const subtitleParts = [];
+  if(data.scope) subtitleParts.push(data.scope);
+  else if(data.scopeType) subtitleParts.push(data.scopeType);
+  cards.push({id:'ft_title', type:'title', x:40, y:40, text:titleText, subtitle: subtitleParts.join(' — ') || 'Future → Cluster → Objectives → Initiatives → Plan'});
+
+  zoneDefs.forEach((z, i)=>{
+    const x = 40 + i * (zoneW + gap);
+    cards.push({id:z.id, type:'group', x, y:top, w:zoneW, h:zoneH, text:z.title, color:z.color});
+    cards.push({id:z.id+'_hint', type:'prompt', x:x+20, y:top+headerH, w:zoneW-40, h:hintH-10, category:z.title.split('·')[1]?.trim()||z.title, text:z.hint});
+    z.items.forEach((it, k)=>{
+      const sx = x + 30, sy = contentTop + k * stickyStep;
+      cards.push({
+        id: `${z.id}_c${k}`,
+        type:'sticky',
+        x:sx, y:sy, w:stickyW, h: stickyStep - 24,
+        text: (it.title? `${it.title}\n\n`:'') + _fzWrap(it.text, 420),
+        color: z.sticky,
+        groupId: z.id,
+      });
+    });
+  });
+
+  // Grounding / info-needed as reference stickies below the board
+  const infoY = top + zoneH + 60;
+  if(data.groundingNote){
+    cards.push({id:'ft_grounding', type:'prompt', x:40, y:infoY, w: zoneW*2 + gap, h:180,
+      category:'Grounding note', text:_fzWrap(data.groundingNote, 900)});
+  }
+  if(Array.isArray(data.informationStillNeeded) && data.informationStillNeeded.length){
+    cards.push({id:'ft_info', type:'prompt', x: 40 + 2*(zoneW+gap), y:infoY, w: zoneW*2 + gap, h:180,
+      category:'Information still needed', text: data.informationStillNeeded.map(s=>'• '+s).join('\n')});
+  }
+  if(data.currentStateSummary){
+    const cs = data.currentStateSummary;
+    const csText = [
+      (cs.confirmed||[]).length ? 'Confirmed:\n' + cs.confirmed.map(s=>'• '+s).join('\n') : '',
+      (cs.needsValidation||[]).length ? '\n\nNeeds validation:\n' + cs.needsValidation.map(s=>'• '+s).join('\n') : '',
+    ].join('');
+    cards.push({id:'ft_current', type:'prompt', x: 40 + 4*(zoneW+gap), y:infoY, w: zoneW, h:180,
+      category:'Current state', text:_fzWrap(csText, 900)});
+  }
+
+  // Success evidence row
+  if(data.successEvidence){
+    const evY = infoY + 220;
+    const cats = Object.entries(data.successEvidence);
+    cats.forEach(([k, arr], i)=>{
+      const x = 40 + i*(zoneW + gap);
+      cards.push({id:'ft_ev_'+k, type:'sticky', x, y:evY, w:zoneW-20, h:220,
+        text:`Success · ${k}\n\n` + (Array.isArray(arr)?arr.map(s=>'• '+s).join('\n'):String(arr)),
+        color:'#c8e6c9'});
+    });
+  }
+
+  const prompts = [
+    {id:'fp1', category:'Future',      text:'What does the future state look like a year from now, at its best?', notes:data.oneYearFutureState?.headline||''},
+    {id:'fp2', category:'Cluster',     text:'Which blockers and themes must we address to get there?',            notes:'Group by classification; sharpen the highest-confidence ones first.'},
+    {id:'fp3', category:'Objectives',  text:'What opportunity areas do we commit to, and how will we sequence them?', notes:'Anchor to the blockers each opportunity resolves.'},
+    {id:'fp4', category:'Initiatives', text:'Which agents and enablers most credibly deliver each objective?',     notes:'Name owner, guardrail and measurable outcome.'},
+    {id:'fp5', category:'Plan',        text:'What is the 0–180 day workback plan, and what evidence proves it worked?', notes:data.recommendedNextStep?.engagement||''},
+  ];
+
+  const stage = {
+    name: 'Frontier Action Plan',
+    description: data.scope || '',
+    canvasType: 'whiteboard',
+    lanes: [],
+    prompts,
+    cards,
+    connections: [],
+    view: {x:20, y:20, scale:.38},
+  };
+
+  state.session = {
+    title: 'Frontier Action Plan' + (data.customer?` — ${data.customer}`:''),
+    customer: data.customer || '',
+    date: data.generatedDate || data.date || '',
+    sessionType: data.scopeType || 'Frontier Action Plan',
+    description: data.scope || '',
+    stages: [stage],
+    activeIndex: 0,
+  };
+  loadStage(0);
+}
+
 export function loadSessionFromSchema(data){
   const stages = data.stages.map((s, i)=>{
     const canvasType = normalizeCanvasType(s.canvasType);
@@ -579,4 +729,5 @@ export function initSessionUI(){
   window.__persistCurrentStage = persistCurrentStage;
   window.__renderStageBar = renderStageBar;
   window.__loadSessionFromSchema = loadSessionFromSchema;
+  window.__loadFrontierPlanFromSchema = loadFrontierPlanFromSchema;
 }

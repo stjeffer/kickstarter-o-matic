@@ -2,7 +2,7 @@
 import { state, save } from './state.js';
 import { $ } from './utils.js';
 import { renderAll } from './render.js';
-import { applyTemplate, loadSessionFromSchema } from './session.js';
+import { applyTemplate, loadSessionFromSchema, loadFrontierPlanFromSchema } from './session.js';
 
 const LS_PREVIEWS = {
   whiteboard: `<svg viewBox="0 0 200 125" xmlns="http://www.w3.org/2000/svg">
@@ -278,6 +278,9 @@ export function initLauncher(){
     if(data){
       try{
         if(Array.isArray(data.stages)) loadSessionFromSchema(data);
+        else if(data.oneYearFutureState || data.workbackPlan || data.opportunityAreas || (typeof data.scopeType === 'string' && data.scopeType.toLowerCase().includes('frontier'))){
+          loadFrontierPlanFromSchema(data);
+        }
         else{
           state.session=null;
           if(data.canvasType) state.canvasType=data.canvasType;
