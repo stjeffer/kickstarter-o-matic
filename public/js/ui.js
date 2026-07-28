@@ -166,8 +166,12 @@ function initContextMenu(){
   }
   function addCardAt(type, color){
     const p = ctxPt ? clientToWorld(ctxPt.x, ctxPt.y) : viewportCenterWorld();
-    const w = (type==='sticky')?180:200, h=(type==='sticky')?120:80;
-    addCard({type, x:p.x - w/2, y:p.y - h/2, text:'New '+type, color});
+    const def = CARD_TYPES[type];
+    const d = (def && def.defaults) || {};
+    const w = d.w || 180, h = d.h || 120;
+    const card = { type, x: p.x - w/2, y: p.y - h/2, ...d };
+    if(color) card.color = color;
+    addCard(card);
   }
   viewport.addEventListener('contextmenu', e=>{
     e.preventDefault();
