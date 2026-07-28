@@ -48,23 +48,33 @@ export const TEMPLATE_PACKS = {
 
   // Real-world scenario: brainstorming agentic AI ideas for customer support
   ideation: () => {
-    const colors = [SC.yellow, SC.pink, SC.blue, SC.green, SC.orange, SC.purple];
-    const seeds = [
-      'Agent that drafts refund decisions with policy citations',
-      'Auto-triage inbound tickets by intent + urgency',
-      'Voice agent that handles password resets end-to-end',
-      'Copilot that suggests the next best reply to the human agent',
-      'Proactive outreach when a customer\'s usage drops',
-      'Agent that stitches CRM + billing + logs into one answer',
-      'Self-serve "explain my invoice" agent',
-      'Post-call QA agent that scores empathy and accuracy',
-      'Escalation agent that writes the handoff brief for L2',
+    const LX = { brain: 80, cluster: 420, prio: 760, next: 1100 };
+    const cards = [
+      // 1. Brainstorm — raw agentic ideas
+      {id:'id_b1', type:'sticky', x:LX.brain, y:120,  text:'Agent drafts refund decisions with policy citations', color:SC.yellow},
+      {id:'id_b2', type:'sticky', x:LX.brain, y:280,  text:'Auto-triage inbound tickets by intent + urgency', color:SC.yellow},
+      {id:'id_b3', type:'sticky', x:LX.brain, y:440,  text:'Voice agent handles password resets end-to-end', color:SC.yellow},
+      {id:'id_b4', type:'sticky', x:LX.brain, y:600,  text:'Copilot suggests next-best reply to the human agent', color:SC.yellow},
+      {id:'id_b5', type:'sticky', x:LX.brain, y:760,  text:'Proactive outreach when a customer\'s usage drops', color:SC.yellow},
+      {id:'id_b6', type:'sticky', x:LX.brain, y:920,  text:'Agent stitches CRM + billing + logs into one answer', color:SC.yellow},
+      {id:'id_b7', type:'sticky', x:LX.brain, y:1080, text:'Self-serve "explain my invoice" agent', color:SC.yellow},
+      {id:'id_b8', type:'sticky', x:LX.brain, y:1240, text:'Post-call QA agent scores empathy + accuracy', color:SC.yellow},
+      {id:'id_b9', type:'sticky', x:LX.brain, y:1400, text:'Escalation agent writes the handoff brief for L2', color:SC.yellow},
+      // 2. Cluster — themed groupings
+      {id:'id_c1', type:'sticky', x:LX.cluster, y:120, text:'CLUSTER · Deflection\n• Refund drafts\n• Password resets\n• Invoice explainer', color:SC.blue},
+      {id:'id_c2', type:'sticky', x:LX.cluster, y:420, text:'CLUSTER · Agent-assist\n• Next-best reply\n• Unified answer view\n• L2 handoff brief', color:SC.blue},
+      {id:'id_c3', type:'sticky', x:LX.cluster, y:720, text:'CLUSTER · Quality + trust\n• Post-call QA\n• Intent triage\n• Proactive outreach', color:SC.blue},
+      // 3. Prioritise
+      {id:'id_p1', type:'sticky', x:LX.prio, y:120, text:'HIGH impact / LOW effort → Next-best-reply copilot. Human still in the seat.', color:SC.green},
+      {id:'id_p2', type:'sticky', x:LX.prio, y:340, text:'HIGH / MED → Invoice explainer. Bounded, rich data, safe to ship.', color:SC.green},
+      {id:'id_p3', type:'sticky', x:LX.prio, y:560, text:'MED / HIGH → Refund decisions. Policy risk, needs eval harness.', color:SC.orange},
+      {id:'id_p4', type:'sticky', x:LX.prio, y:780, text:'LOW / HIGH → Voice password reset. Auth risk, defer.', color:SC.pink},
+      // 4. Next steps
+      {id:'id_n1', type:'sticky', x:LX.next, y:120, text:'THIS WEEK · Ship next-best-reply behind a flag for 5 agents. Owner: Maya.', color:SC.purple},
+      {id:'id_n2', type:'sticky', x:LX.next, y:340, text:'THIS SPRINT · Prototype invoice explainer with citations. Owner: Rahul.', color:SC.purple},
+      {id:'id_n3', type:'sticky', x:LX.next, y:560, text:'THIS QUARTER · Stand up evals + policy corpus for refund agent. Owner: Priya.', color:SC.purple},
+      {id:'id_n4', type:'sticky', x:LX.next, y:780, text:'DECISION · Park voice reset until IVR auth story lands.', color:SC.pink},
     ];
-    const cards = seeds.map((t,i)=>({
-      id:'i'+i, type:'sticky',
-      x: 120 + (i%3)*260, y: 100 + Math.floor(i/3)*180,
-      text:t, color: colors[i%colors.length],
-    }));
     return {
       canvasType:'vswimlanes',
       lanes: [
@@ -84,7 +94,7 @@ export const TEMPLATE_PACKS = {
       ],
       cards,
       connections: [],
-      view: {x:40,y:40,scale:.9},
+      view: {x:20,y:20,scale:.55},
     };
   },
 
@@ -193,12 +203,30 @@ export const TEMPLATE_PACKS = {
       {category:'Gains',  text:'What do they hope to achieve if the agent actually works?'},
     ],
     cards: [
-      {id:'em1', type:'sticky', x:260,  y:140, text:'"I still re-read every line it writes."', color:SC.blue},
-      {id:'em2', type:'sticky', x:900,  y:140, text:'"Am I becoming a reviewer instead of an engineer?"', color:SC.purple},
-      {id:'em3', type:'sticky', x:260,  y:600, text:'Turns the agent off in sensitive repos', color:SC.green},
-      {id:'em4', type:'sticky', x:900,  y:600, text:'Anxious before shipping AI-written code', color:SC.pink},
-      {id:'em5', type:'sticky', x:260,  y:1060,text:'Fear of subtle bugs slipping past review', color:SC.pink},
-      {id:'em6', type:'sticky', x:900,  y:1060,text:'Wants to ship 2× without losing craft', color:SC.yellow},
+      // Says
+      {id:'em_s1', type:'sticky', x:260,  y:140, text:'"I still re-read every line it writes."', color:SC.blue},
+      {id:'em_s2', type:'sticky', x:260,  y:290, text:'"It saved me an hour — then I spent an hour double-checking it."', color:SC.blue},
+      {id:'em_s3', type:'sticky', x:260,  y:440, text:'"I don\'t use it in the payments repo. Full stop."', color:SC.blue},
+      // Thinks
+      {id:'em_t1', type:'sticky', x:900,  y:140, text:'"Am I becoming a reviewer instead of an engineer?"', color:SC.purple},
+      {id:'em_t2', type:'sticky', x:900,  y:290, text:'"If this leaks our code, my name is on the PR."', color:SC.purple},
+      {id:'em_t3', type:'sticky', x:900,  y:440, text:'"Do I still understand this codebase, or just the agent\'s version of it?"', color:SC.purple},
+      // Does
+      {id:'em_d1', type:'sticky', x:260,  y:600, text:'Turns the agent off in sensitive repos', color:SC.green},
+      {id:'em_d2', type:'sticky', x:260,  y:750, text:'Accepts small completions, rejects big refactors', color:SC.green},
+      {id:'em_d3', type:'sticky', x:260,  y:900, text:'Copies suggestions into a scratch file to sanity-check', color:SC.green},
+      // Feels
+      {id:'em_f1', type:'sticky', x:900,  y:600, text:'Anxious before shipping AI-written code', color:SC.pink},
+      {id:'em_f2', type:'sticky', x:900,  y:750, text:'Quietly proud when a copilot-drafted PR lands clean', color:SC.green},
+      {id:'em_f3', type:'sticky', x:900,  y:900, text:'Frustrated when it invents an API that doesn\'t exist', color:SC.pink},
+      // Pains
+      {id:'em_p1', type:'sticky', x:260,  y:1060, text:'Fear of subtle bugs slipping past review', color:SC.pink},
+      {id:'em_p2', type:'sticky', x:260,  y:1210, text:'Unclear IP + licensing story with generated code', color:SC.pink},
+      {id:'em_p3', type:'sticky', x:260,  y:1360, text:'No way to see which tools/data the agent used', color:SC.orange},
+      // Gains
+      {id:'em_g1', type:'sticky', x:900,  y:1060, text:'Wants to ship 2× without losing craft', color:SC.yellow},
+      {id:'em_g2', type:'sticky', x:900,  y:1210, text:'Wants boilerplate + tests written for them', color:SC.yellow},
+      {id:'em_g3', type:'sticky', x:900,  y:1360, text:'Wants a trusted teammate for the boring 80%', color:SC.yellow},
     ],
     connections: [],
     view:{x:40,y:40,scale:.7},
@@ -220,10 +248,26 @@ export const TEMPLATE_PACKS = {
       {category:'Retro', text:'What surprised us about how users treated the agent?'},
     ],
     cards: [
-      {id:'r_a', type:'sticky', x:120,  y:120, text:'Human-in-the-loop kept trust high', color:SC.green},
-      {id:'r_b', type:'sticky', x:120,  y:520, text:'Eval harness was an afterthought — bit us', color:SC.pink},
-      {id:'r_c', type:'sticky', x:120,  y:920, text:'Try tool-call tracing dashboards for support', color:SC.yellow},
-      {id:'r_d', type:'sticky', x:120,  y:1320,text:'Own an evals-first workflow before next pilot', color:SC.blue},
+      // Went well
+      {id:'r_w1', type:'sticky', x:120, y:120,  text:'Human-in-the-loop kept trust high — zero customer-visible bad outputs.', color:SC.green},
+      {id:'r_w2', type:'sticky', x:120, y:300,  text:'Prompt + tool changes reviewed like code (PRs, owners, tests).', color:SC.green},
+      {id:'r_w3', type:'sticky', x:120, y:480,  text:'Deflection lifted 22% on Tier-1 refund questions.', color:SC.green},
+      {id:'r_w4', type:'sticky', x:120, y:660,  text:'Weekly "agent office hours" surfaced real user quotes fast.', color:SC.green},
+      // Didn\'t go well
+      {id:'r_b1', type:'sticky', x:120, y:900,  text:'Eval harness was an afterthought — regressions caught by users, not us.', color:SC.pink},
+      {id:'r_b2', type:'sticky', x:120, y:1080, text:'No shared view of tool-call cost — spend surprised finance.', color:SC.pink},
+      {id:'r_b3', type:'sticky', x:120, y:1260, text:'Escalation path to L2 was ambiguous; agents dropped context.', color:SC.pink},
+      {id:'r_b4', type:'sticky', x:120, y:1440, text:'Prompt sprawl — 6 near-duplicate refund prompts across teams.', color:SC.pink},
+      // Ideas
+      {id:'r_i1', type:'sticky', x:120, y:1680, text:'Tool-call tracing dashboard shared with support + eng.', color:SC.yellow},
+      {id:'r_i2', type:'sticky', x:120, y:1860, text:'"Golden set" of 200 real tickets, run nightly against every prompt change.', color:SC.yellow},
+      {id:'r_i3', type:'sticky', x:120, y:2040, text:'Prompt registry — one canonical prompt per intent, owned by a person.', color:SC.yellow},
+      {id:'r_i4', type:'sticky', x:120, y:2220, text:'Per-agent cost budget with a soft kill-switch.', color:SC.yellow},
+      // Actions
+      {id:'r_a1', type:'sticky', x:120, y:2460, text:'ACTION · Stand up evals-first workflow before next pilot. Owner: Priya. Due: Aug 15.', color:SC.blue},
+      {id:'r_a2', type:'sticky', x:120, y:2640, text:'ACTION · Ship tool-call tracing v1. Owner: Sam. Due: end of month.', color:SC.blue},
+      {id:'r_a3', type:'sticky', x:120, y:2820, text:'ACTION · Publish escalation runbook + rehearse with L2. Owner: Maya. Due: next Friday.', color:SC.blue},
+      {id:'r_a4', type:'sticky', x:120, y:3000, text:'DECISION · Freeze new prompts until registry lands.', color:SC.blue},
     ],
     connections: [],
     view:{x:40,y:40,scale:.9},
@@ -299,8 +343,48 @@ export const TEMPLATE_PACKS = {
       cards.push({id:z.id, type:'group', x, y: top, w: zoneW, h: zoneH, text: z.title, color: z.color});
       cards.push({id:z.id+'_hint', type:'prompt', x: x + 16, y: top + 56, w: zoneW - 32, h: 90, category: z.title.split('·')[1].trim(), text: z.hint});
     });
-    cards.push({id:'ft_seed1', type:'sticky', x: 60,  y: top + 180, text:'A year from now, most Tier-1 tickets are resolved by an agent — humans handle exceptions.', color:'#fff59d', groupId:'fz_future'});
-    cards.push({id:'ft_seed2', type:'sticky', x: 250, y: top + 180, text:'CSAT holds vs human-only, and every agent action is auditable.',                 color:'#bbdefb', groupId:'fz_future'});
+    // Zone x positions: 40 + i*(440+40)
+    const zx = i => 40 + i * (zoneW + gap);
+    const inner = i => zx(i) + 20;
+    const yTop = top + 170;
+    const stick = (id, i, row, text, color, extra={}) => cards.push({
+      id, type:'sticky',
+      x: inner(i) + (row % 2) * 200,
+      y: yTop + Math.floor(row / 2) * 130,
+      w: 180, h: 110,
+      text, color, groupId: zones[i].id, ...extra,
+    });
+    // 1 · Future State — diverged ideas
+    stick('ft_f1', 0, 0, 'Tier-1 tickets resolved by an agent in <60s, humans handle exceptions.', SC.yellow);
+    stick('ft_f2', 0, 1, 'Every agent action carries a full audit trail customers can request.', SC.blue);
+    stick('ft_f3', 0, 2, 'Customers say "it felt like talking to your best rep."', SC.green);
+    stick('ft_f4', 0, 3, 'One "explain-my-invoice" agent kills our #1 ticket driver.', SC.pink);
+    stick('ft_f5', 0, 4, 'Support cost per contact ↓ 40% without CSAT drop.', SC.orange);
+    stick('ft_f6', 0, 5, 'Humans do coaching + edge cases, not password resets.', SC.purple);
+    // 2 · Cluster — theme cards
+    stick('ft_c1', 1, 0, 'CLUSTER · Deflection\nInvoice explainer, refund drafts, password resets.', SC.blue);
+    stick('ft_c2', 1, 1, 'CLUSTER · Trust + audit\nCitations, audit trails, kill switches.', SC.blue);
+    stick('ft_c3', 1, 2, 'CLUSTER · Agent-assist\nNext-best-reply, unified answer view, L2 handoff brief.', SC.blue);
+    stick('ft_c4', 1, 3, 'CLUSTER · Ops + evals\nGolden sets, cost budgets, prompt registry.', SC.blue);
+    // 3 · Objectives
+    stick('ft_o1', 2, 0, 'OBJECTIVE\nDeflect 40% of Tier-1 by Q2, CSAT ≥ human baseline.', SC.purple);
+    stick('ft_o2', 2, 1, 'OBJECTIVE\nEvery agent action auditable + explainable to customers.', SC.purple);
+    stick('ft_o3', 2, 2, 'OBJECTIVE\nCut avg handle time 30% for human-assisted contacts.', SC.purple);
+    stick('ft_o4', 2, 3, 'OBJECTIVE\nZero policy violations attributable to the agent.', SC.purple);
+    // 4 · Initiatives
+    stick('ft_i1', 3, 0, 'INITIATIVE · Invoice explainer\nOwner: Rahul · Effort M · Impact 5', SC.orange);
+    stick('ft_i2', 3, 1, 'INITIATIVE · Refund draft agent\nOwner: Priya · Effort L · Impact 4', SC.orange);
+    stick('ft_i3', 3, 2, 'INITIATIVE · Next-best-reply copilot\nOwner: Maya · Effort S · Impact 5', SC.orange);
+    stick('ft_i4', 3, 3, 'INITIATIVE · Eval + prompt registry\nOwner: Sam · Effort M · Impact 4', SC.orange);
+    stick('ft_i5', 3, 4, 'INITIATIVE · Audit trail + citations UI\nOwner: Lin · Effort M · Impact 3', SC.orange);
+    stick('ft_i6', 3, 5, 'INITIATIVE · Cost + kill-switch guardrails\nOwner: Sam · Effort S · Impact 3', SC.orange);
+    // 5 · Plan (Now / Next / Later)
+    stick('ft_p1', 4, 0, 'NOW · Next-best-reply copilot behind flag for 5 agents.', SC.green);
+    stick('ft_p2', 4, 1, 'NOW · Eval + prompt registry v1, "golden set" of 200 tickets.', SC.green);
+    stick('ft_p3', 4, 2, 'NEXT · Invoice explainer GA to 100% of self-serve.', SC.yellow);
+    stick('ft_p4', 4, 3, 'NEXT · Audit trail + citations UI shipped.', SC.yellow);
+    stick('ft_p5', 4, 4, 'LATER · Refund draft agent pilot (policy sign-off first).', SC.pink);
+    stick('ft_p6', 4, 5, 'LATER · Cost + kill-switch guardrails GA across all agents.', SC.pink);
     return {
       canvasType:'whiteboard',
       lanes:[],
