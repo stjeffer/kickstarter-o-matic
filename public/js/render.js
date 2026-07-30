@@ -705,6 +705,8 @@ export function addCard(partial) {
     valueWhy: partial.valueWhy,
     valueMeasure: partial.valueMeasure,
     valueWhen: partial.valueWhen,
+    linkedTo: partial.linkedTo,
+
     why: partial.why,
     measure: partial.measure,
     hypothesis: partial.hypothesis,

@@ -64,7 +64,7 @@ function isFrontierSession(){
 function stageOfKind(stages, kind){ return stages.find(s=>s.stageKind===kind); }
 function cardTextOf(c){
   const base = (c.text || '').trim();
-  if(c.type === 'stakeholder'){
+  if(c.type === 'stakeholder' || c.type === 'stakeholder2'){
     const bits = [
       c.role && `Role: ${c.role}`,
       c.valueWhy && `Value: ${c.valueWhy}`,

@@ -271,6 +271,8 @@ export function initInteractions() {
     addCard(card);
     // On a value canvas, a new stakeholder auto-links to the central use case
     if (type === 'stakeholder') linkStakeholderToHub();
+    if (type === 'stakeholder2') linkSecondDegree();
+
   });
 
 
