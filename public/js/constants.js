@@ -40,6 +40,8 @@ export const CANVAS_META = {
   objectives:  { label:'Objectives'            },
   initiatives: { label:'Initiatives'           },
   plan:        { label:'Action Plan'           },
+  valuecanvas: { label:'Value Canvas'           },
+
 };
 
 export const CANVAS_TYPE_ALIASES = {
@@ -56,6 +58,9 @@ export const CANVAS_TYPE_ALIASES = {
   'reverse-planning':'backcast','working-backwards':'backcast',
   'use-case':'usecase','use-cases':'usecase','use-case-ideation':'usecase',
   'usecase-ideation':'usecase','ideation-usecase':'usecase','ai-use-case':'usecase','opportunity':'usecase',
+  'value':'valuecanvas','value-canvas':'valuecanvas','value_canvas':'valuecanvas','stakeholder-value':'valuecanvas',
+  'value-map':'valuecanvas','benefits':'valuecanvas','benefits-map':'valuecanvas',
+
 };
 
 export const SMART_EXPORT = {
