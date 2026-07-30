@@ -153,7 +153,7 @@ async function exportPDF(){
   const need = h => { if(y + h > H - M) newPage(); };
   const pdfSafe = s => String(s==null?'':s)
     .replace(/[\u2018\u2019\u201A\u201B]/g,"'").replace(/[\u201C\u201D\u201E]/g,'"')
-    .replace(/[\u2013\u2014\u2015]/g,'-').replace(/\u2026/g,'...')
+    .replace(/[\u2013\u2014\u2015\u2212]/g,'-').replace(/\u2026/g,'...')
     .replace(/\u2193/g,'down ').replace(/\u2191/g,'up ').replace(/\u2192/g,'->').replace(/\u2190/g,'<-')
     .replace(/[\u2022\u25AA\u25CF]/g,'-').replace(/\u00A0/g,' ')
     .replace(/[^\x09\x0A\x0D\x20-\x7E\u00A1-\u00FF]/g,'');
