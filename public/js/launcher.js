@@ -108,7 +108,9 @@ const LS_MODES = [
   {key:'ct:journey',    cat:'canvases', kind:'canvas', title:'Journey Map', desc:'Stages with a customer emotion line.', ct:'journey', blank:true},
   {key:'ct:mindmap',    cat:'canvases', kind:'canvas', title:'Mind Map', desc:'Radial exploration around a central idea.', ct:'mindmap', blank:true},
   {key:'ct:usecase',    cat:'canvases', kind:'canvas', title:'Use Case Ideation', desc:'Trigger · JTBD · Idea · Value · Risk.', ct:'usecase', blank:true},
+  {key:'ct:valuecanvas',cat:'canvases', kind:'canvas', title:'Value Canvas', desc:'Blank hub-and-spoke value map.', ct:'valuecanvas', blank:true},
 ];
+
 
 const LS_FEATURED_KEYS = ['frontier','backcast','ideation','process','ct:matrix2x2','__blank'];
 const LS_CATS = [
