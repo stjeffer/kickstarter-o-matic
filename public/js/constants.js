@@ -66,7 +66,7 @@ export const CANVAS_TYPE_ALIASES = {
 export const SMART_EXPORT = {
   whiteboard:'png', mindmap:'png', matrix2x2:'png', journey:'pdf', empathy:'pdf',
   hswimlanes:'pdf', vswimlanes:'pdf', raci:'docx', strategy:'docx', backcast:'docx', usecase:'docx',
-  cluster:'png', objectives:'docx', initiatives:'docx', plan:'docx',
+  cluster:'png', objectives:'docx', initiatives:'docx', plan:'docx', valuecanvas:'docx',
 };
 
 export const EXPORT_LABELS = { png:'PNG snapshot', pdf:'PDF structured report', docx:'Word (.docx) report', json:'JSON session data' };
@@ -89,6 +89,9 @@ export const ACTIVITY_TYPE_CANVAS = {
   'pre-mortem':'backcast','premortem':'backcast','what-had-to-be-true':'backcast','responsible-ai':'backcast',
   'use-case':'usecase','usecase':'usecase','use-case-ideation':'usecase','opportunity-canvas':'usecase',
   'ai-use-case':'usecase','opportunity':'usecase','ideation-use-case':'usecase',
+  'value':'valuecanvas','value-canvas':'valuecanvas','value-mapping':'valuecanvas',
+  'stakeholder-value':'valuecanvas','benefits-mapping':'valuecanvas','business-case':'valuecanvas',
+
 };
 
 export const WORKFLOW_STAGES = [
