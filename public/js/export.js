@@ -1,15 +1,8 @@
 // Export system: PNG, PDF, DOCX, JSON
 import { state, save } from './state.js';
-import { CANVAS_META } from './constants.js';
+import { CANVAS_META, SMART_EXPORT, EXPORT_LABELS, WORLD_W, WORLD_H } from './constants.js';
 import { $ } from './utils.js';
 import { renderCards, renderConnections, renderAll } from './render.js';
-
-const SMART_EXPORT = {
-  whiteboard:'png', mindmap:'png', matrix2x2:'png', journey:'pdf', empathy:'pdf',
-  hswimlanes:'pdf', vswimlanes:'pdf', raci:'docx', strategy:'docx', backcast:'docx', usecase:'docx',
-  cluster:'png', objectives:'docx', initiatives:'docx', plan:'docx',
-};
-const EXPORT_LABELS = { png:'PNG snapshot', pdf:'PDF structured report', docx:'Word (.docx) report', json:'JSON session data' };
 
 export function updateSmartExportLabel(){
   const ct = state.canvasType || 'whiteboard';
@@ -37,10 +30,26 @@ function collectStages(){
   }];
 }
 
+function laneBandsOf(stage){
+  const lanes = stage.lanes || [];
+  const bands = []; let hCursor = 0, vCursor = 0;
+  lanes.forEach(l => {
+    const size = l.size || 260;
+    const orientation = l.orientation || 'h';
+    if(orientation === 'v'){ bands.push({ name:l.name, x:vCursor, y:0, w:size, h:WORLD_H }); vCursor += size; }
+    else { bands.push({ name:l.name, x:0, y:hCursor, w:WORLD_W, h:size }); hCursor += size; }
+  });
+  return bands;
+}
+
 function cardsByLane(stage){
   const groups = new Map();
+  const bands = laneBandsOf(stage);
   const laneOf = c => {
-    if(c.lane){ const l = stage.lanes.find(x=>x.id===c.lane); if(l) return l.name; }
+    if(c.lane){ const l = (stage.lanes||[]).find(x=>x.id===c.lane); if(l) return l.name; }
+    const cx = (c.x||0) + (c.w||220)/2, cy = (c.y||0) + (c.h||140)/2;
+    const hit = bands.find(b => cx >= b.x && cx < b.x+b.w && cy >= b.y && cy < b.y+b.h);
+    if(hit) return hit.name;
     return 'Unassigned';
   };
   (stage.cards||[]).forEach(c=>{
@@ -116,10 +125,38 @@ function initiativesByObjective(stage, allStages){
 }
 
 // ============ PNG export ============
+function boardBounds(){
+  const pad = 60;
+  let minX=Infinity, minY=Infinity, maxX=-Infinity, maxY=-Infinity;
+  const add = (x,y,w,h)=>{ if(!isFinite(x)||!isFinite(y)) return;
+    minX=Math.min(minX,x); minY=Math.min(minY,y); maxX=Math.max(maxX,x+(w||0)); maxY=Math.max(maxY,y+(h||0)); };
+  (state.cards||[]).forEach(c=>add(c.x,c.y,c.w||220,c.h||140));
+  (state.lanes||[]).forEach(l=>{ if(l.x!=null) add(l.x,l.y,l.w,l.h); });
+  document.querySelectorAll('#lanesLayer > *').forEach(el=>{
+    const x=parseFloat(el.style.left), y=parseFloat(el.style.top);
+    add(x, y, parseFloat(el.style.width)||el.offsetWidth, parseFloat(el.style.height)||el.offsetHeight);
+  });
+  if(!isFinite(minX)) return { x:0, y:0, w:WORLD_W, h:WORLD_H };
+  const x = Math.max(0, minX-pad), y = Math.max(0, minY-pad);
+  return { x, y, w: Math.min(WORLD_W-x, maxX-minX+pad*2), h: Math.min(WORLD_H-y, maxY-minY+pad*2) };
+}
+
 async function exportPNG(){
-  const viewport = document.getElementById('viewport');
-  const canvas = await window.html2canvas(viewport, { backgroundColor: null, scale: 2 });
-  canvas.toBlob(blob => { downloadBlob(blob, safeFilename()+'.png'); }, 'image/png');
+  const world = document.getElementById('world');
+  const prevTransform = world.style.transform;
+  world.style.transform = 'none';
+  let canvas;
+  try{
+    const b = boardBounds();
+    canvas = await window.html2canvas(world, {
+      backgroundColor: '#ffffff', scale: 2, useCORS: true,
+      x: b.x, y: b.y, width: b.w, height: b.h,
+      scrollX: 0, scrollY: 0, windowWidth: WORLD_W, windowHeight: WORLD_H,
+    });
+  } finally {
+    world.style.transform = prevTransform;
+  }
+  await new Promise(res => canvas.toBlob(blob => { downloadBlob(blob, safeFilename()+'.png'); res(); }, 'image/png'));
 }
 
 // ============ PDF export ============
@@ -130,11 +167,18 @@ async function exportPDF(){
   let y = M;
   const newPage = ()=>{ doc.addPage(); y = M; };
   const need = h => { if(y + h > H - M) newPage(); };
+  const pdfSafe = s => String(s==null?'':s)
+    .replace(/[\u2018\u2019\u201A\u201B]/g,"'").replace(/[\u201C\u201D\u201E]/g,'"')
+    .replace(/[\u2013\u2014\u2015\u2212]/g,'-').replace(/\u2026/g,'...')
+    .replace(/\u2193/g,'down ').replace(/\u2191/g,'up ').replace(/\u2192/g,'->').replace(/\u2190/g,'<-')
+    .replace(/\u2265/g,'>=').replace(/\u2264/g,'<=').replace(/\u00D7/g,'x')
+    .replace(/[\u2022\u25AA\u25CF]/g,'-').replace(/\u00A0/g,' ')
+    .replace(/[^\x09\x0A\x0D\x20-\x7E\u00A1-\u00FF]/g,'').replace(/ {2,}/g,' ');
   const text = (s, opts={})=>{
     const size = opts.size||11, style = opts.style||'normal', color = opts.color||[30,30,32];
     const indent = opts.indent||0;
     doc.setFont('helvetica', style); doc.setFontSize(size); doc.setTextColor(...color);
-    const lines = doc.splitTextToSize(String(s||''), W - M*2 - indent);
+    const lines = doc.splitTextToSize(pdfSafe(s), W - M*2 - indent);
     lines.forEach(ln=>{ need(size*1.4); doc.text(ln, M+indent, y); y += size * 1.35; });
   };
   const gap = (h=6)=>{ need(h); y += h; };
@@ -143,7 +187,7 @@ async function exportPDF(){
     need(28);
     doc.setFillColor(color[0], color[1], color[2]); doc.rect(M, y-2, W-M*2, 22, 'F');
     doc.setTextColor(255,255,255); doc.setFont('helvetica','bold'); doc.setFontSize(12);
-    doc.text(label, M+8, y+13); y += 30;
+    doc.text(pdfSafe(label), M+8, y+13); y += 30;
   };
 
   const s = state.session || {};
