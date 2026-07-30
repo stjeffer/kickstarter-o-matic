@@ -30,10 +30,26 @@ function collectStages(){
   }];
 }
 
+function laneBandsOf(stage){
+  const lanes = stage.lanes || [];
+  const bands = []; let hCursor = 0, vCursor = 0;
+  lanes.forEach(l => {
+    const size = l.size || 260;
+    const orientation = l.orientation || 'h';
+    if(orientation === 'v'){ bands.push({ name:l.name, x:vCursor, y:0, w:size, h:WORLD_H }); vCursor += size; }
+    else { bands.push({ name:l.name, x:0, y:hCursor, w:WORLD_W, h:size }); hCursor += size; }
+  });
+  return bands;
+}
+
 function cardsByLane(stage){
   const groups = new Map();
+  const bands = laneBandsOf(stage);
   const laneOf = c => {
-    if(c.lane){ const l = stage.lanes.find(x=>x.id===c.lane); if(l) return l.name; }
+    if(c.lane){ const l = (stage.lanes||[]).find(x=>x.id===c.lane); if(l) return l.name; }
+    const cx = (c.x||0) + (c.w||220)/2, cy = (c.y||0) + (c.h||140)/2;
+    const hit = bands.find(b => cx >= b.x && cx < b.x+b.w && cy >= b.y && cy < b.y+b.h);
+    if(hit) return hit.name;
     return 'Unassigned';
   };
   (stage.cards||[]).forEach(c=>{
