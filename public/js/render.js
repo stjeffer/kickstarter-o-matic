@@ -696,6 +696,19 @@ export function addCard(partial) {
     painScoreId: partial.painScoreId,
     painParentId: partial.painParentId,
     scores: partial.scores,
+    summary: partial.summary,
+    role: partial.role,
+    valueWhy: partial.valueWhy,
+    valueMeasure: partial.valueMeasure,
+    valueWhen: partial.valueWhen,
+    why: partial.why,
+    measure: partial.measure,
+    hypothesis: partial.hypothesis,
+    owner: partial.owner,
+    effort: partial.effort,
+    impact: partial.impact,
+    horizon: partial.horizon,
+
   };
   state.cards.push(c);
   renderCards();
