@@ -94,7 +94,9 @@ export function renderPalette() {
     { name: 'Flow Shapes', short: 'Shapes' },
     { name: 'Experience', short: 'Experience' },
     { name: 'Workflow', short: 'Workflow' },
+    { name: 'Value Canvas', short: 'Value' },
     { name: 'Prompt', short: 'Prompt' },
+
   ].filter(t => groups[t.name]);
 
   if (!tabsMeta.find(t => t.name === _activePaletteTab)) _activePaletteTab = tabsMeta[0]?.name;
@@ -300,7 +302,15 @@ function computeLaneBands() {
     return bands;
   }
 
+  if (ct === 'valuecanvas') {
+    const headerH = 110;
+    const bands = [{ name: 'Value Canvas — use case at the centre, stakeholders around it', x: 0, y: 0, w: WORLD_W, h: headerH, color: '#00a3a3' }];
+    lanes.slice(0, 1).forEach((l, i) => { bands[i].name = l.name; if (l.color) bands[i].color = l.color; });
+    return bands;
+  }
+
   if (ct === 'plan') {
+
     const headerH = 140;
     const colW = WORLD_W / 3;
     const bodyY = headerH, bodyH = WORLD_H - headerH;
