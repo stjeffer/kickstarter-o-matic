@@ -1,6 +1,6 @@
 // Export system: PNG, PDF, DOCX, JSON
 import { state, save } from './state.js';
-import { CANVAS_META, SMART_EXPORT, EXPORT_LABELS } from './constants.js';
+import { CANVAS_META, SMART_EXPORT, EXPORT_LABELS, WORLD_W, WORLD_H } from './constants.js';
 import { $ } from './utils.js';
 import { renderCards, renderConnections, renderAll } from './render.js';
 
