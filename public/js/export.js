@@ -171,8 +171,9 @@ async function exportPDF(){
     .replace(/[\u2018\u2019\u201A\u201B]/g,"'").replace(/[\u201C\u201D\u201E]/g,'"')
     .replace(/[\u2013\u2014\u2015\u2212]/g,'-').replace(/\u2026/g,'...')
     .replace(/\u2193/g,'down ').replace(/\u2191/g,'up ').replace(/\u2192/g,'->').replace(/\u2190/g,'<-')
+    .replace(/\u2265/g,'>=').replace(/\u2264/g,'<=').replace(/\u00D7/g,'x')
     .replace(/[\u2022\u25AA\u25CF]/g,'-').replace(/\u00A0/g,' ')
-    .replace(/[^\x09\x0A\x0D\x20-\x7E\u00A1-\u00FF]/g,'');
+    .replace(/[^\x09\x0A\x0D\x20-\x7E\u00A1-\u00FF]/g,'').replace(/ {2,}/g,' ');
   const text = (s, opts={})=>{
     const size = opts.size||11, style = opts.style||'normal', color = opts.color||[30,30,32];
     const indent = opts.indent||0;
