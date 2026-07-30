@@ -1,15 +1,8 @@
 // Export system: PNG, PDF, DOCX, JSON
 import { state, save } from './state.js';
-import { CANVAS_META } from './constants.js';
+import { CANVAS_META, SMART_EXPORT, EXPORT_LABELS } from './constants.js';
 import { $ } from './utils.js';
 import { renderCards, renderConnections, renderAll } from './render.js';
-
-const SMART_EXPORT = {
-  whiteboard:'png', mindmap:'png', matrix2x2:'png', journey:'pdf', empathy:'pdf',
-  hswimlanes:'pdf', vswimlanes:'pdf', raci:'docx', strategy:'docx', backcast:'docx', usecase:'docx',
-  cluster:'png', objectives:'docx', initiatives:'docx', plan:'docx',
-};
-const EXPORT_LABELS = { png:'PNG snapshot', pdf:'PDF structured report', docx:'Word (.docx) report', json:'JSON session data' };
 
 export function updateSmartExportLabel(){
   const ct = state.canvasType || 'whiteboard';
