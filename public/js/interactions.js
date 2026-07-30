@@ -22,6 +22,30 @@ let dragState = null, panState = null, connectState = null;
 export function getToolMode() { return toolMode; }
 export function setToolMode(mode) { toolMode = mode; }
 
+// ============ Value canvas ============
+// Connect the most recently added stakeholder card to the central use-case hub.
+export function linkStakeholderToHub(stakeholderId) {
+  const hub = state.cards.find(c => c.type === 'valuehub');
+  if (!hub) return;
+  const sh = stakeholderId
+    ? state.cards.find(c => c.id === stakeholderId)
+    : [...state.cards].reverse().find(c => c.type === 'stakeholder');
+  if (!sh) return;
+  const exists = state.connections.some(k =>
+    (k.from === hub.id && k.to === sh.id) || (k.from === sh.id && k.to === hub.id));
+  if (exists) return;
+  const hs = getCardSize(hub), ss = getCardSize(sh);
+  const dx = (sh.x + ss.w / 2) - (hub.x + hs.w / 2);
+  const dy = (sh.y + ss.h / 2) - (hub.y + hs.h / 2);
+  const horiz = Math.abs(dx) > Math.abs(dy);
+  const fromAnchor = horiz ? (dx > 0 ? 'right' : 'left') : (dy > 0 ? 'bottom' : 'top');
+  const toAnchor = horiz ? (dx > 0 ? 'left' : 'right') : (dy > 0 ? 'top' : 'bottom');
+  state.connections.push({ id: 'vc' + Date.now() + Math.random().toString(36).slice(2, 6), from: hub.id, to: sh.id, fromAnchor, toAnchor });
+  renderConnections();
+  save();
+}
+
+
 // ============ Resize ============
 let resizeState = null;
 
