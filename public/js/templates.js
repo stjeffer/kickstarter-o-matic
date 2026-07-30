@@ -435,7 +435,7 @@ export const TEMPLATE_PACKS = {
     ];
     // Second-degree stakeholders — they inherit value via a primary stakeholder
     const S2 = [
-      { id:'vc_t1', via:'vc_s1', x:CX-560, y:CY-800, name:'Team leaders', role:'Workforce planning',
+      { id:'vc_t1', via:'vc_s1', x:CX-620, y:CY-740, name:'Team leaders', role:'Workforce planning',
         why:'Shift planning gets predictable once triage volume is absorbed by the agent, so rotas stop being firefighting.',
         measure:'Forecast accuracy on daily volume; unplanned overtime hours',
         when:'Month 4 — one full planning cycle after pilot' },
