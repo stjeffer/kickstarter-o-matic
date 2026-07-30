@@ -170,7 +170,7 @@ async function exportPDF(){
     need(28);
     doc.setFillColor(color[0], color[1], color[2]); doc.rect(M, y-2, W-M*2, 22, 'F');
     doc.setTextColor(255,255,255); doc.setFont('helvetica','bold'); doc.setFontSize(12);
-    doc.text(label, M+8, y+13); y += 30;
+    doc.text(pdfSafe(label), M+8, y+13); y += 30;
   };
 
   const s = state.session || {};
