@@ -287,6 +287,21 @@ export function initInteractions() {
         return;
       }
     }
+    // Structured cards (value canvas): edit the individual field that was clicked
+    const fieldEl = e.target.closest('[data-field]') || body.querySelector('[data-field]');
+    if (c && fieldEl && body.contains(fieldEl)) {
+      const key = fieldEl.dataset.field;
+      fieldEl.setAttribute('contenteditable', 'true');
+      fieldEl.focus();
+      document.getSelection().selectAllChildren(fieldEl);
+      fieldEl.addEventListener('blur', () => {
+        fieldEl.removeAttribute('contenteditable');
+        c[key] = fieldEl.textContent.trim();
+        save(); renderCards(); renderConnections();
+      }, { once: true });
+      return;
+    }
+
     const txtEl = body.querySelector('.txt') || body;
     txtEl.setAttribute('contenteditable', 'true');
     txtEl.focus();
