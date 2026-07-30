@@ -98,6 +98,8 @@ const LS_MODES = [
   {key:'experience', cat:'templates', kind:'template', title:'Experience Mapping', desc:'Journey stages with emotions along the way.', ct:'journey'},
   {key:'retro',      cat:'templates', kind:'template', title:'Retrospective', desc:'Went well · didn\'t · actions — seeded lanes.', ct:'whiteboard'},
   {key:'process',    cat:'templates', kind:'template', title:'Process Mapping', desc:'Swimlanes, decisions, delays and handoffs.', ct:'hswimlanes'},
+  {key:'valuecanvas',cat:'templates', kind:'template', title:'Value Canvas', desc:'Use case at the centre, stakeholder value radiating out.', badge:'New', badgeKind:'multi', ct:'valuecanvas'},
+
   // Canvas types
   {key:'__blank',       cat:'canvases', kind:'canvas', title:'Blank canvas', desc:'Freestyle — start with an empty page.', ct:'whiteboard', blank:true},
   {key:'ct:matrix2x2',  cat:'canvases', kind:'canvas', title:'2×2 Matrix', desc:'Prioritise on impact vs. effort.', ct:'matrix2x2', blank:true},
