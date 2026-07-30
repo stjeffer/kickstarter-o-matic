@@ -433,6 +433,29 @@ export const TEMPLATE_PACKS = {
         measure:'Reuse count across LOBs; eval pass rate; run cost per 1k claims',
         when:'Month 9 — after the second line of business onboards' },
     ];
+    // Second-degree stakeholders — they inherit value via a primary stakeholder
+    const S2 = [
+      { id:'vc_t1', via:'vc_s1', x:CX-560, y:CY-800, name:'Team leaders', role:'Workforce planning',
+        why:'Shift planning gets predictable once triage volume is absorbed by the agent, so rotas stop being firefighting.',
+        measure:'Forecast accuracy on daily volume; unplanned overtime hours',
+        when:'Month 4 — one full planning cycle after pilot' },
+      { id:'vc_t2', via:'vc_s2', x:CX+880, y:CY-470, name:'Brokers & aggregators', role:'Distribution partners',
+        why:'Faster settlements make the product easier to sell and cut chase-up calls from their own customers.',
+        measure:'Broker complaint volume; partner retention at renewal',
+        when:'Month 5 — after the first cohort of settled claims' },
+      { id:'vc_t3', via:'vc_s4', x:CX+200, y:CY+570, name:'Underwriting', role:'Pricing & portfolio',
+        why:'Consistent fraud screening produces cleaner loss data, which sharpens pricing on renewal.',
+        measure:'Loss-ratio variance; % claims with structured cause coding',
+        when:'Month 8 — once a full data cut feeds pricing' },
+      { id:'vc_t4', via:'vc_s5', x:CX-1100, y:CY+430, name:'External auditor / FCA', role:'Regulator & assurance',
+        why:'Every automated decision carries a reproducible trail, so assurance work becomes sampling rather than reconstruction.',
+        measure:'Audit hours per review; open findings carried forward',
+        when:'Month 7 — at the first post-go-live review' },
+      { id:'vc_t5', via:'vc_s6', x:CX-1100, y:CY-520, name:'Other LOB product teams', role:'Home, travel, pet',
+        why:'They reuse the triage agent pattern instead of funding their own build from scratch.',
+        measure:'Build cost avoided per LOB; time from kickoff to pilot',
+        when:'Month 10 — second line of business onboards' },
+    ];
     const cards = [
       { id:'vc_title', type:'title', x:CX-360, y:60, w:720, h:120,
         text:'Value Canvas — Agentic Claims Triage',
@@ -440,15 +463,26 @@ export const TEMPLATE_PACKS = {
       hub,
       ...S.map(s => ({ id:s.id, type:'stakeholder', x:s.x, y:s.y, w:260, h:210,
         text:s.name, role:s.role, valueWhy:s.why, valueMeasure:s.measure, valueWhen:s.when })),
+      ...S2.map(s => ({ id:s.id, type:'stakeholder2', x:s.x, y:s.y, w:240, h:200, linkedTo:s.via,
+        text:s.name, role:s.role, valueWhy:s.why, valueMeasure:s.measure, valueWhen:s.when })),
     ];
-    const anchorsFor = (s) => {
-      const dx = (s.x + 130) - CX, dy = (s.y + 105) - CY;
+    const anchorsBetween = (ax, ay, bx, by) => {
+      const dx = bx - ax, dy = by - ay;
       const horiz = Math.abs(dx) > Math.abs(dy);
       return horiz
         ? { fromAnchor: dx > 0 ? 'right' : 'left', toAnchor: dx > 0 ? 'left' : 'right' }
         : { fromAnchor: dy > 0 ? 'bottom' : 'top', toAnchor: dy > 0 ? 'top' : 'bottom' };
     };
-    const connections = S.map((s, i) => ({ id:'vcc'+(i+1), from:'vc_hub', to:s.id, ...anchorsFor(s) }));
+    const anchorsFor = (s) => anchorsBetween(CX, CY, s.x + 130, s.y + 105);
+    const connections = [
+      ...S.map((s, i) => ({ id:'vcc'+(i+1), from:'vc_hub', to:s.id, ...anchorsFor(s) })),
+      ...S2.map((s, i) => {
+        const p = S.find(x => x.id === s.via);
+        return { id:'vct'+(i+1), from:s.via, to:s.id, dashed:true,
+          ...anchorsBetween(p.x + 130, p.y + 105, s.x + 120, s.y + 100) };
+      }),
+    ];
+
     return {
       canvasType:'valuecanvas',
       lanes:[],
