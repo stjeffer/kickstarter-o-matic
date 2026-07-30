@@ -60,5 +60,7 @@ export const CARD_TYPES = {
   // Value canvas primitives
   valuehub:    { group:'Value Canvas', label:'Use Case',    icon:valuehubIcon,    defaults:{ text:'Use case name', summary:'What the use case actually does', w:320, h:170 } },
   stakeholder: { group:'Value Canvas', label:'Stakeholder', icon:stakeholderIcon, defaults:{ text:'Stakeholder name', role:'Role / team', valueWhy:'Why this is valuable to them', valueMeasure:'How the value is measured', valueWhen:'When they realise it', w:260, h:210 } },
+  stakeholder2:{ group:'Value Canvas', label:'2nd-degree',  icon:stakeholder2Icon,defaults:{ text:'Second-degree stakeholder', role:'Role / team', valueWhy:'Value they inherit via the primary stakeholder', valueMeasure:'How that knock-on value is measured', valueWhen:'When it reaches them', w:240, h:200 } },
+
 };
 
