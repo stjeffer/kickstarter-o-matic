@@ -641,8 +641,9 @@ export function renderConnections() {
     hit.addEventListener('click', e => { e.stopPropagation(); selectConn(conn.id); });
     const line = document.createElementNS('http://www.w3.org/2000/svg', 'path');
     line.setAttribute('d', d);
-    line.setAttribute('class', 'conn-line' + (sel ? ' selected' : ''));
+    line.setAttribute('class', 'conn-line' + (sel ? ' selected' : '') + (conn.dashed ? ' dashed' : ''));
     line.setAttribute('marker-end', sel ? 'url(#arrowSel)' : 'url(#arrow)');
+
     g.appendChild(hit); g.appendChild(line);
     connLayer.appendChild(g);
   });
