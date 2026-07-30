@@ -66,12 +66,14 @@ function cardTextOf(c){
   const base = (c.text || '').trim();
   if(c.type === 'stakeholder' || c.type === 'stakeholder2'){
     const bits = [
+      c.type === 'stakeholder2' && '2nd degree',
       c.role && `Role: ${c.role}`,
       c.valueWhy && `Value: ${c.valueWhy}`,
       c.valueMeasure && `Measure: ${c.valueMeasure}`,
       c.valueWhen && `When: ${c.valueWhen}`,
     ].filter(Boolean);
     return bits.length ? `${base} — ${bits.join(' · ')}` : base;
+
   }
   if(c.type === 'valuehub' && c.summary) return `${base} — ${c.summary}`;
   return base;
