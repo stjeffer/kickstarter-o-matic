@@ -190,6 +190,10 @@ export function initLauncher(){
       if(q && !(m.title.toLowerCase().includes(q) || m.desc.toLowerCase().includes(q))) return false;
       return true;
     });
+    if(currentCat==='featured'){
+      list.sort((a,b)=>LS_FEATURED_KEYS.indexOf(a.key)-LS_FEATURED_KEYS.indexOf(b.key));
+    }
+
     countEl.textContent = `${list.length} option${list.length===1?'':'s'}`;
     grid.innerHTML = list.map(m=>{
       const kindBadge = m.kind==='template'
