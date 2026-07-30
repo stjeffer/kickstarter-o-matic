@@ -645,6 +645,8 @@
   .connections-layer{position:absolute;top:0;left:0;pointer-events:none;overflow:visible}
   .conn-line{fill:none;stroke:#8e8e93;stroke-width:2;transition:stroke .15s}
   .conn-line.selected{stroke:var(--accent);stroke-width:2.5}
+  .conn-line.dashed{stroke:#a9cfd1;stroke-width:1.6;stroke-dasharray:6 5}
+
   .conn-hit{fill:none;stroke:transparent;stroke-width:14;pointer-events:stroke;cursor:pointer}
 
   /* ===== Cards ===== */
