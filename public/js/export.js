@@ -109,10 +109,38 @@ function initiativesByObjective(stage, allStages){
 }
 
 // ============ PNG export ============
+function boardBounds(){
+  const pad = 60;
+  let minX=Infinity, minY=Infinity, maxX=-Infinity, maxY=-Infinity;
+  const add = (x,y,w,h)=>{ if(!isFinite(x)||!isFinite(y)) return;
+    minX=Math.min(minX,x); minY=Math.min(minY,y); maxX=Math.max(maxX,x+(w||0)); maxY=Math.max(maxY,y+(h||0)); };
+  (state.cards||[]).forEach(c=>add(c.x,c.y,c.w||220,c.h||140));
+  (state.lanes||[]).forEach(l=>{ if(l.x!=null) add(l.x,l.y,l.w,l.h); });
+  document.querySelectorAll('#lanesLayer > *').forEach(el=>{
+    const x=parseFloat(el.style.left), y=parseFloat(el.style.top);
+    add(x, y, parseFloat(el.style.width)||el.offsetWidth, parseFloat(el.style.height)||el.offsetHeight);
+  });
+  if(!isFinite(minX)) return { x:0, y:0, w:WORLD_W, h:WORLD_H };
+  const x = Math.max(0, minX-pad), y = Math.max(0, minY-pad);
+  return { x, y, w: Math.min(WORLD_W-x, maxX-minX+pad*2), h: Math.min(WORLD_H-y, maxY-minY+pad*2) };
+}
+
 async function exportPNG(){
-  const viewport = document.getElementById('viewport');
-  const canvas = await window.html2canvas(viewport, { backgroundColor: null, scale: 2 });
-  canvas.toBlob(blob => { downloadBlob(blob, safeFilename()+'.png'); }, 'image/png');
+  const world = document.getElementById('world');
+  const prevTransform = world.style.transform;
+  world.style.transform = 'none';
+  let canvas;
+  try{
+    const b = boardBounds();
+    canvas = await window.html2canvas(world, {
+      backgroundColor: '#ffffff', scale: 2, useCORS: true,
+      x: b.x, y: b.y, width: b.w, height: b.h,
+      scrollX: 0, scrollY: 0, windowWidth: WORLD_W, windowHeight: WORLD_H,
+    });
+  } finally {
+    world.style.transform = prevTransform;
+  }
+  await new Promise(res => canvas.toBlob(blob => { downloadBlob(blob, safeFilename()+'.png'); res(); }, 'image/png'));
 }
 
 // ============ PDF export ============
