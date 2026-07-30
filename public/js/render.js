@@ -109,7 +109,10 @@ export function renderPalette() {
     b.type = 'button';
     b.className = 'palette-tab' + (t.name === _activePaletteTab ? ' active' : '');
     b.textContent = t.short;
+    b.title = t.name;
+    b.setAttribute('aria-selected', String(t.name === _activePaletteTab));
     b.setAttribute('role', 'tab');
+
     b.addEventListener('click', () => { _activePaletteTab = t.name; renderPalette(); });
     tabs.appendChild(b);
   });
