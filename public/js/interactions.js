@@ -22,6 +22,30 @@ let dragState = null, panState = null, connectState = null;
 export function getToolMode() { return toolMode; }
 export function setToolMode(mode) { toolMode = mode; }
 
+// ============ Value canvas ============
+// Connect the most recently added stakeholder card to the central use-case hub.
+export function linkStakeholderToHub(stakeholderId) {
+  const hub = state.cards.find(c => c.type === 'valuehub');
+  if (!hub) return;
+  const sh = stakeholderId
+    ? state.cards.find(c => c.id === stakeholderId)
+    : [...state.cards].reverse().find(c => c.type === 'stakeholder');
+  if (!sh) return;
+  const exists = state.connections.some(k =>
+    (k.from === hub.id && k.to === sh.id) || (k.from === sh.id && k.to === hub.id));
+  if (exists) return;
+  const hs = getCardSize(hub), ss = getCardSize(sh);
+  const dx = (sh.x + ss.w / 2) - (hub.x + hs.w / 2);
+  const dy = (sh.y + ss.h / 2) - (hub.y + hs.h / 2);
+  const horiz = Math.abs(dx) > Math.abs(dy);
+  const fromAnchor = horiz ? (dx > 0 ? 'right' : 'left') : (dy > 0 ? 'bottom' : 'top');
+  const toAnchor = horiz ? (dx > 0 ? 'left' : 'right') : (dy > 0 ? 'top' : 'bottom');
+  state.connections.push({ id: 'vc' + Date.now() + Math.random().toString(36).slice(2, 6), from: hub.id, to: sh.id, fromAnchor, toAnchor });
+  renderConnections();
+  save();
+}
+
+
 // ============ Resize ============
 let resizeState = null;
 
@@ -208,12 +232,20 @@ export function initInteractions() {
       y: pt.y - def.h / 2,
       text: promptText || presetText || def.text,
     };
+    // Carry across any extra structured defaults (value canvas, objectives, initiatives…)
+    Object.entries(def).forEach(([k, v]) => {
+      if (['text', 'w', 'h', 'emoji'].includes(k)) return;
+      if (card[k] === undefined) card[k] = v;
+    });
     if (promptCategory) card.category = promptCategory;
     if (color) card.color = color;
     if (emoji) card.emoji = emoji;
     else if (type === 'emotion' && def.emoji) card.emoji = def.emoji;
     addCard(card);
+    // On a value canvas, a new stakeholder auto-links to the central use case
+    if (type === 'stakeholder') linkStakeholderToHub();
   });
+
 
   // Card mousedown
   cardsLayer.addEventListener('mousedown', e => {
@@ -255,6 +287,21 @@ export function initInteractions() {
         return;
       }
     }
+    // Structured cards (value canvas): edit the individual field that was clicked
+    const fieldEl = e.target.closest('[data-field]') || body.querySelector('[data-field]');
+    if (c && fieldEl && body.contains(fieldEl)) {
+      const key = fieldEl.dataset.field;
+      fieldEl.setAttribute('contenteditable', 'true');
+      fieldEl.focus();
+      document.getSelection().selectAllChildren(fieldEl);
+      fieldEl.addEventListener('blur', () => {
+        fieldEl.removeAttribute('contenteditable');
+        c[key] = fieldEl.textContent.trim();
+        save(); renderCards(); renderConnections();
+      }, { once: true });
+      return;
+    }
+
     const txtEl = body.querySelector('.txt') || body;
     txtEl.setAttribute('contenteditable', 'true');
     txtEl.focus();

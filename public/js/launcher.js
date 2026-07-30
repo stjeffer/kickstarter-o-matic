@@ -76,7 +76,15 @@ const LS_PREVIEWS = {
     <g fill="#ffe9b3" stroke="#e5c778" stroke-width=".5"><rect x="8" y="30" width="28" height="14" rx="2"/><rect x="48" y="55" width="28" height="14" rx="2"/><rect x="88" y="30" width="28" height="14" rx="2"/><rect x="128" y="75" width="28" height="14" rx="2"/><rect x="168" y="45" width="28" height="14" rx="2"/></g>
     <g font-family="Segoe UI" font-size="6" fill="#8b7358"><text x="10" y="22">Trigger</text><text x="50" y="22">JTBD</text><text x="90" y="22">Idea</text><text x="130" y="22">Value</text><text x="170" y="22">Risk</text></g>
     </svg>`,
+  valuecanvas: `<svg viewBox="0 0 200 125" xmlns="http://www.w3.org/2000/svg">
+    <rect width="200" height="125" fill="#f3fbfb"/>
+    <circle cx="100" cy="64" r="44" fill="none" stroke="#a8dede" stroke-width=".7" stroke-dasharray="3 2"/>
+    <g stroke="#5cc2c2" stroke-width="1"><line x1="100" y1="64" x2="100" y2="22"/><line x1="100" y1="64" x2="163" y2="40"/><line x1="100" y1="64" x2="163" y2="92"/><line x1="100" y1="64" x2="100" y2="106"/><line x1="100" y1="64" x2="37" y2="92"/><line x1="100" y1="64" x2="37" y2="40"/></g>
+    <rect x="74" y="55" width="52" height="18" rx="4" fill="#00a3a3"/>
+    <g fill="#fff" stroke="#5cc2c2" stroke-width=".7"><rect x="82" y="12" width="36" height="16" rx="3"/><rect x="145" y="30" width="36" height="16" rx="3"/><rect x="145" y="82" width="36" height="16" rx="3"/><rect x="82" y="98" width="36" height="16" rx="3"/><rect x="19" y="82" width="36" height="16" rx="3"/><rect x="19" y="30" width="36" height="16" rx="3"/></g>
+    </svg>`,
 };
+
 
 function previewFor(key, ct){ return LS_PREVIEWS[ct] || LS_PREVIEWS[key] || LS_PREVIEWS.whiteboard; }
 
@@ -90,6 +98,8 @@ const LS_MODES = [
   {key:'experience', cat:'templates', kind:'template', title:'Experience Mapping', desc:'Journey stages with emotions along the way.', ct:'journey'},
   {key:'retro',      cat:'templates', kind:'template', title:'Retrospective', desc:'Went well · didn\'t · actions — seeded lanes.', ct:'whiteboard'},
   {key:'process',    cat:'templates', kind:'template', title:'Process Mapping', desc:'Swimlanes, decisions, delays and handoffs.', ct:'hswimlanes'},
+  {key:'valuecanvas',cat:'templates', kind:'template', title:'Value Canvas', desc:'Use case at the centre, stakeholder value radiating out.', badge:'New', badgeKind:'multi', ct:'valuecanvas'},
+
   // Canvas types
   {key:'__blank',       cat:'canvases', kind:'canvas', title:'Blank canvas', desc:'Freestyle — start with an empty page.', ct:'whiteboard', blank:true},
   {key:'ct:matrix2x2',  cat:'canvases', kind:'canvas', title:'2×2 Matrix', desc:'Prioritise on impact vs. effort.', ct:'matrix2x2', blank:true},
@@ -100,7 +110,9 @@ const LS_MODES = [
   {key:'ct:journey',    cat:'canvases', kind:'canvas', title:'Journey Map', desc:'Stages with a customer emotion line.', ct:'journey', blank:true},
   {key:'ct:mindmap',    cat:'canvases', kind:'canvas', title:'Mind Map', desc:'Radial exploration around a central idea.', ct:'mindmap', blank:true},
   {key:'ct:usecase',    cat:'canvases', kind:'canvas', title:'Use Case Ideation', desc:'Trigger · JTBD · Idea · Value · Risk.', ct:'usecase', blank:true},
+  {key:'ct:valuecanvas',cat:'canvases', kind:'canvas', title:'Value Canvas', desc:'Blank hub-and-spoke value map.', ct:'valuecanvas', blank:true},
 ];
+
 
 const LS_FEATURED_KEYS = ['frontier','backcast','ideation','process','ct:matrix2x2','__blank'];
 const LS_CATS = [

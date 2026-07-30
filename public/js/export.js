@@ -62,7 +62,21 @@ function isFrontierSession(){
   return /frontier|action plan|backcast/.test(t);
 }
 function stageOfKind(stages, kind){ return stages.find(s=>s.stageKind===kind); }
-function cardTextOf(c){ return (c.text || '').trim(); }
+function cardTextOf(c){
+  const base = (c.text || '').trim();
+  if(c.type === 'stakeholder'){
+    const bits = [
+      c.role && `Role: ${c.role}`,
+      c.valueWhy && `Value: ${c.valueWhy}`,
+      c.valueMeasure && `Measure: ${c.valueMeasure}`,
+      c.valueWhen && `When: ${c.valueWhen}`,
+    ].filter(Boolean);
+    return bits.length ? `${base} — ${bits.join(' · ')}` : base;
+  }
+  if(c.type === 'valuehub' && c.summary) return `${base} — ${c.summary}`;
+  return base;
+}
+
 function nonMetaCards(stage){
   return (stage.cards||[]).filter(c=> !['prompt','painscore','title'].includes(c.type));
 }

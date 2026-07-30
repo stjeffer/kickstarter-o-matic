@@ -401,4 +401,69 @@ export const TEMPLATE_PACKS = {
     };
   },
 
+  // Real-world scenario: value canvas for an agentic claims-triage use case
+  valuecanvas: () => {
+    const CX = 1200, CY = 780;
+    const hub = { id:'vc_hub', type:'valuehub', x:CX-160, y:CY-85, w:320, h:170,
+      text:'Agentic claims triage',
+      summary:'An AI agent reads each new motor claim, checks policy + fraud signals, and either settles it straight through or routes it to the right handler with a recommendation.' };
+    const S = [
+      { id:'vc_s1', x:CX-130,      y:CY-560, name:'Claims handlers', role:'Operations · 240 FTE',
+        why:'Stops the copy-paste triage grind so handlers spend their day on complex, judgement-heavy claims.',
+        measure:'Avg. handling time per claim (target −35%); % of shift on complex work',
+        when:'Weeks 6–10 — as soon as the pilot queue is live' },
+      { id:'vc_s2', x:CX+520,      y:CY-330, name:'Policyholders', role:'End customers',
+        why:'Simple claims are settled the same day instead of waiting on a queue, with a clear reason given.',
+        measure:'Time-to-first-decision; claims NPS; % settled straight-through',
+        when:'Month 3 — first full cohort through the agent' },
+      { id:'vc_s3', x:CX+520,      y:CY+180, name:'Claims Operations Director', role:'Sponsor · P&L owner',
+        why:'Absorbs the seasonal claims spike without adding headcount, and makes cost per claim predictable.',
+        measure:'Cost per claim; backlog age; overtime spend',
+        when:'Month 6 — after peak season comparison' },
+      { id:'vc_s4', x:CX-130,      y:CY+300, name:'Fraud & Risk', role:'Second line of defence',
+        why:'Every claim gets a consistent fraud screen rather than sampling, and referrals arrive pre-evidenced.',
+        measure:'Fraud detection rate; false-positive referral rate',
+        when:'Month 4 — once the fraud model feedback loop closes' },
+      { id:'vc_s5', x:CX-780,      y:CY+180, name:'Compliance & Legal', role:'Governance',
+        why:'Decisions are explainable and auditable, with a human sign-off on anything above threshold.',
+        measure:'% decisions with complete audit trail; regulator findings (target zero)',
+        when:'Month 2 — at the governance gate before go-live' },
+      { id:'vc_s6', x:CX-780,      y:CY-330, name:'Technology & Data', role:'Platform team',
+        why:'One reusable agent pattern — retrieval, tools, evals — that other lines of business can adopt.',
+        measure:'Reuse count across LOBs; eval pass rate; run cost per 1k claims',
+        when:'Month 9 — after the second line of business onboards' },
+    ];
+    const cards = [
+      { id:'vc_title', type:'title', x:CX-360, y:60, w:720, h:120,
+        text:'Value Canvas — Agentic Claims Triage',
+        subtitle:'Who gains, why it matters to them, how we measure it, and when the value lands' },
+      hub,
+      ...S.map(s => ({ id:s.id, type:'stakeholder', x:s.x, y:s.y, w:260, h:210,
+        text:s.name, role:s.role, valueWhy:s.why, valueMeasure:s.measure, valueWhen:s.when })),
+    ];
+    const anchorsFor = (s) => {
+      const dx = (s.x + 130) - CX, dy = (s.y + 105) - CY;
+      const horiz = Math.abs(dx) > Math.abs(dy);
+      return horiz
+        ? { fromAnchor: dx > 0 ? 'right' : 'left', toAnchor: dx > 0 ? 'left' : 'right' }
+        : { fromAnchor: dy > 0 ? 'bottom' : 'top', toAnchor: dy > 0 ? 'top' : 'bottom' };
+    };
+    const connections = S.map((s, i) => ({ id:'vcc'+(i+1), from:'vc_hub', to:s.id, ...anchorsFor(s) }));
+    return {
+      canvasType:'valuecanvas',
+      lanes:[],
+      prompts:[
+        {id:'vcp1', category:'Use case', text:'In one sentence, what does this use case actually do — and for whom?', notes:'Put the agent\'s job in plain language. If it takes two sentences, the scope is too wide.'},
+        {id:'vcp2', category:'Stakeholders', text:'Who is materially affected by this use case — including the people who have to govern or support it?', notes:'Push past the obvious two. Sponsors, second line, platform teams and end customers all hold value.'},
+        {id:'vcp3', category:'Why valuable', text:'For each stakeholder, why would they personally care? What gets better in their week?', notes:'Value stated in their language, not ours. "Fewer tickets" beats "improved efficiency".'},
+        {id:'vcp4', category:'Measure', text:'How will we know the value landed — what number moves, and from what baseline?', notes:'One or two measures per stakeholder. If nobody owns the baseline, the measure is fiction.'},
+        {id:'vcp5', category:'Timing', text:'When does each stakeholder realistically realise the value — weeks, months, or after scale?', notes:'Separate pilot-stage value from at-scale value. Sequencing sets expectations.'},
+      ],
+      cards,
+      connections,
+      view:{x:60, y:40, scale:.52},
+    };
+  },
+
 };
+
