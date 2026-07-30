@@ -208,12 +208,20 @@ export function initInteractions() {
       y: pt.y - def.h / 2,
       text: promptText || presetText || def.text,
     };
+    // Carry across any extra structured defaults (value canvas, objectives, initiatives…)
+    Object.entries(def).forEach(([k, v]) => {
+      if (['text', 'w', 'h', 'emoji'].includes(k)) return;
+      if (card[k] === undefined) card[k] = v;
+    });
     if (promptCategory) card.category = promptCategory;
     if (color) card.color = color;
     if (emoji) card.emoji = emoji;
     else if (type === 'emotion' && def.emoji) card.emoji = def.emoji;
     addCard(card);
+    // On a value canvas, a new stakeholder auto-links to the central use case
+    if (type === 'stakeholder') linkStakeholderToHub();
   });
+
 
   // Card mousedown
   cardsLayer.addEventListener('mousedown', e => {
