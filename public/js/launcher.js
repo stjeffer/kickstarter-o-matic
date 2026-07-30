@@ -91,7 +91,7 @@ function previewFor(key, ct){ return LS_PREVIEWS[ct] || LS_PREVIEWS[key] || LS_P
 const LS_MODES = [
   // Templates
   {key:'frontier',   cat:'templates', kind:'template', title:'Frontier Action Plan', desc:'5-stage arc — future, cluster, objectives, initiatives, plan.', badge:'Multi-stage', badgeKind:'multi', ct:'backcast'},
-  {key:'backcast',   cat:'templates', kind:'template', title:'Future-State Backcast', desc:'Right-to-left "what had to be true" for responsible AI.', ct:'backcast'},
+
   {key:'sample',     cat:'templates', kind:'template', title:'Discovery Sample', desc:'A populated example showcasing the full canvas.', ct:'whiteboard'},
   {key:'ideation',   cat:'templates', kind:'template', title:'Ideation / Brainstorm', desc:'Diverge fast with colour-coded stickies.', ct:'whiteboard'},
   {key:'empathy',    cat:'templates', kind:'template', title:'Empathy Map', desc:'Says / thinks / does / feels — pre-laid.', ct:'empathy'},
@@ -114,7 +114,7 @@ const LS_MODES = [
 ];
 
 
-const LS_FEATURED_KEYS = ['frontier','backcast','ideation','process','ct:matrix2x2','__blank'];
+const LS_FEATURED_KEYS = ['valuecanvas','frontier','ideation','process','ct:matrix2x2','__blank'];
 const LS_CATS = [
   {key:'featured', label:'Featured'},
   {key:'templates', label:'Templates'},
@@ -190,6 +190,10 @@ export function initLauncher(){
       if(q && !(m.title.toLowerCase().includes(q) || m.desc.toLowerCase().includes(q))) return false;
       return true;
     });
+    if(currentCat==='featured'){
+      list.sort((a,b)=>LS_FEATURED_KEYS.indexOf(a.key)-LS_FEATURED_KEYS.indexOf(b.key));
+    }
+
     countEl.textContent = `${list.length} option${list.length===1?'':'s'}`;
     grid.innerHTML = list.map(m=>{
       const kindBadge = m.kind==='template'
