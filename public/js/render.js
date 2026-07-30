@@ -552,7 +552,30 @@ function buildCardEl(c) {
         <span class="ini-tag impact">Impact ${imp}/5</span>
       </div>
     `;
+  } else if (c.type === 'valuehub') {
+    if (c.w) body.style.width = c.w + 'px';
+    body.innerHTML = `
+      <div class="vh-kicker">Use case</div>
+      <div class="vh-title" data-field="text">${escapeHtml(c.text || 'Use case')}</div>
+      <div class="vh-sum" data-field="summary">${escapeHtml(c.summary || '')}</div>
+    `;
+  } else if (c.type === 'stakeholder') {
+    if (c.w) body.style.width = c.w + 'px';
+    const initials = (c.text || '?').trim().split(/\s+/).slice(0, 2).map(w => w[0]).join('').toUpperCase();
+    body.innerHTML = `
+      <div class="sh-head">
+        <span class="sh-avatar">${escapeHtml(initials)}</span>
+        <span class="sh-names">
+          <span class="sh-name" data-field="text">${escapeHtml(c.text || 'Stakeholder')}</span>
+          <span class="sh-role" data-field="role">${escapeHtml(c.role || '')}</span>
+        </span>
+      </div>
+      <div class="sh-row"><span class="sh-lbl">Value</span><span class="sh-val" data-field="valueWhy">${escapeHtml(c.valueWhy || '—')}</span></div>
+      <div class="sh-row"><span class="sh-lbl">Measure</span><span class="sh-val" data-field="valueMeasure">${escapeHtml(c.valueMeasure || '—')}</span></div>
+      <div class="sh-row"><span class="sh-lbl">When</span><span class="sh-val" data-field="valueWhen">${escapeHtml(c.valueWhen || '—')}</span></div>
+    `;
   } else if (isText) {
+
     body.textContent = c.text;
     body.style.whiteSpace = 'pre-wrap';
   } else {
