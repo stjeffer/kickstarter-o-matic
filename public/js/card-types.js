@@ -23,6 +23,9 @@ function titleIcon(){return svgTag('<rect x="3" y="7" width="30" height="16" rx=
 function groupIcon(){return svgTag('<rect x="4" y="6" width="28" height="18" rx="4" fill="none" stroke="#0a84ff" stroke-width="1.5" stroke-dasharray="3 2"/><rect x="8" y="11" width="6" height="6" rx="1" fill="#0a84ff" opacity=".35"/><rect x="16" y="11" width="6" height="6" rx="1" fill="#0a84ff" opacity=".55"/><rect x="24" y="14" width="5" height="5" rx="1" fill="#0a84ff" opacity=".75"/>')}
 function objectiveIcon(){return svgTag('<rect x="4" y="5" width="28" height="20" rx="3" fill="#fff" stroke="#5856d6" stroke-width="1.3"/><rect x="4" y="5" width="3" height="20" fill="#5856d6"/><line x1="10" y1="11" x2="28" y2="11" stroke="#5856d6" stroke-width="1.8" stroke-linecap="round"/><line x1="10" y1="16" x2="24" y2="16" stroke="#c9c6ea" stroke-width="1.4" stroke-linecap="round"/><line x1="10" y1="20" x2="20" y2="20" stroke="#c9c6ea" stroke-width="1.4" stroke-linecap="round"/>')}
 function initiativeIcon(){return svgTag('<rect x="4" y="7" width="28" height="16" rx="2" fill="#fff" stroke="#ff9500" stroke-width="1.3"/><rect x="4" y="7" width="28" height="3" fill="#ff9500"/><circle cx="10" cy="17" r="2" fill="#ff9500"/><line x1="15" y1="17" x2="28" y2="17" stroke="#f0d9b8" stroke-width="1.4" stroke-linecap="round"/>')}
+function valuehubIcon(){return svgTag('<circle cx="18" cy="15" r="12" fill="none" stroke="#00a3a3" stroke-width="1" stroke-dasharray="3 2"/><rect x="8" y="10" width="20" height="10" rx="3" fill="#e6fafa" stroke="#00a3a3" stroke-width="1.4"/><circle cx="18" cy="3.5" r="2.4" fill="#00a3a3"/><circle cx="18" cy="26.5" r="2.4" fill="#00a3a3"/><circle cx="4.5" cy="15" r="2.4" fill="#00a3a3"/><circle cx="31.5" cy="15" r="2.4" fill="#00a3a3"/>')}
+function stakeholderIcon(){return svgTag('<rect x="3" y="5" width="30" height="20" rx="4" fill="#fff" stroke="#00a3a3" stroke-width="1.3"/><rect x="3" y="5" width="3" height="20" fill="#00a3a3"/><circle cx="12" cy="12" r="3" fill="#00a3a3" opacity=".65"/><line x1="18" y1="11" x2="29" y2="11" stroke="#9fdcdc" stroke-width="1.4" stroke-linecap="round"/><line x1="9" y1="19" x2="29" y2="19" stroke="#9fdcdc" stroke-width="1.4" stroke-linecap="round"/><line x1="9" y1="22.5" x2="24" y2="22.5" stroke="#cceded" stroke-width="1.4" stroke-linecap="round"/>')}
+
 
 export const CARD_TYPES = {
   // Sticky notes
@@ -54,4 +57,8 @@ export const CARD_TYPES = {
   group:      { group:'Workflow',     label:'Group',     icon:groupIcon,     defaults:{ text:'Group name', w:340, h:220, color:'#0a84ff' } },
   objective:  { group:'Workflow',     label:'Objective', icon:objectiveIcon, defaults:{ text:'Objective title', why:'Why this matters', measure:'How we know it worked', w:300, h:170 } },
   initiative: { group:'Workflow',     label:'Initiative',icon:initiativeIcon,defaults:{ text:'Initiative name', hypothesis:'We believe … so that …', owner:'Owner', effort:'M', impact:3, horizon:'now', w:230, h:130 } },
+  // Value canvas primitives
+  valuehub:    { group:'Value Canvas', label:'Use Case',    icon:valuehubIcon,    defaults:{ text:'Use case name', summary:'What the use case actually does', w:320, h:170 } },
+  stakeholder: { group:'Value Canvas', label:'Stakeholder', icon:stakeholderIcon, defaults:{ text:'Stakeholder name', role:'Role / team', valueWhy:'Why this is valuable to them', valueMeasure:'How the value is measured', valueWhen:'When they realise it', w:260, h:210 } },
 };
+
