@@ -23,6 +23,22 @@ export function getToolMode() { return toolMode; }
 export function setToolMode(mode) { toolMode = mode; }
 
 // ============ Value canvas ============
+function connectCards(a, b) {
+  if (!a || !b) return;
+  const exists = state.connections.some(k =>
+    (k.from === a.id && k.to === b.id) || (k.from === b.id && k.to === a.id));
+  if (exists) return;
+  const as = getCardSize(a), bs = getCardSize(b);
+  const dx = (b.x + bs.w / 2) - (a.x + as.w / 2);
+  const dy = (b.y + bs.h / 2) - (a.y + as.h / 2);
+  const horiz = Math.abs(dx) > Math.abs(dy);
+  const fromAnchor = horiz ? (dx > 0 ? 'right' : 'left') : (dy > 0 ? 'bottom' : 'top');
+  const toAnchor = horiz ? (dx > 0 ? 'left' : 'right') : (dy > 0 ? 'top' : 'bottom');
+  state.connections.push({ id: 'vc' + Date.now() + Math.random().toString(36).slice(2, 6), from: a.id, to: b.id, fromAnchor, toAnchor });
+  renderConnections();
+  save();
+}
+
 // Connect the most recently added stakeholder card to the central use-case hub.
 export function linkStakeholderToHub(stakeholderId) {
   const hub = state.cards.find(c => c.type === 'valuehub');
@@ -30,20 +46,31 @@ export function linkStakeholderToHub(stakeholderId) {
   const sh = stakeholderId
     ? state.cards.find(c => c.id === stakeholderId)
     : [...state.cards].reverse().find(c => c.type === 'stakeholder');
-  if (!sh) return;
-  const exists = state.connections.some(k =>
-    (k.from === hub.id && k.to === sh.id) || (k.from === sh.id && k.to === hub.id));
-  if (exists) return;
-  const hs = getCardSize(hub), ss = getCardSize(sh);
-  const dx = (sh.x + ss.w / 2) - (hub.x + hs.w / 2);
-  const dy = (sh.y + ss.h / 2) - (hub.y + hs.h / 2);
-  const horiz = Math.abs(dx) > Math.abs(dy);
-  const fromAnchor = horiz ? (dx > 0 ? 'right' : 'left') : (dy > 0 ? 'bottom' : 'top');
-  const toAnchor = horiz ? (dx > 0 ? 'left' : 'right') : (dy > 0 ? 'top' : 'bottom');
-  state.connections.push({ id: 'vc' + Date.now() + Math.random().toString(36).slice(2, 6), from: hub.id, to: sh.id, fromAnchor, toAnchor });
-  renderConnections();
+  connectCards(hub, sh);
+}
+
+// Connect a second-degree stakeholder to the nearest primary stakeholder.
+export function linkSecondDegree(cardId) {
+  const sh2 = cardId
+    ? state.cards.find(c => c.id === cardId)
+    : [...state.cards].reverse().find(c => c.type === 'stakeholder2');
+  if (!sh2) return;
+  const primaries = state.cards.filter(c => c.type === 'stakeholder');
+  if (!primaries.length) { linkStakeholderToHub(sh2.id); return; }
+  const s2s = getCardSize(sh2);
+  const cx = sh2.x + s2s.w / 2, cy = sh2.y + s2s.h / 2;
+  let best = null, bestD = Infinity;
+  primaries.forEach(p => {
+    const ps = getCardSize(p);
+    const d = Math.hypot((p.x + ps.w / 2) - cx, (p.y + ps.h / 2) - cy);
+    if (d < bestD) { bestD = d; best = p; }
+  });
+  sh2.linkedTo = best.id;
+  connectCards(best, sh2);
+  renderCards();
   save();
 }
+
 
 
 // ============ Resize ============
@@ -244,6 +271,8 @@ export function initInteractions() {
     addCard(card);
     // On a value canvas, a new stakeholder auto-links to the central use case
     if (type === 'stakeholder') linkStakeholderToHub();
+    if (type === 'stakeholder2') linkSecondDegree();
+
   });
 
 

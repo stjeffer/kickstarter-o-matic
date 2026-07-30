@@ -559,14 +559,17 @@ function buildCardEl(c) {
       <div class="vh-title" data-field="text">${escapeHtml(c.text || 'Use case')}</div>
       <div class="vh-sum" data-field="summary">${escapeHtml(c.summary || '')}</div>
     `;
-  } else if (c.type === 'stakeholder') {
+  } else if (c.type === 'stakeholder' || c.type === 'stakeholder2') {
     if (c.w) body.style.width = c.w + 'px';
     const initials = (c.text || '?').trim().split(/\s+/).slice(0, 2).map(w => w[0]).join('').toUpperCase();
+    const second = c.type === 'stakeholder2';
+    const parent = second && c.linkedTo ? state.cards.find(x => x.id === c.linkedTo) : null;
     body.innerHTML = `
+      ${second ? `<div class="sh-degree">2nd degree${parent ? ` · via ${escapeHtml(parent.text || '')}` : ''}</div>` : ''}
       <div class="sh-head">
         <span class="sh-avatar">${escapeHtml(initials)}</span>
         <span class="sh-names">
-          <span class="sh-name" data-field="text">${escapeHtml(c.text || 'Stakeholder')}</span>
+          <span class="sh-name" data-field="text">${escapeHtml(c.text || (second ? 'Second-degree stakeholder' : 'Stakeholder'))}</span>
           <span class="sh-role" data-field="role">${escapeHtml(c.role || '')}</span>
         </span>
       </div>
@@ -574,6 +577,7 @@ function buildCardEl(c) {
       <div class="sh-row"><span class="sh-lbl">Measure</span><span class="sh-val" data-field="valueMeasure">${escapeHtml(c.valueMeasure || '—')}</span></div>
       <div class="sh-row"><span class="sh-lbl">When</span><span class="sh-val" data-field="valueWhen">${escapeHtml(c.valueWhen || '—')}</span></div>
     `;
+
   } else if (isText) {
 
     body.textContent = c.text;
@@ -637,8 +641,9 @@ export function renderConnections() {
     hit.addEventListener('click', e => { e.stopPropagation(); selectConn(conn.id); });
     const line = document.createElementNS('http://www.w3.org/2000/svg', 'path');
     line.setAttribute('d', d);
-    line.setAttribute('class', 'conn-line' + (sel ? ' selected' : ''));
+    line.setAttribute('class', 'conn-line' + (sel ? ' selected' : '') + (conn.dashed ? ' dashed' : ''));
     line.setAttribute('marker-end', sel ? 'url(#arrowSel)' : 'url(#arrow)');
+
     g.appendChild(hit); g.appendChild(line);
     connLayer.appendChild(g);
   });
@@ -701,6 +706,8 @@ export function addCard(partial) {
     valueWhy: partial.valueWhy,
     valueMeasure: partial.valueMeasure,
     valueWhen: partial.valueWhen,
+    linkedTo: partial.linkedTo,
+
     why: partial.why,
     measure: partial.measure,
     hypothesis: partial.hypothesis,

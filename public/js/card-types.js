@@ -25,6 +25,7 @@ function objectiveIcon(){return svgTag('<rect x="4" y="5" width="28" height="20"
 function initiativeIcon(){return svgTag('<rect x="4" y="7" width="28" height="16" rx="2" fill="#fff" stroke="#ff9500" stroke-width="1.3"/><rect x="4" y="7" width="28" height="3" fill="#ff9500"/><circle cx="10" cy="17" r="2" fill="#ff9500"/><line x1="15" y1="17" x2="28" y2="17" stroke="#f0d9b8" stroke-width="1.4" stroke-linecap="round"/>')}
 function valuehubIcon(){return svgTag('<circle cx="18" cy="15" r="12" fill="none" stroke="#00a3a3" stroke-width="1" stroke-dasharray="3 2"/><rect x="8" y="10" width="20" height="10" rx="3" fill="#e6fafa" stroke="#00a3a3" stroke-width="1.4"/><circle cx="18" cy="3.5" r="2.4" fill="#00a3a3"/><circle cx="18" cy="26.5" r="2.4" fill="#00a3a3"/><circle cx="4.5" cy="15" r="2.4" fill="#00a3a3"/><circle cx="31.5" cy="15" r="2.4" fill="#00a3a3"/>')}
 function stakeholderIcon(){return svgTag('<rect x="3" y="5" width="30" height="20" rx="4" fill="#fff" stroke="#00a3a3" stroke-width="1.3"/><rect x="3" y="5" width="3" height="20" fill="#00a3a3"/><circle cx="12" cy="12" r="3" fill="#00a3a3" opacity=".65"/><line x1="18" y1="11" x2="29" y2="11" stroke="#9fdcdc" stroke-width="1.4" stroke-linecap="round"/><line x1="9" y1="19" x2="29" y2="19" stroke="#9fdcdc" stroke-width="1.4" stroke-linecap="round"/><line x1="9" y1="22.5" x2="24" y2="22.5" stroke="#cceded" stroke-width="1.4" stroke-linecap="round"/>')}
+function stakeholder2Icon(){return svgTag('<rect x="6" y="7" width="26" height="17" rx="4" fill="#fff" stroke="#5cc2c2" stroke-width="1.2" stroke-dasharray="3 2"/><rect x="6" y="7" width="2.5" height="17" fill="#5cc2c2"/><circle cx="14" cy="13" r="2.6" fill="#5cc2c2" opacity=".55"/><line x1="19" y1="12.5" x2="28" y2="12.5" stroke="#b6e4e4" stroke-width="1.3" stroke-linecap="round"/><line x1="11" y1="19" x2="28" y2="19" stroke="#cceded" stroke-width="1.3" stroke-linecap="round"/><path d="M2 15 H6" stroke="#5cc2c2" stroke-width="1.3" stroke-linecap="round"/><circle cx="2" cy="15" r="1.6" fill="#00a3a3"/>')}
 
 
 export const CARD_TYPES = {
@@ -60,5 +61,7 @@ export const CARD_TYPES = {
   // Value canvas primitives
   valuehub:    { group:'Value Canvas', label:'Use Case',    icon:valuehubIcon,    defaults:{ text:'Use case name', summary:'What the use case actually does', w:320, h:170 } },
   stakeholder: { group:'Value Canvas', label:'Stakeholder', icon:stakeholderIcon, defaults:{ text:'Stakeholder name', role:'Role / team', valueWhy:'Why this is valuable to them', valueMeasure:'How the value is measured', valueWhen:'When they realise it', w:260, h:210 } },
+  stakeholder2:{ group:'Value Canvas', label:'2nd-degree',  icon:stakeholder2Icon,defaults:{ text:'Second-degree stakeholder', role:'Role / team', valueWhy:'Value they inherit via the primary stakeholder', valueMeasure:'How that knock-on value is measured', valueWhen:'When it reaches them', w:240, h:200 } },
+
 };
 
